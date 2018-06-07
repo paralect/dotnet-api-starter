@@ -1,0 +1,76 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+#Visual Studio files
+.vs/
+[Bb]in/
+[Oo]bj/
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+*.opensdf
+*.unsuccessfulbuild
+ipch/
+[Ss]ource/*/[Bb]in
+[Oo]bj
+[Dd]ebug*/
+*.esent/
+[Rr]elease*/
+Ankh.NoLoad
+
+#Tooling
+_ReSharper*/
+*.resharper
+[Tt]est[Rr]esult*
+
+#Project files
+[Bb]uild/
+
+#Subversion files
+.svn
+
+# Office Temp Files
+~$*
+
+#NuGet
+packages/
+
+#Others
+*.VisualState.xml
+StyleCop.Cache
+PrecompiledWeb
+*.LDF
+*.ldf
+*.mdf
+*~
+*.cache
+*.user
+*.tmp
+*.swx
+*.Publish.xml
+*.dbproj.schemaview
+*.vs10x
+*.docstates
+[Ll]ogs/
+[Oo]utput/
+
+#VS profiler files
+*.psess
+*.vsp
