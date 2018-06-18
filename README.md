@@ -31,3 +31,25 @@ Our initial idea is to reuse everything except REST api. Things we use for Node.
 3. [Deployment automation](https://github.com/paralect/ship/tree/master/deploy/app) with Docker & Ansible. 
 4. [CI automation](https://github.com/paralect/ship/tree/master/deploy/drone-ci) using Drone CI (we might use other CI if this won't work)
 5. [.NET project srtart via single command](https://github.com/paralect/docker-compose-starter). We plan to use self-hosted API service to being able to run it within Docker. 
+
+## How to set it up
+
+In order to make Paralct.Ship work with this API server on Windows some changes in files are needed to be made.
+
+1. docker-compose.yml:
+- Add named volume "mongodata" (This will allow to save data even if container is removed)
+- For mongo service replace "- /var/run/docker.sock:/var/run/docker.sock" with "- mongodata:/data/db" (The path /var/run/docker.sock does not exist on Windows)
+- Remove api service entirely (.Net API server starts separately)
+
+2. web/src/server/config/environment/development.js:
+- Change jwt secret setting to "jwt_secret128bits" (in .Net it needs to be more than 127 bist long)
+- For the apiUrl setting replace "localhost" with "host.docker.internal" (https://docs.docker.com/docker-for-windows/networking/#use-cases-and-workarounds)
+- Add new setting "apiUrlLocal: 'http://localhost:3001',". It is used for browser requests to API
+	
+3. web/src/server/config/routes.js:
+- At line 19 add new line with "apiUrlLocal: config.apiUrlLocal"
+
+4. web/src/client/helpers/api/api.client.js:
+- At the line 42 change "window.config.apiUrl" to "window.config.apiUrlLocal"
+
+After all changes are made, run "docker-compose up" to build and run Ship. IIS is used to run .Net API server.
