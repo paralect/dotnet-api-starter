@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Api.Core.Abstract;
-using Api.DAL.Repositories;
+using Api.Dal.Repositories;
 using Api.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
