@@ -1,0 +1,19 @@
+version: '3.6'
+
+services:
+  api:
+    container_name: ship_api
+    image: api
+    build:
+      context: .
+      dockerfile: app/Api/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3001
+    networks:
+     - ship
+networks:
+  ship:
+    name: ship_network

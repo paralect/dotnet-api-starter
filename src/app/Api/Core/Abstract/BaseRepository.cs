@@ -1,4 +1,4 @@
-﻿using Api.DAL;
+﻿using Api.Dal;
 using Api.Settings;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace Api.DAL.Repositories
+namespace Api.Dal.Repositories
 {
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
