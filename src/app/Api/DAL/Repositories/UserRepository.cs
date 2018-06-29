@@ -14,15 +14,15 @@ namespace Api.Dal.Repositories
 {
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
-        public UserRepository(IOptions<DbSettings> settings)
-            : base(settings, dbContext => dbContext.Users)
+        public UserRepository(IMongoDbContext context)
+            : base(context)
         { }
 
         public async Task<IEnumerable<User>> GetAllUsers()
         {
             try
             {
-                return await _context.Users.AsQueryable().ToListAsync();
+                return await _collection.AsQueryable().ToListAsync();
             }
             catch (Exception ex)
             {

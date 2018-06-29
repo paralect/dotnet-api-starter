@@ -15,13 +15,13 @@ namespace Api.Core.Abstract
     public abstract class BaseRepository<TModel> : IRepository<TModel> 
         where TModel : BaseModel
     {
-        protected readonly DbContext _context = null;
+        protected readonly IMongoDbContext _context = null;
         protected readonly IMongoCollection<TModel> _collection = null;
 
-        public BaseRepository(IOptions<DbSettings> settings, Func<DbContext, IMongoCollection<TModel>> collectionProvider)
+        public BaseRepository(IMongoDbContext context)
         {
-            _context = new DbContext(settings);
-            _collection = collectionProvider(_context);
+            _context = context;
+            _collection = _context.GetCollection<TModel>();
         }
 
         public async Task Insert(TModel model)

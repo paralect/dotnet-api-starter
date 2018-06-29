@@ -6,29 +6,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Api.Core.Abstract;
+using Api.Core.Utils;
 
 namespace Api.Dal
 {
-    public class DbContext
+    public class MongoDbContext : IMongoDbContext
     {
-        private readonly IMongoDatabase _database = null;
+        protected readonly IMongoDatabase _database = null;
 
-        public DbContext(IOptions<DbSettings> settings)
+        public MongoDbContext(IOptions<DbSettings> settings)
         {
             var client = new MongoClient(settings.Value.ConnectionString);
+
             if (client != null)
                 _database = client.GetDatabase(settings.Value.Database);
-
         }
+        
 
-        public IMongoCollection<User> Users
+        public IMongoCollection<TModel> GetCollection<TModel>()
         {
-            get { return _database.GetCollection<User>(AppConstants.DbDocuments.Users); }
-        }
-
-        public IMongoCollection<TModel> GetCollection<TModel>(string name)
-        {
-            return _database.GetCollection<TModel>(name);
+            return _database.GetCollection<TModel>(ReflectionUtils.GetMongoCollectionName(typeof(TModel)));
         }
     }
 }

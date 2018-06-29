@@ -122,7 +122,7 @@ namespace Api.Controllers
             User user = _userRepository.FindOne(x => x.Email == model.Email);
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Email = $"Couldn't find account associated with ${model.Email}. Please try again." }));
+                return BadRequest(GetErrorsModel(new { Email = $"Couldn't find account associated with {model.Email}. Please try again." }));
             }
 
             string resetPasswordToken = SecurityUtils.GenerateSecureToken();

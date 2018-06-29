@@ -1,4 +1,5 @@
 ﻿using Api.Core.Abstract;
+using Api.Core.Abstract.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Api.Core.Models.User
 {
+    [MongoCollectionName("users")]
     public class User : BaseModel
     {
         public DateTime CreatedOn { get; set; }

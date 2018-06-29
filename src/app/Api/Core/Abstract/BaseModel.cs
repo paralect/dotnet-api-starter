@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Core.Abstract
 {
-    public class BaseModel
+    public abstract class BaseModel
     {
         [BsonId]
         public ObjectId Id { get; set; }

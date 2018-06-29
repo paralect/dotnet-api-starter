@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Api.Settings.Json;
+using Api.Dal;
 
 namespace Api
 {
@@ -126,10 +127,12 @@ namespace Api
         private void ConfigureDI(IServiceCollection services)
         {
             services.AddTransient<IUserRepository, UserRepository>();
+
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
 
+            services.AddTransient<IMongoDbContext, MongoDbContext>();
         }
     }
 }
