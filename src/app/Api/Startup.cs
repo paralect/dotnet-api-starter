@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Api.Core.Abstract;
 using Api.Dal.Repositories;
 using Api.Settings;
@@ -12,28 +8,22 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Api.Core.Services;
-using System.Diagnostics;
-using System.IO;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Api.Settings.Json;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace Api
 {
     public class Startup
     {
         private readonly IConfiguration _configuration;
-        private readonly IHostingEnvironment _environment;
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            _environment = environment;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -56,7 +46,7 @@ namespace Api
             });
 
             services.AddMvc()
-                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver());
+                .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver());
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services.AddAuthentication(options =>
@@ -92,14 +82,27 @@ namespace Api
             services.Configure<MvcOptions>(options =>
             {
                 options.Filters.Add(new ProducesAttribute("application / json"));
-                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowSpecificOrigin"));
+                // options.Filters.Add(new CorsAuthorizationFilterFactory("AllowSpecificOrigin")); TODO replace
+                options.EnableEndpointRouting = false;
             });
 
             Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -129,7 +132,6 @@ namespace Api
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
-
         }
     }
 }

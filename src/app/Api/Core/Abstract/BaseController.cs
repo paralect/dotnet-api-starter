@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MongoDB.Bson;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Api.Core.Abstract
 {
-    public abstract class BaseController : Controller
+    [ApiController]
+    [Route("[controller]")]
+    public abstract class BaseController : ControllerBase
     {
         protected ObjectId CurrentUserId
         {

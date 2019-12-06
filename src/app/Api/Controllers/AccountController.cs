@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Api.Core.Abstract;
 using Api.Core.Models.User;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Api.Core.Utils;
 using Microsoft.Extensions.Options;
 using Api.Settings;
-using System.Web;
-using System.Collections.Specialized;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Api.Controllers
 {
@@ -23,14 +17,14 @@ namespace Api.Controllers
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
-        private readonly IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
 
         public AccountController(IUserRepository userRepository, 
             IEmailService emailService, 
             IUserService userService, 
             IAuthService authService,
-            IHostingEnvironment environment,
+            IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings)
         {
             _userRepository = userRepository;
@@ -42,8 +36,8 @@ namespace Api.Controllers
             _appSettings = appSettings.Value;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Signup([FromBody]SignupModel model)
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUpAsync([FromBody]SignupModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,16 +58,16 @@ namespace Api.Controllers
             }
             return Ok();
         }
-        
-        [HttpGet("[controller]/[action]/{signupToken}")]
-        public async Task<IActionResult> VerifyEmail(string signupToken)
+
+        [HttpGet("verifyEmail/{token}")]
+        public async Task<IActionResult> VerifyEmail(string token)
         {
-            if (signupToken == null)
+            if (token == null)
             {
                 return BadRequest("Token is required.");
             }
 
-            User user = _userRepository.FindOne(x => x.SignupToken == signupToken);
+            User user = _userRepository.FindOne(x => x.SignupToken == token);
             if (user == null)
             {
                 return BadRequest(GetErrorsModel(new { Token = "Token is invalid." }));
@@ -86,7 +80,7 @@ namespace Api.Controllers
             return Redirect($"{_appSettings.WebUrl}?token={authToken}&emailVerification=true");
         }
 
-        [HttpPost]
+        [HttpPost("signin")]
         public IActionResult Signin([FromBody]SigninModel model)
         {
             if (!ModelState.IsValid)
@@ -111,8 +105,8 @@ namespace Api.Controllers
             return Ok(new { token });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ForgotPassword([FromBody]ForgotPasswordModel model)
+        [HttpPost("forgotPassword")]
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -133,8 +127,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordModel model)
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -153,7 +147,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
+        [HttpPost("resendVerification")]
         public IActionResult ResendVerification([FromBody]ResendVerificationModel model)
         {
             if (!ModelState.IsValid)

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Api.Core.Abstract;
 using Api.Models.User;
 using Api.Core.Models.User;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
@@ -25,7 +21,7 @@ namespace Api.Controllers
             _userService = userService;
         }
 
-        [HttpGet("[controller]/current")]
+        [HttpGet("current")]
         public IActionResult GetCurrent()
         {
             ObjectId userId = CurrentUserId;
@@ -47,8 +43,8 @@ namespace Api.Controllers
             });
         }
 
-        [HttpPut("[controller]/current")]
-        public async Task<IActionResult> UpdateCurrent([FromBody]UpdateCurrentModel model)
+        [HttpPut("current")]
+        public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
         {
             ObjectId userId = CurrentUserId;
             if (userId == ObjectId.Empty)
