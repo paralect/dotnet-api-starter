@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Abstract;
-using Api.Core.Models.User;
+using Api.Core.DbViews.User;
+using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.App;
+using Api.Core.Settings;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
 using Api.Core.Utils;
 using Microsoft.Extensions.Options;
-using Api.Settings;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -44,7 +45,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userRepository.FindOne(x => x.Email == model.Email);
             if (user != null)
             {
                 return BadRequest(GetErrorsModel(new { Email = "User with this email is already registered." }));
@@ -56,6 +57,7 @@ namespace Api.Controllers
             {
                 return Ok(new { _signupToken = user.SignupToken });
             }
+
             return Ok();
         }
 
@@ -67,17 +69,20 @@ namespace Api.Controllers
                 return BadRequest("Token is required.");
             }
 
-            User user = _userRepository.FindOne(x => x.SignupToken == token);
+            var user = _userRepository.FindOne(x => x.SignupToken == token);
             if (user == null)
             {
                 return BadRequest(GetErrorsModel(new { Token = "Token is invalid." }));
             }
 
-            await _userService.MarkEmailAsVerified(user.Id);
+            await Task.WhenAll(
+                _userService.MarkEmailAsVerified(user.Id)
+                //_authService.SetTokens(user.Id)
+            );
 
             string authToken = _authService.CreateAuthToken(user.Id);
             
-            return Redirect($"{_appSettings.WebUrl}?token={authToken}&emailVerification=true");
+            return Redirect(_appSettings.WebUrl);
         }
 
         [HttpPost("signin")]
@@ -100,7 +105,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Email = "Please verify your email to sign in." }));
             }
 
-            string token = _authService.CreateAuthToken(user.Id);
+            var token = _authService.CreateAuthToken(user.Id);
 
             return Ok(new { token });
         }
@@ -163,6 +168,5 @@ namespace Api.Controllers
 
             return Ok();
         }
-
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Abstract;
+using Api.Core.DbViews.User;
+using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.App;
 using Api.Models.User;
-using Api.Core.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

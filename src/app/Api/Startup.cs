@@ -1,17 +1,18 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
-using Api.Core.Abstract;
-using Api.Dal.Repositories;
-using Api.Settings;
+using Api.Core.DAL.Repositories;
+using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.App;
+using Api.Core.Services.App;
+using Api.Core.Settings;
+using Api.Core.Settings.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Api.Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using Api.Settings.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 

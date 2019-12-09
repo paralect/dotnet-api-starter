@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Api.Core.Utils
 {
@@ -19,19 +18,12 @@ namespace Api.Core.Utils
 
         public static string GetHash(this string str)
         {
-            byte[] hash;
-            byte[] data = Encoding.UTF8.GetBytes($"{str[0]}{str.Substring(1, str.Length - 1)}");
-
-            using (SHA256 shaM = new SHA256Managed())
-            {
-                hash = shaM.ComputeHash(data);
-            }
-            return BytesToString(hash);
+            return BCrypt.Net.BCrypt.HashPassword(str, 10);
         }
 
         public static bool IsHashEqual(this string str, string hash)
         {
-            return string.Compare(str.GetHash(), hash, StringComparison.Ordinal) == 0;
+            return BCrypt.Net.BCrypt.Verify(str, hash);
         }
 
         public static string BytesToString(byte[] data)
