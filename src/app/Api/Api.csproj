@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\Services\Infrastructure\Models\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

@@ -5,9 +5,9 @@ namespace Api.Core.Utils
 {
     public static class SecurityUtils
     {
-        public static string GenerateSecureToken()
+        public static string GenerateSecureToken(int tokenLength = 48)
         {
-            byte[] buf = new byte[48];
+            byte[] buf = new byte[tokenLength];
             using (var rngCsp = new RNGCryptoServiceProvider())
             {
                 rngCsp.GetBytes(buf);

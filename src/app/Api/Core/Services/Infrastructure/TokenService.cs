@@ -1,11 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Api.Core.DbViews.Token;
+using Api.Core.Enums;
+using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.Infrastructure;
+using Api.Core.Settings;
+using Api.Core.Utils;
 
 namespace Api.Core.Services.Infrastructure
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
+        private readonly ITokenRepository _tokenRepository;
+        private readonly AppSettings _appSettings;
+
+        public TokenService(ITokenRepository tokenRepository, AppSettings appSettings)
+        {
+            _tokenRepository = tokenRepository;
+            _appSettings = appSettings;
+        }
+
+        public async Task<List<Token>> CreateAuthTokens(string userId)
+        {
+            var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+            var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+
+            var tokens = new List<Token>
+            {
+                new Token
+                {
+                    Type = TokenTypeEnum.Access,
+                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_appSettings.AccessTokenExpiresInHours),
+                    UserId = userId,
+                    Value = accessTokenValue
+                },
+                new Token
+                {
+                    Type = TokenTypeEnum.Refresh,
+                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_appSettings.RefreshTokenExpiresInHours),
+                    UserId = userId,
+                    Value = refreshTokenValue
+                }
+            };
+
+            await _tokenRepository.InsertMany(tokens);
+
+            return tokens;
+        }
+
+        public string GetUserIdByToken(string tokenValue)
+        {
+            var token = _tokenRepository.FindOne(t => t.Value == tokenValue);
+
+            return token.UserId;
+        }
+
+        public async Task RemoveTokens(List<string> tokenValues)
+        {
+            await _tokenRepository.DeleteMany(t => tokenValues.Contains(t.Value));
+        }
     }
 }

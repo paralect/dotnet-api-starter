@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -27,6 +28,19 @@ namespace Api.Core.DAL
             try
             {
                 await _collection.InsertOneAsync(model);
+            }
+            catch (Exception ex)
+            {
+                // TODO: log
+                throw ex;
+            }
+        }
+
+        public async Task InsertMany(IEnumerable<TModel> models)
+        {
+            try
+            {
+                await _collection.InsertManyAsync(models);
             }
             catch (Exception ex)
             {
@@ -99,6 +113,19 @@ namespace Api.Core.DAL
             {
                 UpdateResult actionResult = await _collection.UpdateOneAsync(filter, update);
                 return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
+            }
+            catch (Exception ex)
+            {
+                // TODO: log
+                throw ex;
+            }
+        }
+
+        public async Task DeleteMany(Expression<Func<TModel, bool>> deleteExpression)
+        {
+            try
+            {
+                await _collection.DeleteManyAsync(deleteExpression);
             }
             catch (Exception ex)
             {

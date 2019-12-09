@@ -3,7 +3,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Api.Core.DAL.Repositories;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
+using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.App;
+using Api.Core.Services.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Settings.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -129,10 +131,14 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
-            services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
+
+            services.AddTransient<ITokenService, TokenService>();
+
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<ITokenRepository, TokenRepository>();
         }
     }
 }
