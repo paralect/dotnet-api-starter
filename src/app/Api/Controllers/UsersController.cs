@@ -4,7 +4,6 @@ using Api.Models.User;
 using Api.Core.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 
 namespace Api.Controllers
 {
@@ -24,8 +23,8 @@ namespace Api.Controllers
         [HttpGet("current")]
         public IActionResult GetCurrent()
         {
-            ObjectId userId = CurrentUserId;
-            if (userId == ObjectId.Empty)
+            var userId = CurrentUserId;
+            if (string.IsNullOrEmpty(userId))
             {
                 return BadRequest("User not found.");
             }
@@ -35,7 +34,6 @@ namespace Api.Controllers
             return Ok(new
             {
                 user.Id,
-                user.CreatedOn,
                 user.FirstName,
                 user.LastName,
                 user.Email,
@@ -46,8 +44,8 @@ namespace Api.Controllers
         [HttpPut("current")]
         public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
         {
-            ObjectId userId = CurrentUserId;
-            if (userId == ObjectId.Empty)
+            var userId = CurrentUserId;
+            if (string.IsNullOrEmpty(userId))
             {
                 return BadRequest("User not found.");
             }
@@ -68,7 +66,6 @@ namespace Api.Controllers
             return Ok(new
             {
                 userId,
-                user.CreatedOn,
                 model.FirstName,
                 model.LastName,
                 model.Email,

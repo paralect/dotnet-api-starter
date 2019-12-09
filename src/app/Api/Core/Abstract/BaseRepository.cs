@@ -1,11 +1,8 @@
 ﻿using Api.Dal;
 using Api.Settings;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -50,17 +47,12 @@ namespace Api.Core.Abstract
             }
         }
 
-        public TModel FindById(ObjectId id)
+        public TModel FindById(string id)
         {
             return FindOne(x => x.Id == id);
         }
 
-        public TModel FindById(string id)
-        {
-            return FindById(ObjectId.Parse(id));
-        }
-
-        public async Task<bool> Update(ObjectId id, Expression<Func<TModel, TModel>> updateExpression)
+        public async Task<bool> Update(string id, Expression<Func<TModel, TModel>> updateExpression)
         {
             var memberInitExpression = updateExpression.Body as MemberInitExpression;
             if (memberInitExpression == null)

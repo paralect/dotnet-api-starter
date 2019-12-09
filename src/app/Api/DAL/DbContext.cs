@@ -1,30 +1,25 @@
 ﻿using Api.Settings;
 using Api.Core.Models.User;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Api.Dal
 {
     public class DbContext
     {
-        private readonly IMongoDatabase _database = null;
+        private readonly IMongoDatabase _database;
 
         public DbContext(IOptions<DbSettings> settings)
         {
+            var conventionPack = new ConventionPack { new CamelCaseElementNameConvention() };
+            ConventionRegistry.Register("camelCase", conventionPack, t => true);
+
             var client = new MongoClient(settings.Value.ConnectionString);
-            if (client != null)
-                _database = client.GetDatabase(settings.Value.Database);
-
+            _database = client.GetDatabase(settings.Value.Database);
         }
 
-        public IMongoCollection<User> Users
-        {
-            get { return _database.GetCollection<User>(AppConstants.DbDocuments.Users); }
-        }
+        public IMongoCollection<User> Users => _database.GetCollection<User>(AppConstants.DbDocuments.Users);
 
         public IMongoCollection<TModel> GetCollection<TModel>(string name)
         {

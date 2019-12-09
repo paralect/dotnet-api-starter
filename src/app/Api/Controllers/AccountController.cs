@@ -88,9 +88,9 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userRepository.FindOne(x => x.Email == model.Email);
             if (user == null 
-                || model.Password.IsHashEqual(user.PasswordHash, user.PasswordSalt) == false)
+                || model.Password.IsHashEqual(user.PasswordHash) == false)
             {
                 return BadRequest(GetErrorsModel(new { Credentials = "Incorrect email or password." }));
             }

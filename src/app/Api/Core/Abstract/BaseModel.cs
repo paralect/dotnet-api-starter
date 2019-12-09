@@ -1,15 +1,16 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Api.Core.Abstract
 {
     public class BaseModel
     {
+        public BaseModel()
+        {
+            Id = ObjectId.GenerateNewId().ToString(); // TODO move to generator
+        }
+
         [BsonId]
-        public ObjectId Id { get; set; }
+        public string Id { get; set; }
     }
 }

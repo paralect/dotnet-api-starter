@@ -1,8 +1,4 @@
 ﻿using Api.Core.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Api.Core.Models.User
 {
@@ -10,7 +6,6 @@ namespace Api.Core.Models.User
     {
         public UserBuilder()
         {
-            data.CreatedOn = DateTime.Now;
             data.FirstName = "first_name";
             data.LastName = "last_name";
             data.SignupToken = null;
@@ -28,10 +23,9 @@ namespace Api.Core.Models.User
             return this;
         }
 
-        public UserBuilder Password(string passwordHash = "hash", string passwordSalt = "salt")
+        public UserBuilder Password(string passwordHash = "hash")
         {
             data.PasswordHash = passwordHash;
-            data.PasswordSalt = passwordSalt;
             return this;
         }
 

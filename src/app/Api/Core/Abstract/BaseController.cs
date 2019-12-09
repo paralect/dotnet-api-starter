@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using MongoDB.Bson;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,15 +9,7 @@ namespace Api.Core.Abstract
     [Route("[controller]")]
     public abstract class BaseController : ControllerBase
     {
-        protected ObjectId CurrentUserId
-        {
-            get
-            {
-                ObjectId userId = ObjectId.Empty;
-                ObjectId.TryParse(User.Claims.FirstOrDefault(x => x.Type == "id")?.Value, out userId);
-                return userId;
-            }
-        }
+        protected string CurrentUserId => User.Claims.FirstOrDefault(x => x.Type == "id")?.Value;
 
         protected virtual object GetErrorsFromModelState(ModelStateDictionary modelState)
         {

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Core.Utils
 {
@@ -20,10 +17,10 @@ namespace Api.Core.Utils
             return BytesToString(buf);
         }
 
-        public static string GetHash(this string str, string salt = "")
+        public static string GetHash(this string str)
         {
             byte[] hash;
-            byte[] data = Encoding.UTF8.GetBytes($"{str[0]}{salt}{str.Substring(1, str.Length - 1)}");
+            byte[] data = Encoding.UTF8.GetBytes($"{str[0]}{str.Substring(1, str.Length - 1)}");
 
             using (SHA256 shaM = new SHA256Managed())
             {
@@ -32,20 +29,9 @@ namespace Api.Core.Utils
             return BytesToString(hash);
         }
 
-        public static string GenerateSalt()
+        public static bool IsHashEqual(this string str, string hash)
         {
-            byte[] buf = new byte[16];
-            using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                rngCsp.GetBytes(buf);
-            }
-
-            return BytesToString(buf);
-        }
-
-        public static bool IsHashEqual(this string str, string hash, string salt = "")
-        {
-            return str.GetHash(salt).CompareTo(hash) == 0;
+            return string.Compare(str.GetHash(), hash, StringComparison.Ordinal) == 0;
         }
 
         public static string BytesToString(byte[] data)
