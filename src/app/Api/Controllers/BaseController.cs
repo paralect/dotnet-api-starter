@@ -9,7 +9,7 @@ namespace Api.Controllers
     [Route("[controller]")]
     public abstract class BaseController : ControllerBase
     {
-        protected string CurrentUserId => User.Claims.FirstOrDefault(x => x.Type == "id")?.Value;
+        protected string CurrentUserId => User.Identity.Name;
 
         protected virtual object GetErrorsFromModelState(ModelStateDictionary modelState)
         {

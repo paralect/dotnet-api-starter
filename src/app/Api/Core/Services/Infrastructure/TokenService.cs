@@ -7,6 +7,7 @@ using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
+using Microsoft.Extensions.Options;
 
 namespace Api.Core.Services.Infrastructure
 {
@@ -15,10 +16,10 @@ namespace Api.Core.Services.Infrastructure
         private readonly ITokenRepository _tokenRepository;
         private readonly AppSettings _appSettings;
 
-        public TokenService(ITokenRepository tokenRepository, AppSettings appSettings)
+        public TokenService(ITokenRepository tokenRepository, IOptions<AppSettings> appSettings)
         {
             _tokenRepository = tokenRepository;
-            _appSettings = appSettings;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<List<Token>> CreateAuthTokens(string userId)

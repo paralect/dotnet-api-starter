@@ -1,5 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Api.Core;
 using Api.Core.DbViews.User;
+using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Settings;
@@ -8,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Api.Core.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 
 namespace Api.Controllers
@@ -75,18 +80,19 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Token = "Token is invalid." }));
             }
 
+            var userId = user.Id;
+
             await Task.WhenAll(
-                _userService.MarkEmailAsVerified(user.Id)
-                //_authService.SetTokens(user.Id)
+                _userService.MarkEmailAsVerified(userId),
+                _userService.UpdateLastRequest(userId),
+                _authService.SetTokens(userId)
             );
 
-            string authToken = _authService.CreateAuthToken(user.Id);
-            
             return Redirect(_appSettings.WebUrl);
         }
 
         [HttpPost("signin")]
-        public IActionResult Signin([FromBody]SigninModel model)
+        public async Task<IActionResult> Signin([FromBody]SigninModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -94,8 +100,7 @@ namespace Api.Controllers
             }
 
             var user = _userRepository.FindOne(x => x.Email == model.Email);
-            if (user == null 
-                || model.Password.IsHashEqual(user.PasswordHash) == false)
+            if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
                 return BadRequest(GetErrorsModel(new { Credentials = "Incorrect email or password." }));
             }
@@ -105,9 +110,29 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Email = "Please verify your email to sign in." }));
             }
 
-            var token = _authService.CreateAuthToken(user.Id);
+            await _userService.UpdateLastRequest(user.Id);
 
-            return Ok(new { token });
+            var tokens = await _authService.SetTokens(user.Id);
+            var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
+            var refreshToken = tokens.Single(t => t.Type == TokenTypeEnum.Refresh);
+
+            var domain = new Uri(_appSettings.WebUrl).Host;
+
+            Response.Cookies.Append(Constants.CookieNames.AccessToken, accessToken.Value, new CookieOptions
+            {
+                HttpOnly = false,
+                Expires = accessToken.ExpireAt,
+                Domain = domain
+            });
+
+            Response.Cookies.Append(Constants.CookieNames.RefreshToken, refreshToken.Value, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = refreshToken.ExpireAt,
+                Domain = domain
+            });
+
+            return new JsonResult(new { redirectUrl =_appSettings.WebUrl });
         }
 
         [HttpPost("forgotPassword")]
@@ -118,7 +143,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userRepository.FindOne(x => x.Email == model.Email);
             if (user == null)
             {
                 return BadRequest(GetErrorsModel(new { Email = $"Couldn't find account associated with ${model.Email}. Please try again." }));

@@ -2,8 +2,9 @@
 using Api.Core.DbViews.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
+using Api.Core.Utils;
 using Api.Models.User;
-using Microsoft.AspNetCore.Authorization;
+using Api.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -25,12 +26,12 @@ namespace Api.Controllers
         public IActionResult GetCurrent()
         {
             var userId = CurrentUserId;
-            if (string.IsNullOrEmpty(userId))
+            if (userId.HasNoValue())
             {
                 return BadRequest("User not found.");
             }
             
-            User user = _userRepository.FindById(userId);
+            var user = _userRepository.FindById(userId);
 
             return Ok(new
             {

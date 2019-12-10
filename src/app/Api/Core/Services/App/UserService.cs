@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Api.Core.DbViews.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
@@ -21,6 +22,11 @@ namespace Api.Core.Services.App
         public async Task<bool> MarkEmailAsVerified(string id)
         {
             return await _userRepository.Update(id, x => new User { IsEmailVerified = true });
+        }
+
+        public async Task<bool> UpdateLastRequest(string id)
+        {
+            return await _userRepository.Update(id, x => new User { LastRequest = DateTime.UtcNow });
         }
 
         public async Task<bool> UpdateResetPasswordToken(string id, string token)
@@ -60,7 +66,9 @@ namespace Api.Core.Services.App
                 PasswordHash = hash,
                 Email = email,
                 IsEmailVerified = false,
-                SignupToken = signupToken
+                SignupToken = signupToken,
+                CreatedOn = DateTime.UtcNow,
+                UpdatedOn = DateTime.UtcNow
             };
 
             _emailService.SendSignupWelcome(newUser);

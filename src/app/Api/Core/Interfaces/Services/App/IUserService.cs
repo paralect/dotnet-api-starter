@@ -7,6 +7,8 @@ namespace Api.Core.Interfaces.Services.App
     {
         Task<bool> MarkEmailAsVerified(string id);
 
+        Task<bool> UpdateLastRequest(string id);
+
         Task<bool> UpdateResetPasswordToken(string id, string token);
 
         Task<bool> UpdatePassword(string id, string newPassword);

@@ -14,20 +14,20 @@ namespace Api.Core.DAL
     public abstract class BaseRepository<TModel> : IRepository<TModel> 
         where TModel : BaseView
     {
-        protected readonly DbContext _context = null;
-        protected readonly IMongoCollection<TModel> _collection = null;
+        protected readonly DbContext Context;
+        protected readonly IMongoCollection<TModel> Collection;
 
-        public BaseRepository(IOptions<DbSettings> settings, Func<DbContext, IMongoCollection<TModel>> collectionProvider)
+        protected BaseRepository(IOptions<DbSettings> settings, Func<DbContext, IMongoCollection<TModel>> collectionProvider)
         {
-            _context = new DbContext(settings);
-            _collection = collectionProvider(_context);
+            Context = new DbContext(settings);
+            Collection = collectionProvider(Context);
         }
 
         public async Task Insert(TModel model)
         {
             try
             {
-                await _collection.InsertOneAsync(model);
+                await Collection.InsertOneAsync(model);
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace Api.Core.DAL
         {
             try
             {
-                await _collection.InsertManyAsync(models);
+                await Collection.InsertManyAsync(models);
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace Api.Core.DAL
         {
             try
             {
-                return _collection.AsQueryable().Where(predicate).SingleOrDefault();
+                return Collection.AsQueryable().Where(predicate).SingleOrDefault();
             }
             catch (Exception ex)
             {
@@ -111,7 +111,7 @@ namespace Api.Core.DAL
 
             try
             {
-                UpdateResult actionResult = await _collection.UpdateOneAsync(filter, update);
+                UpdateResult actionResult = await Collection.UpdateOneAsync(filter, update);
                 return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace Api.Core.DAL
         {
             try
             {
-                await _collection.DeleteManyAsync(deleteExpression);
+                await Collection.DeleteManyAsync(deleteExpression);
             }
             catch (Exception ex)
             {

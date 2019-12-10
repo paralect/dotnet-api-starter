@@ -19,7 +19,7 @@ namespace Api.Core.DAL.Repositories
         {
             try
             {
-                return await _context.Users.AsQueryable().ToListAsync();
+                return await Context.Users.AsQueryable().ToListAsync();
             }
             catch (Exception ex)
             {

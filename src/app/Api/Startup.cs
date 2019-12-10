@@ -1,6 +1,4 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using Api.Core.DAL.Repositories;
+﻿using Api.Core.DAL.Repositories;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;
@@ -8,12 +6,11 @@ using Api.Core.Services.App;
 using Api.Core.Services.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Settings.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Api.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -34,8 +31,6 @@ namespace Api
             ConfigureSettings(services);
             ConfigureDI(services);
 
-            JwtSettings jwtSettings = new JwtSettings();
-            _configuration.GetSection("Jwt").Bind(jwtSettings);
             AppSettings appSettings = new AppSettings();
             _configuration.GetSection("App").Bind(appSettings);
 
@@ -51,32 +46,6 @@ namespace Api
             services.AddMvc()
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver());
 
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = false,
-                        ValidateIssuerSigningKey = false,
-
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = jwtSettings.GetSymmetricSecurityKey(),
-
-                        ClockSkew = TimeSpan.Zero // remove delay of token when expire
-                    };
-                });
-
             services.Configure<IISOptions>(options =>
             {
                 options.ForwardClientCertificate = false;
@@ -88,8 +57,6 @@ namespace Api
                 // options.Filters.Add(new CorsAuthorizationFilterFactory("AllowSpecificOrigin")); TODO replace
                 options.EnableEndpointRouting = false;
             });
-
-            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
             services.AddSwaggerGen(c =>
             {
@@ -113,7 +80,8 @@ namespace Api
 
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseAuthentication();
+            app.UseTokenAuthentication();
+            app.UseAuthorization();
 
             app.UseMvc(routes =>
             {
@@ -125,7 +93,6 @@ namespace Api
         private void ConfigureSettings(IServiceCollection services)
         {
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
-            services.Configure<JwtSettings>(options => { _configuration.GetSection("Jwt").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }
 

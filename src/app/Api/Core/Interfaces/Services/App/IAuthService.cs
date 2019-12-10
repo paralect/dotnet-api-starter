@@ -1,7 +1,11 @@
-﻿namespace Api.Core.Interfaces.Services.App
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Api.Core.DbViews.Token;
+
+namespace Api.Core.Interfaces.Services.App
 {
     public interface IAuthService
     {
-        string CreateAuthToken(string id);
+        Task<List<Token>> SetTokens(string userId);
     }
 }

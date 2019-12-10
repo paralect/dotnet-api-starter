@@ -1,4 +1,5 @@
-﻿using Api.Core.DbViews.User;
+﻿using Api.Core.DbViews.Token;
+using Api.Core.DbViews.User;
 using Api.Core.Settings;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -25,6 +26,7 @@ namespace Api.Core.DAL
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>(Constants.DbDocuments.Users);
+        public IMongoCollection<Token> Tokens => _database.GetCollection<Token>(Constants.DbDocuments.Tokens);
 
         public IMongoCollection<TModel> GetCollection<TModel>(string name)
         {
