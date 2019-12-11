@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Api.Core.DbViews.Token;
+﻿using System.Threading.Tasks;
 
 namespace Api.Core.Interfaces.Services.App
 {
     public interface IAuthService
     {
-        Task<List<Token>> SetTokens(string userId);
+        Task SetTokens(string userId);
+        Task UnsetTokens(string userId);
     }
 }

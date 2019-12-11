@@ -28,6 +28,8 @@ namespace Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
             ConfigureSettings(services);
             ConfigureDI(services);
 

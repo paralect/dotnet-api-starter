@@ -49,17 +49,5 @@ namespace Api.Core.Services.Infrastructure
 
             return tokens;
         }
-
-        public string GetUserIdByToken(string tokenValue)
-        {
-            var token = _tokenRepository.FindOne(t => t.Value == tokenValue);
-
-            return token.UserId;
-        }
-
-        public async Task RemoveTokens(List<string> tokenValues)
-        {
-            await _tokenRepository.DeleteMany(t => tokenValues.Contains(t.Value));
-        }
     }
 }

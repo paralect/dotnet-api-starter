@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Api.Core;
+﻿using System.Threading.Tasks;
 using Api.Core.DbViews.User;
-using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Settings;
@@ -12,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Api.Core.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using Api.Security;
 
 namespace Api.Controllers
 {
@@ -26,7 +22,8 @@ namespace Api.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
 
-        public AccountController(IUserRepository userRepository, 
+        public AccountController(
+            IUserRepository userRepository,
             IEmailService emailService, 
             IUserService userService, 
             IAuthService authService,
@@ -110,29 +107,21 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Email = "Please verify your email to sign in." }));
             }
 
-            await _userService.UpdateLastRequest(user.Id);
-
-            var tokens = await _authService.SetTokens(user.Id);
-            var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
-            var refreshToken = tokens.Single(t => t.Type == TokenTypeEnum.Refresh);
-
-            var domain = new Uri(_appSettings.WebUrl).Host;
-
-            Response.Cookies.Append(Constants.CookieNames.AccessToken, accessToken.Value, new CookieOptions
-            {
-                HttpOnly = false,
-                Expires = accessToken.ExpireAt,
-                Domain = domain
-            });
-
-            Response.Cookies.Append(Constants.CookieNames.RefreshToken, refreshToken.Value, new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = refreshToken.ExpireAt,
-                Domain = domain
-            });
+            await Task.WhenAll(
+                _userService.UpdateLastRequest(user.Id),
+                _authService.SetTokens(user.Id)
+            );
 
             return new JsonResult(new { redirectUrl =_appSettings.WebUrl });
+        }
+
+        [Authorize]
+        [HttpGet("logout")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await _authService.UnsetTokens(CurrentUserId);
+
+            return Ok();
         }
 
         [HttpPost("forgotPassword")]
