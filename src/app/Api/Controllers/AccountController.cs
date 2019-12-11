@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Api.Core;
 using Api.Core.DbViews.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
@@ -16,6 +17,7 @@ namespace Api.Controllers
     public class AccountController : BaseController
     {
         private readonly IUserRepository _userRepository;
+        private readonly ITokenRepository _tokenRepository;
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
@@ -24,6 +26,7 @@ namespace Api.Controllers
 
         public AccountController(
             IUserRepository userRepository,
+            ITokenRepository tokenRepository,
             IEmailService emailService, 
             IUserService userService, 
             IAuthService authService,
@@ -31,6 +34,7 @@ namespace Api.Controllers
             IOptions<AppSettings> appSettings)
         {
             _userRepository = userRepository;
+            _tokenRepository = tokenRepository;
             _emailService = emailService;
             _userService = userService;
             _authService = authService;
@@ -115,15 +119,6 @@ namespace Api.Controllers
             return new JsonResult(new { redirectUrl =_appSettings.WebUrl });
         }
 
-        [Authorize]
-        [HttpGet("logout")]
-        public async Task<IActionResult> LogoutAsync()
-        {
-            await _authService.UnsetTokens(CurrentUserId);
-
-            return Ok();
-        }
-
         [HttpPost("forgotPassword")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
@@ -179,6 +174,32 @@ namespace Api.Controllers
             {
                 _emailService.SendSignupWelcome(model.Email);
             }
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshTokenAsync()
+        {
+            var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
+            var userId = _tokenRepository.FindOne(t => t.Value == refreshToken)?.UserId;
+
+            if (userId.HasNoValue())
+            {
+                return Unauthorized();
+            }
+
+            await _authService.SetTokens(userId);
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("logout")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await _authService.UnsetTokens(CurrentUserId);
 
             return Ok();
         }
