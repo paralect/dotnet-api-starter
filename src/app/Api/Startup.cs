@@ -5,13 +5,11 @@ using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.App;
 using Api.Core.Services.Infrastructure;
 using Api.Core.Settings;
-using Api.Core.Settings.Json;
 using Api.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
@@ -45,25 +43,14 @@ namespace Api
                         .AllowAnyMethod());
             });
 
-            services.AddMvc()
-                .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver());
-
-            services.Configure<IISOptions>(options =>
-            {
-                options.ForwardClientCertificate = false;
-            });
-
-            services.Configure<MvcOptions>(options =>
-            {
-                options.Filters.Add(new ProducesAttribute("application / json"));
-                // options.Filters.Add(new CorsAuthorizationFilterFactory("AllowSpecificOrigin")); TODO replace
-                options.EnableEndpointRouting = false;
-            });
+            services.AddControllers();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
+
+            services.AddAuthorization();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -80,17 +67,18 @@ namespace Api
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseRouting();
+
             app.UseCors("AllowSpecificOrigin");
 
             app.UseTokenAuthentication();
             app.UseAuthorization();
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
         }
-
 
         private void ConfigureSettings(IServiceCollection services)
         {

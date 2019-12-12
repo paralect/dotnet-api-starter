@@ -1,8 +1,32 @@
-version: '3.4'
+version: '3.6'
 
 services:
+  mongo:
+    image: mongo:4.2
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootPassword
+    networks:
+      - ship
+    ports:
+      - "27017:27017"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   api:
-    image: ${DOCKER_REGISTRY-}api
     build:
       context: .
       dockerfile: app/Api/Dockerfile
+    networks:
+     - ship
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3001
+    volumes:
+      - "./src:/app/src"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - "mongo"
+networks:
+  ship:
+    name: ship_network
