@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Api.Core;
-using Api.Core.DbViews.User;
-using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
+using Api.Core.Interfaces.Services.Infrastructure;
+using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Settings;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
@@ -11,32 +11,30 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Api.Security;
+using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
 
 namespace Api.Controllers
 {
     public class AccountController : BaseController
     {
-        private readonly IUserRepository _userRepository;
-        private readonly ITokenRepository _tokenRepository;
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
         private readonly IAuthService _authService;
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
 
         public AccountController(
-            IUserRepository userRepository,
-            ITokenRepository tokenRepository,
-            IEmailService emailService, 
-            IUserService userService, 
+            IEmailService emailService,
+            IUserService userService,
+            ITokenService tokenService,
             IAuthService authService,
             IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings)
         {
-            _userRepository = userRepository;
-            _tokenRepository = tokenRepository;
             _emailService = emailService;
             _userService = userService;
+            _tokenService = tokenService;
             _authService = authService;
 
             _environment = environment;
@@ -51,7 +49,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            var user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userService.FindByEmail(model.Email);
             if (user != null)
             {
                 return BadRequest(GetErrorsModel(new { Email = "User with this email is already registered." }));
@@ -75,7 +73,7 @@ namespace Api.Controllers
                 return BadRequest("Token is required.");
             }
 
-            var user = _userRepository.FindOne(x => x.SignupToken == token);
+            var user = _userService.FindBySignupToken(token);
             if (user == null)
             {
                 return BadRequest(GetErrorsModel(new { Token = "Token is invalid." }));
@@ -100,7 +98,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            var user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userService.FindByEmail(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
                 return BadRequest(GetErrorsModel(new { Credentials = "Incorrect email or password." }));
@@ -127,16 +125,25 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            var user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userService.FindByEmail(model.Email);
             if (user == null)
             {
                 return BadRequest(GetErrorsModel(new { Email = $"Couldn't find account associated with ${model.Email}. Please try again." }));
             }
 
-            string resetPasswordToken = SecurityUtils.GenerateSecureToken();
-            await _userService.UpdateResetPasswordToken(user.Id, resetPasswordToken);
+            var resetPasswordToken = user.ResetPasswordToken;
+            if (resetPasswordToken.HasNoValue())
+            {
+                resetPasswordToken = SecurityUtils.GenerateSecureToken();
+                await _userService.UpdateResetPasswordToken(user.Id, resetPasswordToken);
+            }
 
-            _emailService.SendForgotPassword(resetPasswordToken);
+            _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
+            {
+                Email = user.Email,
+                ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
+                FirstName = user.FirstName
+            });
 
             return Ok();
         }
@@ -149,19 +156,18 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            User user = _userRepository.FindOne(x => x.ResetPasswordToken == model.Token);
+            var user = _userService.FindByResetPasswordToken(model.Token);
             if (user == null)
             {
                 return BadRequest(GetErrorsModel(new { Token = "Password reset link has expired or invalid." }));
             }
 
             await _userService.UpdatePassword(user.Id, model.Password);
-            await _userService.UpdateResetPasswordToken(user.Id, string.Empty);
 
             return Ok();
         }
 
-        [HttpPost("resendVerification")]
+        [HttpPost("resend")]
         public IActionResult ResendVerification([FromBody]ResendVerificationModel model)
         {
             if (!ModelState.IsValid)
@@ -169,10 +175,14 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsFromModelState(ModelState));
             }
 
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = _userService.FindByEmail(model.Email);
             if (user != null)
             {
-                _emailService.SendSignupWelcome(model.Email);
+                _emailService.SendSignupWelcome(new SignupWelcomeModel
+                {
+                    Email = model.Email,
+                    SignupToken = user.SignupToken
+                });
             }
 
             return Ok();
@@ -183,8 +193,8 @@ namespace Api.Controllers
         public async Task<IActionResult> RefreshTokenAsync()
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
-            var userId = _tokenRepository.FindOne(t => t.Value == refreshToken)?.UserId;
 
+            var userId = _tokenService.FindUserIdByToken(refreshToken);
             if (userId.HasNoValue())
             {
                 return Unauthorized();

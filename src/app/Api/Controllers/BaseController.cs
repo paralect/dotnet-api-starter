@@ -13,7 +13,7 @@ namespace Api.Controllers
 
         protected virtual object GetErrorsFromModelState(ModelStateDictionary modelState)
         {
-            Dictionary<string, string> errors = modelState.ToDictionary(x => x.Key, y => y.Value.Errors.FirstOrDefault()?.ErrorMessage);
+            var errors = modelState.ToDictionary(x => x.Key, y => y.Value.Errors.FirstOrDefault()?.ErrorMessage);
 
             return new { errors };
         }

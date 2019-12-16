@@ -1,7 +1,8 @@
 ﻿using Api.Core.Interfaces.Services.App;
+using Api.Core.Services.Infrastructure.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Api.Core.Services.App
+namespace Api.Core.Services.Infrastructure
 {
     public class EmailService : IEmailService
     {
@@ -12,14 +13,14 @@ namespace Api.Core.Services.App
             _logger = logger;
         }
 
-        public void SendForgotPassword(object data)
+        public void SendSignupWelcome(SignupWelcomeModel model)
         {
-            SendEmail("signup-welcome", data);
+            SendEmail("signup-welcome", model);
         }
 
-        public void SendSignupWelcome(object data)
+        public void SendForgotPassword(ForgotPasswordModel model)
         {
-            SendEmail("forgot-password", data);
+            SendEmail("forgot-password", model);
         }
 
         private void SendEmail(string template, object data)

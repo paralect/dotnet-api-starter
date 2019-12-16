@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Api.Core.DbViews.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
+using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Utils;
 
 namespace Api.Core.Services.App
@@ -19,34 +20,50 @@ namespace Api.Core.Services.App
             _emailService = emailService;
         }
 
-        public async Task<bool> MarkEmailAsVerified(string id)
+        public User FindByEmail(string email)
         {
-            return await _userRepository.Update(id, x => new User { IsEmailVerified = true });
+            return _userRepository.FindOne(x => x.Email == email);
         }
 
-        public async Task<bool> UpdateLastRequest(string id)
+        public User FindBySignupToken(string signupToken)
         {
-            return await _userRepository.Update(id, x => new User { LastRequest = DateTime.UtcNow });
+            return _userRepository.FindOne(x => x.SignupToken == signupToken);
         }
 
-        public async Task<bool> UpdateResetPasswordToken(string id, string token)
+        public User FindByResetPasswordToken(string resetPasswordToken)
         {
-            return await _userRepository.Update(id, x => new User { ResetPasswordToken = token });
+            return _userRepository.FindOne(x => x.ResetPasswordToken == resetPasswordToken);
         }
 
-        public async Task<bool> UpdatePassword(string id, string newPassword)
+        public async Task MarkEmailAsVerified(string id)
+        {
+            await _userRepository.Update(id, x => new User { IsEmailVerified = true });
+        }
+
+        public async Task UpdateLastRequest(string id)
+        {
+            await _userRepository.Update(id, x => new User { LastRequest = DateTime.UtcNow });
+        }
+
+        public async Task UpdateResetPasswordToken(string id, string token)
+        {
+            await _userRepository.Update(id, x => new User { ResetPasswordToken = token });
+        }
+
+        public async Task UpdatePassword(string id, string newPassword)
         {
             var hash = newPassword.GetHash();
 
-            return await _userRepository.Update(id, x => new User
+            await _userRepository.Update(id, x => new User
             {
-                PasswordHash = hash
+                PasswordHash = hash,
+                ResetPasswordToken = string.Empty
             }); 
         }
 
-        public async Task<bool> UpdateInfo(string id, string email, string firstName, string lastName)
+        public async Task UpdateInfo(string id, string email, string firstName, string lastName)
         {
-            return await _userRepository.Update(id, x => new User
+            await _userRepository.Update(id, x => new User
             {
                 Email = email,
                 FirstName = firstName,
@@ -71,7 +88,11 @@ namespace Api.Core.Services.App
                 UpdatedOn = DateTime.UtcNow
             };
 
-            _emailService.SendSignupWelcome(newUser);
+            _emailService.SendSignupWelcome(new SignupWelcomeModel
+            {
+                Email = email,
+                SignupToken = signupToken
+            });
 
             await _userRepository.Insert(newUser);
 

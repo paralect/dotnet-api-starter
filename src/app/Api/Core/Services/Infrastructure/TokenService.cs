@@ -49,5 +49,10 @@ namespace Api.Core.Services.Infrastructure
 
             return tokens;
         }
+
+        public string FindUserIdByToken(string token)
+        {
+            return _tokenRepository.FindOne(t => t.Value == token)?.UserId;
+        }
     }
 }
