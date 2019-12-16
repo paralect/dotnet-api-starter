@@ -19,8 +19,6 @@ namespace Api.Core.DbViews.User
         public string SignupToken { get; set; }
         [BsonElement("oauth")]
         public OAuthSettings OAuth { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public DateTime UpdatedOn { get; set; }
         public DateTime LastRequest { get; set; }
         public string ResetPasswordToken { get; set; }
         

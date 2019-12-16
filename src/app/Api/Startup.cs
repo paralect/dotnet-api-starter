@@ -1,4 +1,6 @@
-﻿using Api.Core.DAL.Repositories;
+﻿using Api.Core.DAL;
+using Api.Core.DAL.Repositories;
+using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;
@@ -12,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace Api
 {
@@ -26,21 +31,24 @@ namespace Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpContextAccessor();
-
             ConfigureSettings(services);
             ConfigureDI(services);
+            ConfigureDb();
 
-            AppSettings appSettings = new AppSettings();
-            _configuration.GetSection("App").Bind(appSettings);
+            services.AddHttpContextAccessor();
 
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    var appSettings = new AppSettings();
+                    _configuration.GetSection("App").Bind(appSettings);
+
                     builder
                         .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
                         .AllowAnyHeader()
-                        .AllowAnyMethod());
+                        .AllowAnyMethod();
+                });
             });
 
             services.AddControllers();
@@ -96,6 +104,20 @@ namespace Api
 
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITokenRepository, TokenRepository>();
+        }
+
+        private void ConfigureDb()
+        {
+            var conventionPack = new ConventionPack
+            {
+                new CamelCaseElementNameConvention(),
+                new EnumRepresentationConvention(BsonType.String)
+            };
+            ConventionRegistry.Register("overrides", conventionPack, t => true);
+
+            // custom serialization/deserialization to store enum Description attributes in DB
+            // TODO rewrite to apply to all enums
+            BsonSerializer.RegisterSerializer(typeof(TokenTypeEnum), new EnumSerializer<TokenTypeEnum>());
         }
     }
 }

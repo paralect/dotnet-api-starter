@@ -98,6 +98,5 @@ namespace Api.Core.Services.App
 
             return newUser;
         }
-
     }
 }
