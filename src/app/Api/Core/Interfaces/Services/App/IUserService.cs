@@ -13,14 +13,13 @@ namespace Api.Core.Interfaces.Services.App
         Task MarkEmailAsVerified(string id);
 
         Task UpdateLastRequest(string id);
-
         Task UpdateResetPasswordToken(string id, string token);
-
         Task UpdatePassword(string id, string newPassword);
-
         Task UpdateInfo(string id, string email, string firstName, string lastName);
 
         Task<User> CreateUserAccount(CreateUserModel model);
         Task<User> CreateUserAccount(CreateUserGoogleModel model);
+
+        Task EnableGoogleAuth(string id);
     }
 }

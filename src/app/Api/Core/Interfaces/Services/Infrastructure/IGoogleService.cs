@@ -1,10 +1,11 @@
-﻿using Api.Core.Services.Infrastructure.Models;
+﻿using System.Threading.Tasks;
+using Api.Core.Services.Infrastructure.Models;
 
 namespace Api.Core.Interfaces.Services.Infrastructure
 {
     public interface IGoogleService
     {
         string GetOAuthUrl();
-        GoogleAuthModel ExchangeCodeForToken(string code);
+        Task<GooglePayloadModel> ExchangeCodeForToken(string code);
     }
 }

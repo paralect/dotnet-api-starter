@@ -119,5 +119,12 @@ namespace Api.Core.Services.App
 
             return newUser;
         }
+
+        public async Task EnableGoogleAuth(string id)
+        {
+            await _userRepository.Update(
+                id,
+                u => new User {OAuth = new User.OAuthSettings {Google = true}});
+        }
     }
 }

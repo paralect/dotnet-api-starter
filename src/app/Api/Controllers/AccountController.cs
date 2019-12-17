@@ -24,6 +24,7 @@ namespace Api.Controllers
         private readonly IAuthService _authService;
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
+        private readonly IGoogleService _googleService;
 
         public AccountController(
             IEmailService emailService,
@@ -31,7 +32,8 @@ namespace Api.Controllers
             ITokenService tokenService,
             IAuthService authService,
             IWebHostEnvironment environment,
-            IOptions<AppSettings> appSettings)
+            IOptions<AppSettings> appSettings,
+            IGoogleService googleService)
         {
             _emailService = emailService;
             _userService = userService;
@@ -39,6 +41,7 @@ namespace Api.Controllers
             _authService = authService;
 
             _environment = environment;
+            _googleService = googleService;
             _appSettings = appSettings.Value;
         }
 
@@ -219,6 +222,45 @@ namespace Api.Controllers
             await _authService.UnsetTokens(CurrentUserId);
 
             return Ok();
+        }
+
+        [HttpGet("signin/google/auth")]
+        public IActionResult GetOAuthUrl()
+        {
+            var url = _googleService.GetOAuthUrl();
+            return Redirect(url);
+        }
+
+        [HttpGet("signin/google")]
+        public async Task<IActionResult> SigninGoogleWithCodeAsync([FromQuery]SigninGoogleModel model)
+        {
+            var payload = await _googleService.ExchangeCodeForToken(model.Code);
+            if (payload == null)
+            {
+                return NotFound();
+            }
+
+            var user = _userService.FindByEmail(payload.Email);
+            if (user != null && !user.OAuth.Google)
+            {
+                await _userService.EnableGoogleAuth(user.Id);
+            }
+            else
+            {
+                user = await _userService.CreateUserAccount(new CreateUserGoogleModel
+                {
+                    Email = payload.Email,
+                    FirstName = payload.GivenName,
+                    LastName = payload.FamilyName
+                });
+            }
+
+            await Task.WhenAll(
+                _userService.UpdateLastRequest(user.Id),
+                _authService.SetTokens(user.Id)
+            );
+
+            return Redirect(_appSettings.WebUrl);
         }
     }
 }

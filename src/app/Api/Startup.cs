@@ -80,6 +80,7 @@ namespace Api
             app.UseCors("AllowSpecificOrigin");
 
             app.UseTokenAuthentication();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -92,6 +93,7 @@ namespace Api
         {
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
+            services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
         }
 
         private void ConfigureDI(IServiceCollection services)

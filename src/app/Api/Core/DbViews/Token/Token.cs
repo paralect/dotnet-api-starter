@@ -9,7 +9,5 @@ namespace Api.Core.DbViews.Token
         public string Value { get; set; }
         public DateTime ExpireAt { get; set; }
         public string UserId { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public DateTime UpdatedOn { get; set; }
     }
 }
