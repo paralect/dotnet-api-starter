@@ -2,6 +2,7 @@
 using Api.Core;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;
+using Api.Core.Services.App.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Settings;
 using Api.Models.Account;
@@ -55,7 +56,13 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Email = "User with this email is already registered." }));
             }
 
-            user = await _userService.CreateUserAccount(model.Email, model.FirstName, model.LastName, model.Password);
+            user = await _userService.CreateUserAccount(new CreateUserModel
+            {
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Password = model.Password
+            });
 
             if (_environment.IsDevelopment())
             {

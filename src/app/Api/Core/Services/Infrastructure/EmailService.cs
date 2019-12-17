@@ -1,4 +1,4 @@
-﻿using Api.Core.Interfaces.Services.App;
+﻿using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.Infrastructure.Models;
 using Microsoft.Extensions.Logging;
 

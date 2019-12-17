@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Api.Core.DbViews.User;
+using Api.Core.Services.App.Models;
 
 namespace Api.Core.Interfaces.Services.App
 {
@@ -19,6 +20,7 @@ namespace Api.Core.Interfaces.Services.App
 
         Task UpdateInfo(string id, string email, string firstName, string lastName);
 
-        Task<User> CreateUserAccount(string email, string firstName, string lastName, string password);
+        Task<User> CreateUserAccount(CreateUserModel model);
+        Task<User> CreateUserAccount(CreateUserGoogleModel model);
     }
 }
