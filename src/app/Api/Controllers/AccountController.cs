@@ -48,17 +48,12 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody]SignupModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
             var user = _userService.FindByEmail(model.Email);
             if (user != null)
             {
-                return BadRequest(GetErrorsModel(new { Email = "User with this email is already registered." }));
+                return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
-
+            
             user = await _userService.CreateUserAccountAsync(new CreateUserModel
             {
                 Email = model.Email,
@@ -80,13 +75,13 @@ namespace Api.Controllers
         {
             if (token == null)
             {
-                return BadRequest("Token is required.");
+                return BadRequest("Token", "Token is required.");
             }
 
             var user = _userService.FindBySignupToken(token);
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Token = "Token is invalid." }));
+                return BadRequest("Token", "Token is invalid.");
             }
 
             var userId = user.Id;
@@ -103,20 +98,15 @@ namespace Api.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SigninAsync([FromBody]SigninModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
             var user = _userService.FindByEmail(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
-                return BadRequest(GetErrorsModel(new { Credentials = "Incorrect email or password." }));
+                return BadRequest("Credentials", "Incorrect email or password.");
             }
 
             if (user.IsEmailVerified == false)
             {
-                return BadRequest(GetErrorsModel(new { Email = "Please verify your email to sign in." }));
+                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
             }
 
             await Task.WhenAll(
@@ -130,15 +120,10 @@ namespace Api.Controllers
         [HttpPost("forgotPassword")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
             var user = _userService.FindByEmail(model.Email);
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Email = $"Couldn't find account associated with ${model.Email}. Please try again." }));
+                return BadRequest(nameof(model.Email), $"Couldn't find account associated with ${model.Email}. Please try again.");
             }
 
             var resetPasswordToken = user.ResetPasswordToken;
@@ -161,15 +146,10 @@ namespace Api.Controllers
         [HttpPost("resetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
             var user = _userService.FindByResetPasswordToken(model.Token);
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Token = "Password reset link has expired or invalid." }));
+                return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
             }
 
             await _userService.UpdatePasswordAsync(user.Id, model.Password);
@@ -180,11 +160,6 @@ namespace Api.Controllers
         [HttpPost("resend")]
         public IActionResult ResendVerification([FromBody]ResendVerificationModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
             var user = _userService.FindByEmail(model.Email);
             if (user != null)
             {
@@ -228,6 +203,7 @@ namespace Api.Controllers
         public IActionResult GetOAuthUrl()
         {
             var url = _googleService.GetOAuthUrl();
+
             return Redirect(url);
         }
 

@@ -7,9 +7,11 @@ using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.App;
 using Api.Core.Services.Infrastructure;
 using Api.Core.Settings;
+using Api.Core.Utils;
 using Api.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,7 +53,18 @@ namespace Api
                 });
             });
 
-            services.AddControllers();
+            services
+                .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
+                .ConfigureApiBehaviorOptions(o =>
+                {
+                    o.InvalidModelStateResponseFactory = context =>
+                    {
+                        var errors = context.ModelState.GetErrors();
+                        var result = new BadRequestObjectResult(errors);
+
+                        return result;
+                    };
+                });
 
             services.AddSwaggerGen(c =>
             {
@@ -80,7 +93,6 @@ namespace Api
             app.UseCors("AllowSpecificOrigin");
 
             app.UseTokenAuthentication();
-            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

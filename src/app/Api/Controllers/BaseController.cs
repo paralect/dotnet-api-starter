@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
@@ -10,16 +8,10 @@ namespace Api.Controllers
     {
         protected string CurrentUserId => User.Identity.Name;
 
-        protected virtual object GetErrorsFromModelState(ModelStateDictionary modelState)
+        protected BadRequestResult BadRequest(string field, string errorMessage)
         {
-            var errors = modelState.ToDictionary(x => x.Key, y => y.Value.Errors.FirstOrDefault()?.ErrorMessage);
-
-            return new { errors };
-        }
-
-        protected virtual object GetErrorsModel(params object[] errors)
-        {
-            return new { errors };
+            ModelState.AddModelError(field, errorMessage);
+            return BadRequest();
         }
     }
 }

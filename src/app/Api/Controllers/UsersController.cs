@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.DbViews.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
-using Api.Core.Utils;
 using Api.Models.User;
 using Api.Security;
 using Microsoft.AspNetCore.Mvc;
@@ -25,13 +23,7 @@ namespace Api.Controllers
         [HttpGet("current")]
         public IActionResult GetCurrent()
         {
-            var userId = CurrentUserId;
-            if (userId.HasNoValue())
-            {
-                return BadRequest("User not found.");
-            }
-            
-            var user = _userRepository.FindById(userId);
+            var user = _userRepository.FindById(CurrentUserId);
 
             return Ok(new
             {
@@ -49,22 +41,17 @@ namespace Api.Controllers
             var userId = CurrentUserId;
             if (string.IsNullOrEmpty(userId))
             {
-                return BadRequest("User not found.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
+                return BadRequest("UserId", "User not found.");
             }
 
             if (_userRepository.FindOne(x => x.Id != userId && x.Email == model.Email) != null)
             {
-                return BadRequest("This email is already in use.");
+                return BadRequest(nameof(model.Email), "This email is already in use.");
             }
 
             await _userService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
 
-            User user = _userRepository.FindById(userId);
+            var user = _userRepository.FindById(userId);
             return Ok(new
             {
                 userId,
