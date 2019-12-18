@@ -23,7 +23,7 @@ namespace Api.Core.DAL
             Collection = collectionProvider(Context);
         }
 
-        public async Task Insert(TModel model)
+        public async Task InsertAsync(TModel model)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace Api.Core.DAL
             }
         }
 
-        public async Task InsertMany(IEnumerable<TModel> models)
+        public async Task InsertManyAsync(IEnumerable<TModel> models)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Api.Core.DAL
             return FindOne(x => x.Id == id);
         }
 
-        public async Task<bool> Update(string id, Expression<Func<TModel, TModel>> updateExpression)
+        public async Task<bool> UpdateAsync(string id, Expression<Func<TModel, TModel>> updateExpression)
         {
             var memberInitExpression = updateExpression.Body as MemberInitExpression;
             if (memberInitExpression == null)
@@ -121,7 +121,7 @@ namespace Api.Core.DAL
             }
         }
 
-        public async Task DeleteMany(Expression<Func<TModel, bool>> deleteExpression)
+        public async Task DeleteManyAsync(Expression<Func<TModel, bool>> deleteExpression)
         {
             try
             {

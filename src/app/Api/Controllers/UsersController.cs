@@ -62,7 +62,7 @@ namespace Api.Controllers
                 return BadRequest("This email is already in use.");
             }
 
-            await _userService.UpdateInfo(userId, model.Email, model.FirstName, model.LastName);
+            await _userService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
 
             User user = _userRepository.FindById(userId);
             return Ok(new

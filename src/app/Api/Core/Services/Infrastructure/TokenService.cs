@@ -22,7 +22,7 @@ namespace Api.Core.Services.Infrastructure
             _appSettings = appSettings.Value;
         }
 
-        public async Task<List<Token>> CreateAuthTokens(string userId)
+        public async Task<List<Token>> CreateAuthTokensAsync(string userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
@@ -45,7 +45,7 @@ namespace Api.Core.Services.Infrastructure
                 }
             };
 
-            await _tokenRepository.InsertMany(tokens);
+            await _tokenRepository.InsertManyAsync(tokens);
 
             return tokens;
         }

@@ -4,7 +4,7 @@
     {
         protected T data;
 
-        public BaseBuilder()
+        protected BaseBuilder()
         {
 
         }

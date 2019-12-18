@@ -10,16 +10,16 @@ namespace Api.Core.Interfaces.Services.App
         User FindBySignupToken(string signupToken);
         User FindByResetPasswordToken(string resetPasswordToken);
 
-        Task MarkEmailAsVerified(string id);
+        Task MarkEmailAsVerifiedAsync(string id);
 
-        Task UpdateLastRequest(string id);
-        Task UpdateResetPasswordToken(string id, string token);
-        Task UpdatePassword(string id, string newPassword);
-        Task UpdateInfo(string id, string email, string firstName, string lastName);
+        Task UpdateLastRequestAsync(string id);
+        Task UpdateResetPasswordTokenAsync(string id, string token);
+        Task UpdatePasswordAsync(string id, string newPassword);
+        Task UpdateInfoAsync(string id, string email, string firstName, string lastName);
 
-        Task<User> CreateUserAccount(CreateUserModel model);
-        Task<User> CreateUserAccount(CreateUserGoogleModel model);
+        Task<User> CreateUserAccountAsync(CreateUserModel model);
+        Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
 
-        Task EnableGoogleAuth(string id);
+        Task EnableGoogleAuthAsync(string id);
     }
 }

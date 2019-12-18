@@ -37,35 +37,35 @@ namespace Api.Core.Services.App
             return _userRepository.FindOne(x => x.ResetPasswordToken == resetPasswordToken);
         }
 
-        public async Task MarkEmailAsVerified(string id)
+        public async Task MarkEmailAsVerifiedAsync(string id)
         {
-            await _userRepository.Update(id, x => new User { IsEmailVerified = true });
+            await _userRepository.UpdateAsync(id, x => new User { IsEmailVerified = true });
         }
 
-        public async Task UpdateLastRequest(string id)
+        public async Task UpdateLastRequestAsync(string id)
         {
-            await _userRepository.Update(id, x => new User { LastRequest = DateTime.UtcNow });
+            await _userRepository.UpdateAsync(id, x => new User { LastRequest = DateTime.UtcNow });
         }
 
-        public async Task UpdateResetPasswordToken(string id, string token)
+        public async Task UpdateResetPasswordTokenAsync(string id, string token)
         {
-            await _userRepository.Update(id, x => new User { ResetPasswordToken = token });
+            await _userRepository.UpdateAsync(id, x => new User { ResetPasswordToken = token });
         }
 
-        public async Task UpdatePassword(string id, string newPassword)
+        public async Task UpdatePasswordAsync(string id, string newPassword)
         {
             var hash = newPassword.GetHash();
 
-            await _userRepository.Update(id, x => new User
+            await _userRepository.UpdateAsync(id, x => new User
             {
                 PasswordHash = hash,
                 ResetPasswordToken = string.Empty
             }); 
         }
 
-        public async Task UpdateInfo(string id, string email, string firstName, string lastName)
+        public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
-            await _userRepository.Update(id, x => new User
+            await _userRepository.UpdateAsync(id, x => new User
             {
                 Email = email,
                 FirstName = firstName,
@@ -73,7 +73,7 @@ namespace Api.Core.Services.App
             });
         }
 
-        public async Task<User> CreateUserAccount(CreateUserModel model)
+        public async Task<User> CreateUserAccountAsync(CreateUserModel model)
         {
             var hash = model.Password.GetHash();
             var signupToken = SecurityUtils.GenerateSecureToken();
@@ -90,7 +90,7 @@ namespace Api.Core.Services.App
                 UpdatedOn = DateTime.UtcNow
             };
 
-            await _userRepository.Insert(newUser);
+            await _userRepository.InsertAsync(newUser);
 
             _emailService.SendSignupWelcome(new SignupWelcomeModel
             {
@@ -101,7 +101,7 @@ namespace Api.Core.Services.App
             return newUser;
         }
 
-        public async Task<User> CreateUserAccount(CreateUserGoogleModel model)
+        public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
         {
             var newUser = new User
             {
@@ -115,14 +115,14 @@ namespace Api.Core.Services.App
                 }
             };
 
-            await _userRepository.Insert(newUser);
+            await _userRepository.InsertAsync(newUser);
 
             return newUser;
         }
 
-        public async Task EnableGoogleAuth(string id)
+        public async Task EnableGoogleAuthAsync(string id)
         {
-            await _userRepository.Update(
+            await _userRepository.UpdateAsync(
                 id,
                 u => new User {OAuth = new User.OAuthSettings {Google = true}});
         }

@@ -31,9 +31,9 @@ namespace Api.Core.Services.App
             _httpContext = httpContextAccessor.HttpContext;
         }
 
-        public async Task SetTokens(string userId)
+        public async Task SetTokensAsync(string userId)
         {
-            var tokens = await _tokenService.CreateAuthTokens(userId);
+            var tokens = await _tokenService.CreateAuthTokensAsync(userId);
             var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
             var refreshToken = tokens.Single(t => t.Type == TokenTypeEnum.Refresh);
 
@@ -54,9 +54,9 @@ namespace Api.Core.Services.App
             });
         }
 
-        public async Task UnsetTokens(string userId)
+        public async Task UnsetTokensAsync(string userId)
         {
-            await _tokenRepository.DeleteMany(t => t.UserId == userId);
+            await _tokenRepository.DeleteManyAsync(t => t.UserId == userId);
 
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);

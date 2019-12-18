@@ -59,7 +59,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Email = "User with this email is already registered." }));
             }
 
-            user = await _userService.CreateUserAccount(new CreateUserModel
+            user = await _userService.CreateUserAccountAsync(new CreateUserModel
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
@@ -76,7 +76,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("verifyEmail/{token}")]
-        public async Task<IActionResult> VerifyEmail(string token)
+        public async Task<IActionResult> VerifyEmailAsync(string token)
         {
             if (token == null)
             {
@@ -92,16 +92,16 @@ namespace Api.Controllers
             var userId = user.Id;
 
             await Task.WhenAll(
-                _userService.MarkEmailAsVerified(userId),
-                _userService.UpdateLastRequest(userId),
-                _authService.SetTokens(userId)
+                _userService.MarkEmailAsVerifiedAsync(userId),
+                _userService.UpdateLastRequestAsync(userId),
+                _authService.SetTokensAsync(userId)
             );
 
             return Redirect(_appSettings.WebUrl);
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> Signin([FromBody]SigninModel model)
+        public async Task<IActionResult> SigninAsync([FromBody]SigninModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -120,8 +120,8 @@ namespace Api.Controllers
             }
 
             await Task.WhenAll(
-                _userService.UpdateLastRequest(user.Id),
-                _authService.SetTokens(user.Id)
+                _userService.UpdateLastRequestAsync(user.Id),
+                _authService.SetTokensAsync(user.Id)
             );
 
             return new JsonResult(new { redirectUrl =_appSettings.WebUrl });
@@ -145,7 +145,7 @@ namespace Api.Controllers
             if (resetPasswordToken.HasNoValue())
             {
                 resetPasswordToken = SecurityUtils.GenerateSecureToken();
-                await _userService.UpdateResetPasswordToken(user.Id, resetPasswordToken);
+                await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
             _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
@@ -172,7 +172,7 @@ namespace Api.Controllers
                 return BadRequest(GetErrorsModel(new { Token = "Password reset link has expired or invalid." }));
             }
 
-            await _userService.UpdatePassword(user.Id, model.Password);
+            await _userService.UpdatePasswordAsync(user.Id, model.Password);
 
             return Ok();
         }
@@ -210,7 +210,7 @@ namespace Api.Controllers
                 return Unauthorized();
             }
 
-            await _authService.SetTokens(userId);
+            await _authService.SetTokensAsync(userId);
 
             return Ok();
         }
@@ -219,7 +219,7 @@ namespace Api.Controllers
         [HttpGet("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            await _authService.UnsetTokens(CurrentUserId);
+            await _authService.UnsetTokensAsync(CurrentUserId);
 
             return Ok();
         }
@@ -234,7 +234,7 @@ namespace Api.Controllers
         [HttpGet("signin/google")]
         public async Task<IActionResult> SigninGoogleWithCodeAsync([FromQuery]SigninGoogleModel model)
         {
-            var payload = await _googleService.ExchangeCodeForToken(model.Code);
+            var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
             if (payload == null)
             {
                 return NotFound();
@@ -243,11 +243,11 @@ namespace Api.Controllers
             var user = _userService.FindByEmail(payload.Email);
             if (user != null && !user.OAuth.Google)
             {
-                await _userService.EnableGoogleAuth(user.Id);
+                await _userService.EnableGoogleAuthAsync(user.Id);
             }
             else
             {
-                user = await _userService.CreateUserAccount(new CreateUserGoogleModel
+                user = await _userService.CreateUserAccountAsync(new CreateUserGoogleModel
                 {
                     Email = payload.Email,
                     FirstName = payload.GivenName,
@@ -256,8 +256,8 @@ namespace Api.Controllers
             }
 
             await Task.WhenAll(
-                _userService.UpdateLastRequest(user.Id),
-                _authService.SetTokens(user.Id)
+                _userService.UpdateLastRequestAsync(user.Id),
+                _authService.SetTokensAsync(user.Id)
             );
 
             return Redirect(_appSettings.WebUrl);

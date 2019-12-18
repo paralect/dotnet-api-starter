@@ -6,6 +6,6 @@ namespace Api.Core.Interfaces.Services.Infrastructure
     public interface IGoogleService
     {
         string GetOAuthUrl();
-        Task<GooglePayloadModel> ExchangeCodeForToken(string code);
+        Task<GooglePayloadModel> ExchangeCodeForTokenAsync(string code);
     }
 }
