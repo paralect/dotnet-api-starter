@@ -5,8 +5,8 @@ namespace Api.Core.DAL.Repositories
 {
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
-        public UserRepository(DbContext context)
-            : base(context, dbContext => dbContext.Users)
+        public UserRepository(IDbContext context, IIdGenerator idGenerator)
+            : base(context, idGenerator, dbContext => dbContext.Users)
         { }
     }
 }

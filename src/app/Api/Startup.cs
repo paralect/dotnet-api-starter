@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Api.Core;
 using Api.Core.DAL;
@@ -27,6 +26,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using IIdGenerator = Api.Core.Interfaces.DAL.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
@@ -127,6 +127,10 @@ namespace Api
 
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITokenRepository, TokenRepository>();
+
+            services.AddTransient<IDbContext, DbContext>();
+
+            services.AddTransient<IIdGenerator, IdGenerator>();
         }
 
         private void ConfigureDb(IServiceCollection services)
@@ -143,8 +147,6 @@ namespace Api
             BsonSerializer.RegisterSerializer(typeof(TokenTypeEnum), new EnumSerializer<TokenTypeEnum>());
 
             InitializeCollections(services);
-
-            services.AddTransient<DbContext>();
         }
 
         private void InitializeCollections(IServiceCollection services)

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Api.Core.DAL.Views;
 using Api.Core.Interfaces.DAL;
+using Api.Core.Utils;
 using MongoDB.Driver;
 
 namespace Api.Core.DAL
@@ -12,19 +13,26 @@ namespace Api.Core.DAL
     public abstract class BaseRepository<TModel> : IRepository<TModel> 
         where TModel : BaseView
     {
-        protected readonly DbContext Context;
+        protected readonly IDbContext DbContext;
+        protected readonly IIdGenerator IdGenerator;
         protected readonly IMongoCollection<TModel> Collection;
 
-        protected BaseRepository(DbContext dbContext, Func<DbContext, IMongoCollection<TModel>> collectionProvider)
+        protected BaseRepository(IDbContext dbContext, IIdGenerator idGenerator, Func<IDbContext, IMongoCollection<TModel>> collectionProvider)
         {
-            Context = dbContext;
-            Collection = collectionProvider(Context);
+            DbContext = dbContext;
+            IdGenerator = idGenerator;
+            Collection = collectionProvider(DbContext);
         }
 
         public async Task InsertAsync(TModel model)
         {
             try
             {
+                if (model.Id.HasNoValue())
+                {
+                    model.Id = IdGenerator.Generate();
+                }
+
                 await Collection.InsertOneAsync(model);
             }
             catch (Exception ex)
@@ -38,7 +46,17 @@ namespace Api.Core.DAL
         {
             try
             {
-                await Collection.InsertManyAsync(models);
+                var modelsToInsert = models.Select(m =>
+                {
+                    if (m.Id.HasNoValue())
+                    {
+                        m.Id = IdGenerator.Generate();
+                    }
+
+                    return m;
+                }).ToList();
+
+                await Collection.InsertManyAsync(modelsToInsert);
             }
             catch (Exception ex)
             {

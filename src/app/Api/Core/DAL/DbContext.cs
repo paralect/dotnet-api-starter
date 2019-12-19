@@ -1,10 +1,11 @@
 ﻿using Api.Core.DAL.Views.Token;
 using Api.Core.DAL.Views.User;
+using Api.Core.Interfaces.DAL;
 using MongoDB.Driver;
 
 namespace Api.Core.DAL
 {
-    public class DbContext
+    public class DbContext : IDbContext
     {
         public DbContext(IMongoCollection<User> users, IMongoCollection<Token> tokens)
         {
