@@ -1,4 +1,6 @@
-﻿namespace Api.Core.Utils
+﻿using System;
+
+namespace Api.Core.Utils
 {
     public static class StringExtensions
     {
@@ -10,6 +12,16 @@
         public static bool HasValue(this string value)
         {
             return !value.HasNoValue();
+        }
+
+        public static string ToCamelCase(this string value)
+        {
+            if (value.HasValue() && value.Length > 1)
+            {
+                return char.ToLowerInvariant(value[0]) + value.Substring(1);
+            }
+
+            return value;
         }
     }
 }

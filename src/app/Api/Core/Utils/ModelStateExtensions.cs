@@ -7,7 +7,7 @@ namespace Api.Core.Utils
     {
         public static object GetErrors(this ModelStateDictionary modelState)
         {
-            var errors = modelState.ToDictionary(x => x.Key, y => y.Value.Errors.FirstOrDefault()?.ErrorMessage);
+            var errors = modelState.ToDictionary(x => x.Key.ToCamelCase(), y => y.Value.Errors.FirstOrDefault()?.ErrorMessage);
 
             return new { errors };
         }
