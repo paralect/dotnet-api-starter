@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Api.Core.DbViews.Token;
+using Api.Core.DAL.Views.Token;
 using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.Infrastructure;

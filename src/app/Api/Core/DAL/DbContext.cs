@@ -1,22 +1,19 @@
-﻿using Api.Core.DbViews.Token;
-using Api.Core.DbViews.User;
-using Api.Core.Settings;
-using Microsoft.Extensions.Options;
+﻿using Api.Core.DAL.Views.Token;
+using Api.Core.DAL.Views.User;
 using MongoDB.Driver;
 
 namespace Api.Core.DAL
 {
     public class DbContext
     {
-        private readonly IMongoDatabase _database;
-
-        public DbContext(IOptions<DbSettings> settings)
+        public DbContext(IMongoCollection<User> users, IMongoCollection<Token> tokens)
         {
-            var client = new MongoClient(settings.Value.ConnectionString);
-            _database = client.GetDatabase(settings.Value.Database);
+            Users = users;
+            Tokens = tokens;
         }
 
-        public IMongoCollection<User> Users => _database.GetCollection<User>(Constants.DbDocuments.Users);
-        public IMongoCollection<Token> Tokens => _database.GetCollection<Token>(Constants.DbDocuments.Tokens);
+        public IMongoCollection<User> Users { get; }
+
+        public IMongoCollection<Token> Tokens { get; }
     }
 }

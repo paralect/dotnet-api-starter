@@ -1,7 +1,7 @@
 ﻿using System;
 using Api.Core.Enums;
 
-namespace Api.Core.DbViews.Token
+namespace Api.Core.DAL.Views.Token
 {
     public class Token : BaseView
     {

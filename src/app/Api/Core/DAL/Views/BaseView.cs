@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Api.Core.DbViews
+namespace Api.Core.DAL.Views
 {
     public class BaseView
     {

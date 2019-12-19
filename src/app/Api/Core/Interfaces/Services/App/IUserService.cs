@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.DbViews.User;
+using Api.Core.DAL.Views.User;
 using Api.Core.Services.App.Models;
 
 namespace Api.Core.Interfaces.Services.App

@@ -1,7 +1,7 @@
 ﻿using System;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Api.Core.DbViews.User
+namespace Api.Core.DAL.Views.User
 {
     public class User : BaseView
     {

@@ -1,4 +1,4 @@
-﻿using Api.Core.DbViews.User;
+﻿using Api.Core.DAL.Views.User;
 
 namespace Api.Core.Interfaces.DAL
 {

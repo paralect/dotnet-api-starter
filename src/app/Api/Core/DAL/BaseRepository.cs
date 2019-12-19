@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Core.DbViews;
+using Api.Core.DAL.Views;
 using Api.Core.Interfaces.DAL;
-using Api.Core.Settings;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace Api.Core.DAL
@@ -17,9 +15,9 @@ namespace Api.Core.DAL
         protected readonly DbContext Context;
         protected readonly IMongoCollection<TModel> Collection;
 
-        protected BaseRepository(IOptions<DbSettings> settings, Func<DbContext, IMongoCollection<TModel>> collectionProvider)
+        protected BaseRepository(DbContext dbContext, Func<DbContext, IMongoCollection<TModel>> collectionProvider)
         {
-            Context = new DbContext(settings);
+            Context = dbContext;
             Collection = collectionProvider(Context);
         }
 

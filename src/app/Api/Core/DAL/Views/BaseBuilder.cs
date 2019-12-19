@@ -1,4 +1,4 @@
-﻿namespace Api.Core.DbViews
+﻿namespace Api.Core.DAL.Views
 {
     public abstract class BaseBuilder<T>
     {

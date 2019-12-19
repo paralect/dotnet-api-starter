@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Api.Core.DbViews.User;
+using Api.Core.DAL.Views.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;

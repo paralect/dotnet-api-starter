@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Api.Core.DbViews.Token;
+using Api.Core.DAL.Views.Token;
 
 namespace Api.Core.Interfaces.Services.Infrastructure
 {

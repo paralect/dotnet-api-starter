@@ -1,4 +1,4 @@
-﻿namespace Api.Core.DbViews.User
+﻿namespace Api.Core.DAL.Views.User
 {
     public class UserBuilder : BaseBuilder<User>
     {
