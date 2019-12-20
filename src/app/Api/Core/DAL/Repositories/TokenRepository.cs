@@ -20,11 +20,17 @@ namespace Api.Core.DAL.Repositories
             {
                 yield return builder.Eq(u => u.Value, filter.Value);
             }
+
+            if (filter.UserId.HasValue())
+            {
+                yield return builder.Eq(u => u.UserId, filter.UserId);
+            }
         }
     }
 
     public class TokenFilter : BaseFilter
     {
         public string Value { get; set; }
+        public string UserId { get; set; }
     }
 }

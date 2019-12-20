@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Core.DAL.Repositories;
 using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
@@ -56,7 +57,7 @@ namespace Api.Core.Services.App
 
         public async Task UnsetTokensAsync(string userId)
         {
-            await _tokenRepository.DeleteManyAsync(t => t.UserId == userId);
+            await _tokenRepository.DeleteManyAsync(new TokenFilter {UserId = userId});
 
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);

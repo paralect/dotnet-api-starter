@@ -20,6 +20,6 @@ namespace Api.Core.Interfaces.DAL
         Task UpdateOneAsync(string id, Expression<Func<TModel, object>> fieldSelector, object value);
         Task UpdateOneAsync(string id, Dictionary<Expression<Func<TModel, object>>, object> updates);
 
-        Task DeleteManyAsync(Expression<Func<TModel, bool>> deleteExpression);
+        Task DeleteManyAsync(TFilter filter);
     }
 }

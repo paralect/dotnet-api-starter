@@ -80,17 +80,9 @@ namespace Api.Core.DAL
             await Collection.UpdateOneAsync(filter, updateDefinition);
         }
 
-        public async Task DeleteManyAsync(Expression<Func<TModel, bool>> deleteExpression)
+        public async Task DeleteManyAsync(TFilter filter)
         {
-            try
-            {
-                await Collection.DeleteManyAsync(deleteExpression);
-            }
-            catch (Exception ex)
-            {
-                // TODO: log
-                throw ex;
-            }
+            await Collection.DeleteManyAsync(BuildFilterQuery(filter));
         }
 
         protected virtual IEnumerable<FilterDefinition<TModel>> GetFilterQueries(TFilter filter)
