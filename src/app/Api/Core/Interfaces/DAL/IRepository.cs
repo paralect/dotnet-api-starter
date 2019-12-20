@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Api.Core.DAL;
 using Api.Core.DAL.Views;
 
 namespace Api.Core.Interfaces.DAL
 {
-    public interface IRepository<TModel> 
+    public interface IRepository<TModel, in TFilter> 
         where TModel : BaseView
+        where TFilter : BaseFilter
     {
         Task InsertAsync(TModel model);
-
         Task InsertManyAsync(IEnumerable<TModel> models);
 
-        TModel FindOne(Func<TModel, bool> predicate);
-
-        TModel FindById(string id);
+        Task<TModel> FindOneAsync(TFilter filter);
+        Task<TModel> FindByIdAsync(string id);
 
         Task<bool> UpdateAsync(string id, Expression<Func<TModel, TModel>> updateExpression);
 

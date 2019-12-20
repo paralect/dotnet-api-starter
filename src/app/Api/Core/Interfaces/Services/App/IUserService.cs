@@ -6,20 +6,21 @@ namespace Api.Core.Interfaces.Services.App
 {
     public interface IUserService
     {
-        User FindByEmail(string email);
-        User FindBySignupToken(string signupToken);
-        User FindByResetPasswordToken(string resetPasswordToken);
+        Task<User> CreateUserAccountAsync(CreateUserModel model);
+        Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
 
-        Task MarkEmailAsVerifiedAsync(string id);
+        Task<User> FindByIdAsync(string id);
+        Task<User> FindByEmailAsync(string email);
+        Task<User> FindBySignupTokenAsync(string signupToken);
+        Task<User> FindByResetPasswordTokenAsync(string resetPasswordToken);
 
         Task UpdateLastRequestAsync(string id);
         Task UpdateResetPasswordTokenAsync(string id, string token);
         Task UpdatePasswordAsync(string id, string newPassword);
         Task UpdateInfoAsync(string id, string email, string firstName, string lastName);
-
-        Task<User> CreateUserAccountAsync(CreateUserModel model);
-        Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
-
+        Task MarkEmailAsVerifiedAsync(string id);
         Task EnableGoogleAuthAsync(string id);
+
+        Task<bool> IsEmailInUseAsync(string userIdToExclude, string email);
     }
 }

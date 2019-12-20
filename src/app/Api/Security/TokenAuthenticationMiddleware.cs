@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Api.Core;
-using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -12,12 +12,12 @@ namespace Api.Security
     public class TokenAuthenticationMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ITokenRepository _tokenRepository;
+        private readonly ITokenService _tokenService;
 
-        public TokenAuthenticationMiddleware(RequestDelegate next, ITokenRepository tokenRepository)
+        public TokenAuthenticationMiddleware(RequestDelegate next, ITokenService tokenService)
         {
             _next = next;
-            _tokenRepository = tokenRepository;
+            _tokenService = tokenService;
         }
 
         public async Task Invoke(HttpContext context)
@@ -34,7 +34,7 @@ namespace Api.Security
 
             if (accessToken.HasValue())
             {
-                var userId = _tokenRepository.FindOne(t => t.Value == accessToken)?.UserId;
+                var userId = await _tokenService.FindUserIdByTokenAsync(accessToken);
                 if (userId.HasValue())
                 {
                     // TODO query User and set user details into identity if necessary

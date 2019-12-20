@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Api.Core.DAL.Repositories;
 using Api.Core.DAL.Views.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
@@ -22,19 +23,24 @@ namespace Api.Core.Services.App
             _emailService = emailService;
         }
 
-        public User FindByEmail(string email)
+        public async Task<User> FindByIdAsync(string id)
         {
-            return _userRepository.FindOne(x => x.Email == email);
+            return await _userRepository.FindByIdAsync(id);
         }
 
-        public User FindBySignupToken(string signupToken)
+        public async Task<User> FindByEmailAsync(string email)
         {
-            return _userRepository.FindOne(x => x.SignupToken == signupToken);
+            return await _userRepository.FindOneAsync(new UserFilter { Email = email });
         }
 
-        public User FindByResetPasswordToken(string resetPasswordToken)
+        public async Task<User> FindBySignupTokenAsync(string signupToken)
         {
-            return _userRepository.FindOne(x => x.ResetPasswordToken == resetPasswordToken);
+            return await _userRepository.FindOneAsync(new UserFilter {SignupToken = signupToken});
+        }
+
+        public async Task<User> FindByResetPasswordTokenAsync(string resetPasswordToken)
+        {
+            return await _userRepository.FindOneAsync(new UserFilter {ResetPasswordToken = resetPasswordToken});
         }
 
         public async Task MarkEmailAsVerifiedAsync(string id)
@@ -125,6 +131,14 @@ namespace Api.Core.Services.App
             await _userRepository.UpdateAsync(
                 id,
                 u => new User {OAuth = new User.OAuthSettings {Google = true}});
+        }
+
+        public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)
+        {
+            var user = await _userRepository
+                .FindOneAsync(new UserFilter {UserIdToExclude = userIdToExclude, Email = email});
+
+            return user != null;
         }
     }
 }

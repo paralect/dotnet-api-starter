@@ -48,7 +48,7 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody]SignupModel model)
         {
-            var user = _userService.FindByEmail(model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
@@ -78,7 +78,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = _userService.FindBySignupToken(token);
+            var user = await _userService.FindBySignupTokenAsync(token);
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -98,7 +98,7 @@ namespace Api.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SigninAsync([FromBody]SigninModel model)
         {
-            var user = _userService.FindByEmail(model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
                 return BadRequest("Credentials", "Incorrect email or password.");
@@ -120,7 +120,7 @@ namespace Api.Controllers
         [HttpPost("forgotPassword")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
-            var user = _userService.FindByEmail(model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 return BadRequest(nameof(model.Email), $"Couldn't find account associated with ${model.Email}. Please try again.");
@@ -146,7 +146,7 @@ namespace Api.Controllers
         [HttpPost("resetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
-            var user = _userService.FindByResetPasswordToken(model.Token);
+            var user = await _userService.FindByResetPasswordTokenAsync(model.Token);
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -158,9 +158,9 @@ namespace Api.Controllers
         }
 
         [HttpPost("resend")]
-        public IActionResult ResendVerification([FromBody]ResendVerificationModel model)
+        public async Task<IActionResult> ResendVerificationAsync([FromBody]ResendVerificationModel model)
         {
-            var user = _userService.FindByEmail(model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
                 _emailService.SendSignupWelcome(new SignupWelcomeModel
@@ -179,7 +179,7 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var userId = _tokenService.FindUserIdByToken(refreshToken);
+            var userId = await _tokenService.FindUserIdByTokenAsync(refreshToken);
             if (userId.HasNoValue())
             {
                 return Unauthorized();
@@ -216,7 +216,7 @@ namespace Api.Controllers
                 return NotFound();
             }
 
-            var user = _userService.FindByEmail(payload.Email);
+            var user = await _userService.FindByEmailAsync(payload.Email);
             if (user != null && !user.OAuth.Google)
             {
                 await _userService.EnableGoogleAuthAsync(user.Id);

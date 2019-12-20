@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Core.DAL.Repositories;
 using Api.Core.DAL.Views.Token;
 using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
@@ -50,9 +51,10 @@ namespace Api.Core.Services.Infrastructure
             return tokens;
         }
 
-        public string FindUserIdByToken(string token)
+        public async Task<string> FindUserIdByTokenAsync(string tokenValue)
         {
-            return _tokenRepository.FindOne(t => t.Value == token)?.UserId;
+            var token = await _tokenRepository.FindOneAsync(new TokenFilter {Value = tokenValue});
+            return token?.UserId;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace Api.Core.Interfaces.Services.Infrastructure
     {
         Task<List<Token>> CreateAuthTokensAsync(string userId);
 
-        string FindUserIdByToken(string token);
+        Task<string> FindUserIdByTokenAsync(string tokenValue);
     }
 }

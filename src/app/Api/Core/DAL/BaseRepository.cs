@@ -10,8 +10,9 @@ using MongoDB.Driver;
 
 namespace Api.Core.DAL
 {
-    public abstract class BaseRepository<TModel> : IRepository<TModel> 
+    public abstract class BaseRepository<TModel, TFilter> : IRepository<TModel, TFilter> 
         where TModel : BaseView
+        where TFilter : BaseFilter, new()
     {
         protected readonly IDbContext DbContext;
         protected readonly IIdGenerator IdGenerator;
@@ -26,61 +27,39 @@ namespace Api.Core.DAL
 
         public async Task InsertAsync(TModel model)
         {
-            try
+            if (model.Id.HasNoValue())
             {
-                if (model.Id.HasNoValue())
-                {
-                    model.Id = IdGenerator.Generate();
-                }
+                model.Id = IdGenerator.Generate();
+            }
 
-                await Collection.InsertOneAsync(model);
-            }
-            catch (Exception ex)
-            {
-                // TODO: log
-                throw ex;
-            }
+            await Collection.InsertOneAsync(model);
         }
 
         public async Task InsertManyAsync(IEnumerable<TModel> models)
         {
-            try
+            var modelsToInsert = models.Select(m =>
             {
-                var modelsToInsert = models.Select(m =>
+                if (m.Id.HasNoValue())
                 {
-                    if (m.Id.HasNoValue())
-                    {
-                        m.Id = IdGenerator.Generate();
-                    }
+                    m.Id = IdGenerator.Generate();
+                }
 
-                    return m;
-                }).ToList();
+                return m;
+            }).ToList();
 
-                await Collection.InsertManyAsync(modelsToInsert);
-            }
-            catch (Exception ex)
-            {
-                // TODO: log
-                throw ex;
-            }
+            await Collection.InsertManyAsync(modelsToInsert);
         }
 
-        public TModel FindOne(Func<TModel, bool> predicate)
+        public async Task<TModel> FindOneAsync(TFilter filter)
         {
-            try
-            {
-                return Collection.AsQueryable().Where(predicate).SingleOrDefault();
-            }
-            catch (Exception ex)
-            {
-                // TODO: log
-                throw ex;
-            }
+            var result = await Collection.FindAsync(BuildFilterQuery(filter));
+            return result.SingleOrDefault();
         }
 
-        public TModel FindById(string id)
+        public async Task<TModel> FindByIdAsync(string id)
         {
-            return FindOne(x => x.Id == id);
+            var filter = new TFilter { Id = id };
+            return await FindOneAsync(filter);
         }
 
         public async Task<bool> UpdateAsync(string id, Expression<Func<TModel, TModel>> updateExpression)
@@ -148,6 +127,17 @@ namespace Api.Core.DAL
                 // TODO: log
                 throw ex;
             }
+        }
+
+        protected virtual IEnumerable<FilterDefinition<TModel>> GetFilterQueries(TFilter filter)
+        {
+            return new List<FilterDefinition<TModel>>();
+        }
+
+        private FilterDefinition<TModel> BuildFilterQuery(TFilter filter)
+        {
+            var filterQueries = GetFilterQueries(filter);
+            return Builders<TModel>.Filter.And(filterQueries);
         }
     }
 }
