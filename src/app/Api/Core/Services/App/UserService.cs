@@ -32,7 +32,7 @@ namespace Api.Core.Services.App
 
         public async Task<User> FindByEmailAsync(string email)
         {
-            return await _userRepository.FindOneAsync(new UserFilter { Email = email });
+            return await _userRepository.FindOneAsync(new UserFilter {Email = email});
         }
 
         public async Task<User> FindBySignupTokenAsync(string signupToken)
@@ -62,11 +62,9 @@ namespace Api.Core.Services.App
 
         public async Task UpdatePasswordAsync(string id, string newPassword)
         {
-            var hash = newPassword.GetHash();
-
             await _userRepository.UpdateOneAsync(id, new Dictionary<Expression<Func<User, object>>, object>
             {
-                {u => u.PasswordHash, hash},
+                {u => u.PasswordHash, newPassword.GetHash()},
                 {u => u.ResetPasswordToken, string.Empty}
             });
         }
@@ -83,14 +81,13 @@ namespace Api.Core.Services.App
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
         {
-            var hash = model.Password.GetHash();
             var signupToken = SecurityUtils.GenerateSecureToken();
 
             var newUser = new User
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                PasswordHash = hash,
+                PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
                 SignupToken = signupToken,

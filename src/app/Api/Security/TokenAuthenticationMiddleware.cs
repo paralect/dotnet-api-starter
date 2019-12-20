@@ -37,8 +37,6 @@ namespace Api.Security
                 var userId = await _tokenService.FindUserIdByTokenAsync(accessToken);
                 if (userId.HasValue())
                 {
-                    // TODO query User and set user details into identity if necessary
-
                     var principal = new Principal(new GenericIdentity(userId), new string[] { });
 
                     Thread.CurrentPrincipal = principal;

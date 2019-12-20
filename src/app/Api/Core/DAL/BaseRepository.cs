@@ -18,7 +18,11 @@ namespace Api.Core.DAL
         protected readonly IIdGenerator IdGenerator;
         protected readonly IMongoCollection<TModel> Collection;
 
-        protected BaseRepository(IDbContext dbContext, IIdGenerator idGenerator, Func<IDbContext, IMongoCollection<TModel>> collectionProvider)
+        protected BaseRepository(
+            IDbContext dbContext,
+            IIdGenerator idGenerator,
+            Func<IDbContext, IMongoCollection<TModel>> collectionProvider
+        )
         {
             DbContext = dbContext;
             IdGenerator = idGenerator;
@@ -74,8 +78,7 @@ namespace Api.Core.DAL
         {
             var filter = Builders<TModel>.Filter.Eq(x => x.Id, id);
             var builder = Builders<TModel>.Update;
-            var updateDefinition =
-                builder.Combine(updates.Select(u => builder.Set(u.Key, u.Value)));
+            var updateDefinition = builder.Combine(updates.Select(u => builder.Set(u.Key, u.Value)));
 
             await Collection.UpdateOneAsync(filter, updateDefinition);
         }
