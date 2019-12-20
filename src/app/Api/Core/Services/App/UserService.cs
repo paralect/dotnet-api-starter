@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Api.Core.DAL.Repositories;
 using Api.Core.DAL.Views.User;
@@ -45,37 +47,37 @@ namespace Api.Core.Services.App
 
         public async Task MarkEmailAsVerifiedAsync(string id)
         {
-            await _userRepository.UpdateAsync(id, x => new User { IsEmailVerified = true });
+            await _userRepository.UpdateOneAsync(id, u => u.IsEmailVerified,  true);
         }
 
         public async Task UpdateLastRequestAsync(string id)
         {
-            await _userRepository.UpdateAsync(id, x => new User { LastRequest = DateTime.UtcNow });
+            await _userRepository.UpdateOneAsync(id, u => u.LastRequest, DateTime.UtcNow);
         }
 
         public async Task UpdateResetPasswordTokenAsync(string id, string token)
         {
-            await _userRepository.UpdateAsync(id, x => new User { ResetPasswordToken = token });
+            await _userRepository.UpdateOneAsync(id, u => u.ResetPasswordToken, token);
         }
 
         public async Task UpdatePasswordAsync(string id, string newPassword)
         {
             var hash = newPassword.GetHash();
 
-            await _userRepository.UpdateAsync(id, x => new User
+            await _userRepository.UpdateOneAsync(id, new Dictionary<Expression<Func<User, object>>, object>
             {
-                PasswordHash = hash,
-                ResetPasswordToken = string.Empty
-            }); 
+                {u => u.PasswordHash, hash},
+                {u => u.ResetPasswordToken, string.Empty}
+            });
         }
 
         public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
-            await _userRepository.UpdateAsync(id, x => new User
+            await _userRepository.UpdateOneAsync(id, new Dictionary<Expression<Func<User, object>>, object>
             {
-                Email = email,
-                FirstName = firstName,
-                LastName = lastName
+                {u => u.Email, email},
+                {u => u.FirstName, firstName},
+                {u => u.LastName, lastName}
             });
         }
 
@@ -128,9 +130,7 @@ namespace Api.Core.Services.App
 
         public async Task EnableGoogleAuthAsync(string id)
         {
-            await _userRepository.UpdateAsync(
-                id,
-                u => new User {OAuth = new User.OAuthSettings {Google = true}});
+            await _userRepository.UpdateOneAsync(id, u => u.OAuth.Google, true);
         }
 
         public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)

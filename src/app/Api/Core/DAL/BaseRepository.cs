@@ -62,58 +62,22 @@ namespace Api.Core.DAL
             return await FindOneAsync(filter);
         }
 
-        public async Task<bool> UpdateAsync(string id, Expression<Func<TModel, TModel>> updateExpression)
+        public async Task UpdateOneAsync(string id, Expression<Func<TModel, object>> fieldSelector, object value)
         {
-            var memberInitExpression = updateExpression.Body as MemberInitExpression;
-            if (memberInitExpression == null)
-                throw new ArgumentException("The update expression must be of type MemberInitExpression.", "updateExpression");
-
-            UpdateDefinition<TModel> update = null;
-
-            foreach (MemberBinding binding in memberInitExpression.Bindings)
+            await UpdateOneAsync(id, new Dictionary<Expression<Func<TModel, object>>, object>
             {
-                string propertyName = binding.Member.Name;
+                { fieldSelector, value }
+            });
+        }
 
-                var memberAssignment = binding as MemberAssignment;
-                if (memberAssignment == null)
-                    throw new ArgumentException("The update expression MemberBinding must be of type MemberAssignment.", "updateExpression");
-
-                Expression memberExpression = memberAssignment.Expression;
-
-                object value;
-
-                if (memberExpression.NodeType == ExpressionType.Constant)
-                {
-                    var constantExpression = memberExpression as ConstantExpression;
-                    if (constantExpression == null)
-                        throw new ArgumentException("The MemberAssignment expression is not a ConstantExpression.", "updateExpression");
-
-                    value = constantExpression.Value;
-                }
-                else
-                {
-                    LambdaExpression lambda = Expression.Lambda(memberExpression, null);
-                    value = lambda.Compile().DynamicInvoke();
-                }
-
-                if (update == null)
-                    update = Builders<TModel>.Update.Set(propertyName, value);
-                else
-                    update = update.Set(propertyName, value);
-            }
-
+        public async Task UpdateOneAsync(string id, Dictionary<Expression<Func<TModel, object>>, object> updates)
+        {
             var filter = Builders<TModel>.Filter.Eq(x => x.Id, id);
+            var builder = Builders<TModel>.Update;
+            var updateDefinition =
+                builder.Combine(updates.Select(u => builder.Set(u.Key, u.Value)));
 
-            try
-            {
-                UpdateResult actionResult = await Collection.UpdateOneAsync(filter, update);
-                return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
-            }
-            catch (Exception ex)
-            {
-                // TODO: log
-                throw ex;
-            }
+            await Collection.UpdateOneAsync(filter, updateDefinition);
         }
 
         public async Task DeleteManyAsync(Expression<Func<TModel, bool>> deleteExpression)

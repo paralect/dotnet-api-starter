@@ -17,7 +17,8 @@ namespace Api.Core.Interfaces.DAL
         Task<TModel> FindOneAsync(TFilter filter);
         Task<TModel> FindByIdAsync(string id);
 
-        Task<bool> UpdateAsync(string id, Expression<Func<TModel, TModel>> updateExpression);
+        Task UpdateOneAsync(string id, Expression<Func<TModel, object>> fieldSelector, object value);
+        Task UpdateOneAsync(string id, Dictionary<Expression<Func<TModel, object>>, object> updates);
 
         Task DeleteManyAsync(Expression<Func<TModel, bool>> deleteExpression);
     }

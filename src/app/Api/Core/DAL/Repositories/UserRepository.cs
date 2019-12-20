@@ -38,7 +38,7 @@ namespace Api.Core.DAL.Repositories
 
             if (filter.UserIdToExclude.HasValue())
             {
-                yield return builder.Not(builder.Eq(u => u.ResetPasswordToken, filter.ResetPasswordToken));
+                yield return builder.Not(builder.Eq(u => u.Id, filter.UserIdToExclude));
             }
         }
     }
