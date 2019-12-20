@@ -20,9 +20,11 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "IIS": {
-      "commandName": "IIS",
-      "launchUrl": "account/signin",
+    "ApiStarter": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:3001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
