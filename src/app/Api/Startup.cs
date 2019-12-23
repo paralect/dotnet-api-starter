@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Api.Core;
-using Api.Core.DAL;
+﻿using Api.Core.DAL;
 using Api.Core.DAL.Repositories;
-using Api.Core.DAL.Views.Token;
-using Api.Core.DAL.Views.User;
-using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;
@@ -22,10 +15,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Driver;
 using IIdGenerator = Api.Core.Interfaces.DAL.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
@@ -135,84 +124,10 @@ namespace Api
 
         private void ConfigureDb(IServiceCollection services)
         {
-            var conventionPack = new ConventionPack
-            {
-                new CamelCaseElementNameConvention(),
-                new EnumRepresentationConvention(BsonType.String)
-            };
-            ConventionRegistry.Register("overrides", conventionPack, t => true);
-
-            // custom serialization/deserialization to store enum Description attributes in DB
-            // TODO rewrite to apply to all enums, if possible OR rewrite Node API to store enums as numbers
-            BsonSerializer.RegisterSerializer(typeof(TokenTypeEnum), new EnumSerializer<TokenTypeEnum>());
-
-            InitializeCollections(services);
-        }
-
-        private void InitializeCollections(IServiceCollection services)
-        {
             var dbSettings = new DbSettings();
             _configuration.GetSection("MongoConnection").Bind(dbSettings);
 
-            var client = new MongoClient(dbSettings.ConnectionString);
-            var db = client.GetDatabase(dbSettings.Database);
-
-            var schemasPath = "Core/DAL/Schemas/";
-            var collectionDescriptions = new List<CollectionDescription>
-            {
-                new CollectionDescription
-                {
-                    Name = Constants.DbDocuments.Users,
-                    DocumentType = typeof(User),
-                    SchemaPath = $"{schemasPath}UserSchema.json"
-                },
-                new CollectionDescription
-                {
-                    Name = Constants.DbDocuments.Tokens,
-                    DocumentType = typeof(Token),
-                    SchemaPath = $"{schemasPath}TokenSchema.json"
-                }
-            };
-
-            foreach (var description in collectionDescriptions)
-            {
-                // the call to CreateCollection is necessary to apply validation schema to the collection
-                if (!CollectionExists(db, description.Name))
-                {
-                    var createCollectionOptionsType = typeof(CreateCollectionOptions<>).MakeGenericType(description.DocumentType);
-                    dynamic createCollectionOptions = Activator.CreateInstance(createCollectionOptionsType);
-
-                    if (description.SchemaPath.HasValue())
-                    {
-                        var schema = File.ReadAllText(description.SchemaPath);
-                        createCollectionOptions.Validator = BsonDocument.Parse(schema);
-                    }
-
-                    db.CreateCollection(description.Name, createCollectionOptions);
-                }
-
-                var method = typeof(IMongoDatabase).GetMethod("GetCollection");
-                var generic = method.MakeGenericMethod(description.DocumentType);
-                var collection = generic.Invoke(db, new object[] { description.Name, null });
-                var collectionType = typeof(IMongoCollection<>).MakeGenericType(description.DocumentType);
-
-                services.AddSingleton(collectionType, collection);
-            }
+            services.InitializeDb(dbSettings);
         }
-
-        private bool CollectionExists(IMongoDatabase database, string collectionName)
-        {
-            var filter = new BsonDocument("name", collectionName);
-            var options = new ListCollectionNamesOptions { Filter = filter };
-
-            return database.ListCollectionNames(options).Any();
-        }
-    }
-
-    public class CollectionDescription
-    {
-        public string Name { get; set; }
-        public Type DocumentType { get; set; }
-        public string SchemaPath { get; set; }
     }
 }
