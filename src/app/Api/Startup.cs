@@ -1,10 +1,10 @@
 ﻿using Api.Core.DAL;
 using Api.Core.DAL.Repositories;
 using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Services.App;
+using Api.Core.Interfaces.Services.View;
 using Api.Core.Services.Infrastructure;
+using Api.Core.Services.View;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Security;

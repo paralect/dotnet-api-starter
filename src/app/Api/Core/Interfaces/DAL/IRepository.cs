@@ -7,18 +7,17 @@ using Api.Core.DAL.Views;
 
 namespace Api.Core.Interfaces.DAL
 {
-    public interface IRepository<TModel, in TFilter> 
-        where TModel : BaseView
+    public interface IRepository<TView, in TFilter> 
+        where TView : BaseView
         where TFilter : BaseFilter
     {
-        Task InsertAsync(TModel model);
-        Task InsertManyAsync(IEnumerable<TModel> models);
+        Task InsertAsync(TView view);
+        Task InsertManyAsync(IEnumerable<TView> views);
 
-        Task<TModel> FindOneAsync(TFilter filter);
-        Task<TModel> FindByIdAsync(string id);
+        Task<TView> FindOneAsync(TFilter filter);
 
-        Task UpdateOneAsync(string id, Expression<Func<TModel, object>> fieldSelector, object value);
-        Task UpdateOneAsync(string id, Dictionary<Expression<Func<TModel, object>>, object> updates);
+        Task UpdateOneAsync(string id, Expression<Func<TView, object>> fieldSelector, object value);
+        Task UpdateOneAsync(string id, Dictionary<Expression<Func<TView, object>>, object> updates);
 
         Task DeleteManyAsync(TFilter filter);
     }

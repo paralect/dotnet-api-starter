@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Api.Core.Interfaces.Services.App
+namespace Api.Core.Interfaces.Services.Infrastructure
 {
     public interface IAuthService
     {

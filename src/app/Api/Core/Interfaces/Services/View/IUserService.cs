@@ -1,18 +1,16 @@
 ﻿using System.Threading.Tasks;
+using Api.Core.DAL.Repositories;
 using Api.Core.DAL.Views.User;
-using Api.Core.Services.App.Models;
+using Api.Core.Services.View.Models;
 
-namespace Api.Core.Interfaces.Services.App
+namespace Api.Core.Interfaces.Services.View
 {
-    public interface IUserService
+    public interface IUserService : IViewService<User, UserFilter>
     {
         Task<User> CreateUserAccountAsync(CreateUserModel model);
         Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
 
-        Task<User> FindByIdAsync(string id);
         Task<User> FindByEmailAsync(string email);
-        Task<User> FindBySignupTokenAsync(string signupToken);
-        Task<User> FindByResetPasswordTokenAsync(string resetPasswordToken);
 
         Task UpdateLastRequestAsync(string id);
         Task UpdateResetPasswordTokenAsync(string id, string token);

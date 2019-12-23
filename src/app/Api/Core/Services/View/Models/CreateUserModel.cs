@@ -1,4 +1,4 @@
-﻿namespace Api.Core.Services.App.Models
+﻿namespace Api.Core.Services.View.Models
 {
     public class CreateUserModel
     {

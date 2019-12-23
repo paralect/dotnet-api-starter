@@ -5,44 +5,29 @@ using System.Threading.Tasks;
 using Api.Core.DAL.Repositories;
 using Api.Core.DAL.Views.User;
 using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.App;
 using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Services.App.Models;
+using Api.Core.Interfaces.Services.View;
 using Api.Core.Services.Infrastructure.Models;
+using Api.Core.Services.View.Models;
 using Api.Core.Utils;
 
-namespace Api.Core.Services.App
+namespace Api.Core.Services.View
 {
-    public class UserService : IUserService
+    public class UserService : BaseViewService<User, UserFilter>, IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
 
         public UserService(IUserRepository userRepository,
-            IEmailService emailService)
+            IEmailService emailService) : base(userRepository)
         {
             _userRepository = userRepository;
             _emailService = emailService;
         }
 
-        public async Task<User> FindByIdAsync(string id)
-        {
-            return await _userRepository.FindByIdAsync(id);
-        }
-
         public async Task<User> FindByEmailAsync(string email)
         {
-            return await _userRepository.FindOneAsync(new UserFilter {Email = email});
-        }
-
-        public async Task<User> FindBySignupTokenAsync(string signupToken)
-        {
-            return await _userRepository.FindOneAsync(new UserFilter {SignupToken = signupToken});
-        }
-
-        public async Task<User> FindByResetPasswordTokenAsync(string resetPasswordToken)
-        {
-            return await _userRepository.FindOneAsync(new UserFilter {ResetPasswordToken = resetPasswordToken});
+            return await FindOneAsync(new UserFilter { Email = email });
         }
 
         public async Task MarkEmailAsVerifiedAsync(string id)

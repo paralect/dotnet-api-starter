@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Interfaces.Services.App;
+using Api.Core.Interfaces.Services.View;
 using Api.Models.User;
 using Api.Security;
 using Microsoft.AspNetCore.Mvc;

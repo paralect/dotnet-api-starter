@@ -5,19 +5,20 @@ using Api.Core.DAL.Repositories;
 using Api.Core.DAL.Views.Token;
 using Api.Core.Enums;
 using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.Infrastructure;
+using Api.Core.Interfaces.Services.View;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Microsoft.Extensions.Options;
 
-namespace Api.Core.Services.Infrastructure
+namespace Api.Core.Services.View
 {
-    public class TokenService : ITokenService
+    public class TokenService : BaseViewService<Token, TokenFilter>, ITokenService
     {
         private readonly ITokenRepository _tokenRepository;
         private readonly AppSettings _appSettings;
 
         public TokenService(ITokenRepository tokenRepository, IOptions<AppSettings> appSettings)
+            : base(tokenRepository)
         {
             _tokenRepository = tokenRepository;
             _appSettings = appSettings.Value;
@@ -53,8 +54,13 @@ namespace Api.Core.Services.Infrastructure
 
         public async Task<string> FindUserIdByTokenAsync(string tokenValue)
         {
-            var token = await _tokenRepository.FindOneAsync(new TokenFilter {Value = tokenValue});
+            var token = await FindOneAsync(new TokenFilter { Value = tokenValue });
             return token?.UserId;
+        }
+
+        public async Task DeleteUserTokensAsync(string userId)
+        {
+            await _tokenRepository.DeleteManyAsync(new TokenFilter { UserId = userId });
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Api.Core;
-using Api.Core.Interfaces.Services.App;
+using Api.Core.DAL.Repositories;
 using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Services.App.Models;
+using Api.Core.Interfaces.Services.View;
 using Api.Core.Services.Infrastructure.Models;
+using Api.Core.Services.View.Models;
 using Api.Core.Settings;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
@@ -78,7 +79,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _userService.FindBySignupTokenAsync(token);
+            var user = await _userService.FindOneAsync(new UserFilter {SignupToken = token});
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -146,7 +147,7 @@ namespace Api.Controllers
         [HttpPost("resetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
-            var user = await _userService.FindByResetPasswordTokenAsync(model.Token);
+            var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
