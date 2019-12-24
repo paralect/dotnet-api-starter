@@ -12,7 +12,7 @@ namespace Api.Core.DAL
 {
     public abstract class BaseRepository<TView, TFilter> : IRepository<TView, TFilter> 
         where TView : BaseView
-        where TFilter : BaseFilter
+        where TFilter : BaseFilter, new()
     {
         protected readonly IDbContext DbContext;
         protected readonly IIdGenerator IdGenerator;
@@ -62,19 +62,19 @@ namespace Api.Core.DAL
 
         public async Task UpdateOneAsync(string id, Expression<Func<TView, object>> fieldSelector, object value)
         {
-            await UpdateOneAsync(id, new Dictionary<Expression<Func<TView, object>>, object>
-            {
-                { fieldSelector, value }
-            });
+            var updateDefinition = Builders<TView>.Update.Set(fieldSelector, value);
+            await Collection.UpdateOneAsync(GetFilterById(id), updateDefinition);
         }
 
-        public async Task UpdateOneAsync(string id, Dictionary<Expression<Func<TView, object>>, object> updates)
+        public async Task UpdateOneAsync(string id, Action<TView> updater)
         {
-            var filter = Builders<TView>.Filter.Eq(x => x.Id, id);
-            var builder = Builders<TView>.Update;
-            var updateDefinition = builder.Combine(updates.Select(u => builder.Set(u.Key, u.Value)));
-
-            await Collection.UpdateOneAsync(filter, updateDefinition);
+            var filter = new TFilter {Id = id};
+            var view = await FindOneAsync(filter);
+            if (view != null)
+            {
+                updater(view);
+                await Collection.ReplaceOneAsync(GetFilterById(id), view);
+            }
         }
 
         public async Task DeleteManyAsync(TFilter filter)
@@ -89,8 +89,18 @@ namespace Api.Core.DAL
 
         private FilterDefinition<TView> BuildFilterQuery(TFilter filter)
         {
-            var filterQueries = GetFilterQueries(filter);
+            var filterQueries = GetFilterQueries(filter).ToList();
+            if (filter.Id.HasValue())
+            {
+                filterQueries.Add(GetFilterById(filter.Id));
+            }
+
             return Builders<TView>.Filter.And(filterQueries);
+        }
+
+        private FilterDefinition<TView> GetFilterById(string id)
+        {
+            return Builders<TView>.Filter.Eq(v => v.Id, id);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Api.Core.Interfaces.DAL
         Task<TView> FindOneAsync(TFilter filter);
 
         Task UpdateOneAsync(string id, Expression<Func<TView, object>> fieldSelector, object value);
-        Task UpdateOneAsync(string id, Dictionary<Expression<Func<TView, object>>, object> updates);
+        Task UpdateOneAsync(string id, Action<TView> updater);
 
         Task DeleteManyAsync(TFilter filter);
     }

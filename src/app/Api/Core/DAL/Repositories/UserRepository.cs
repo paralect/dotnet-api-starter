@@ -16,11 +16,6 @@ namespace Api.Core.DAL.Repositories
         {
             var builder = Builders<User>.Filter;
 
-            if (filter.Id.HasValue())
-            {
-                yield return builder.Eq(u => u.Id, filter.Id);
-            }
-
             if (filter.Email.HasValue())
             {
                 yield return builder.Eq(u => u.Email, filter.Email);

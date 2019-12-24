@@ -47,20 +47,20 @@ namespace Api.Core.Services.View
 
         public async Task UpdatePasswordAsync(string id, string newPassword)
         {
-            await _userRepository.UpdateOneAsync(id, new Dictionary<Expression<Func<User, object>>, object>
+            await _userRepository.UpdateOneAsync(id, u =>
             {
-                {u => u.PasswordHash, newPassword.GetHash()},
-                {u => u.ResetPasswordToken, string.Empty}
+                u.PasswordHash = newPassword.GetHash();
+                u.ResetPasswordToken = string.Empty;
             });
         }
 
         public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
-            await _userRepository.UpdateOneAsync(id, new Dictionary<Expression<Func<User, object>>, object>
+            await _userRepository.UpdateOneAsync(id, u =>
             {
-                {u => u.Email, email},
-                {u => u.FirstName, firstName},
-                {u => u.LastName, lastName}
+                u.Email = email;
+                u.FirstName = firstName;
+                u.LastName = lastName;
             });
         }
 
