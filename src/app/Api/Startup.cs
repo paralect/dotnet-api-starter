@@ -1,5 +1,6 @@
 ﻿using Api.Core.DAL;
 using Api.Core.DAL.Repositories;
+using Api.Core.DAL.Views;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Interfaces.Services.View;
@@ -120,6 +121,7 @@ namespace Api
             services.AddTransient<IDbContext, DbContext>();
 
             services.AddTransient<IIdGenerator, IdGenerator>();
+            services.AddTransient(typeof(IRepositoryOptions<>), typeof(BaseRepositoryOptions<>));
         }
 
         private void ConfigureDb(IServiceCollection services)

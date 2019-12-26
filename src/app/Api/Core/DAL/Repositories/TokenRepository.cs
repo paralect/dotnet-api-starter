@@ -8,8 +8,8 @@ namespace Api.Core.DAL.Repositories
 {
     public class TokenRepository : BaseRepository<Token, TokenFilter>, ITokenRepository
     {
-        public TokenRepository(IDbContext context, IIdGenerator idGenerator)
-            : base(context, idGenerator, dbContext => dbContext.Tokens)
+        public TokenRepository(IDbContext context, IIdGenerator idGenerator, IRepositoryOptions<Token> repositoryOptions)
+            : base(context, idGenerator, dbContext => dbContext.Tokens, repositoryOptions)
         { }
 
         protected override IEnumerable<FilterDefinition<Token>> GetFilterQueries(TokenFilter filter)

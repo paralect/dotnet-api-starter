@@ -17,24 +17,26 @@ namespace Api.Core.DAL
         protected readonly IDbContext DbContext;
         protected readonly IIdGenerator IdGenerator;
         protected readonly IMongoCollection<TView> Collection;
+        protected readonly IRepositoryOptions<TView> RepositoryOptions;
 
         protected BaseRepository(
             IDbContext dbContext,
             IIdGenerator idGenerator,
-            Func<IDbContext, IMongoCollection<TView>> collectionProvider
+            Func<IDbContext, IMongoCollection<TView>> collectionProvider,
+            IRepositoryOptions<TView> repositoryOptions
         )
         {
             DbContext = dbContext;
             IdGenerator = idGenerator;
             Collection = collectionProvider(DbContext);
+            RepositoryOptions = repositoryOptions;
         }
 
         public async Task InsertAsync(TView view)
         {
-            if (view.Id.HasNoValue())
-            {
-                view.Id = IdGenerator.Generate();
-            }
+            AddId(view);
+            AddCreatedOn(view);
+            AddUpdatedOn(view);
 
             await Collection.InsertOneAsync(view);
         }
@@ -43,10 +45,8 @@ namespace Api.Core.DAL
         {
             var viewsToInsert = views.Select(v =>
             {
-                if (v.Id.HasNoValue())
-                {
-                    v.Id = IdGenerator.Generate();
-                }
+                AddId(v);
+                AddCreatedOn(v);
 
                 return v;
             }).ToList();
@@ -63,6 +63,8 @@ namespace Api.Core.DAL
         public async Task UpdateOneAsync(string id, Expression<Func<TView, object>> fieldSelector, object value)
         {
             var updateDefinition = Builders<TView>.Update.Set(fieldSelector, value);
+            AddUpdatedOn(updateDefinition);
+                
             await Collection.UpdateOneAsync(GetFilterById(id), updateDefinition);
         }
 
@@ -73,6 +75,7 @@ namespace Api.Core.DAL
             if (view != null)
             {
                 updater(view);
+                AddUpdatedOn(view);
                 await Collection.ReplaceOneAsync(GetFilterById(id), view);
             }
         }
@@ -101,6 +104,38 @@ namespace Api.Core.DAL
         private FilterDefinition<TView> GetFilterById(string id)
         {
             return Builders<TView>.Filter.Eq(v => v.Id, id);
+        }
+
+        private void AddId(TView view)
+        {
+            if (view.Id.HasNoValue())
+            {
+                view.Id = IdGenerator.Generate();
+            }
+        }
+
+        private void AddCreatedOn(TView view)
+        {
+            if (RepositoryOptions.IsAddCreatedOnField && !view.CreatedOn.HasValue)
+            {
+                view.CreatedOn = DateTime.UtcNow;
+            }
+        }
+
+        private void AddUpdatedOn(TView view)
+        {
+            if (RepositoryOptions.IsAddUpdatedOnField)
+            {
+                view.UpdatedOn = DateTime.UtcNow;
+            }
+        }
+
+        private void AddUpdatedOn(UpdateDefinition<TView> updateDefinition)
+        {
+            if (RepositoryOptions.IsAddUpdatedOnField)
+            {
+                updateDefinition.Set(v => v.UpdatedOn, DateTime.Now);
+            }
         }
     }
 }

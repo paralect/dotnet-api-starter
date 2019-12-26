@@ -8,8 +8,8 @@ namespace Api.Core.DAL.Repositories
 {
     public class UserRepository : BaseRepository<User, UserFilter>, IUserRepository
     {
-        public UserRepository(IDbContext context, IIdGenerator idGenerator)
-            : base(context, idGenerator, dbContext => dbContext.Users)
+        public UserRepository(IDbContext context, IIdGenerator idGenerator, IRepositoryOptions<User> repositoryOptions)
+            : base(context, idGenerator, dbContext => dbContext.Users, repositoryOptions)
         { }
 
         protected override IEnumerable<FilterDefinition<User>> GetFilterQueries(UserFilter filter)

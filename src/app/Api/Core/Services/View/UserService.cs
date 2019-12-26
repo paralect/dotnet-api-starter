@@ -75,9 +75,7 @@ namespace Api.Core.Services.View
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signupToken,
-                CreatedOn = DateTime.UtcNow,
-                UpdatedOn = DateTime.UtcNow
+                SignupToken = signupToken
             };
 
             await _userRepository.InsertAsync(newUser);
