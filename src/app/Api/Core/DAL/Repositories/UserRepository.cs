@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Api.Core.DAL.Views.User;
+using Api.Core.DAL.Documents.User;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Utils;
 using MongoDB.Driver;

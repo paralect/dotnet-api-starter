@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Api.Core.DAL.Documents.User;
 using Api.Core.DAL.Repositories;
-using Api.Core.DAL.Views.User;
 using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.Document;
 using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Interfaces.Services.View;
+using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.View.Models;
 using Api.Core.Utils;
 
-namespace Api.Core.Services.View
+namespace Api.Core.Services.Document
 {
-    public class UserService : BaseViewService<User, UserFilter>, IUserService
+    public class UserService : BaseDocumentService<User, UserFilter>, IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
@@ -75,9 +73,7 @@ namespace Api.Core.Services.View
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signupToken,
-                CreatedOn = DateTime.UtcNow,
-                UpdatedOn = DateTime.UtcNow
+                SignupToken = signupToken
             };
 
             await _userRepository.InsertAsync(newUser);

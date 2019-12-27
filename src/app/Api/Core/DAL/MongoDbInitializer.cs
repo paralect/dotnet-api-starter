@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Api.Core.DAL.Views.Token;
-using Api.Core.DAL.Views.User;
+using Api.Core.DAL.Documents.Token;
+using Api.Core.DAL.Documents.User;
 using Api.Core.Enums;
 using Api.Core.Settings;
 using Api.Core.Utils;

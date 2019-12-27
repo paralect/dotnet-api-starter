@@ -1,5 +1,5 @@
-﻿using Api.Core.DAL.Repositories;
-using Api.Core.DAL.Views.User;
+﻿using Api.Core.DAL.Documents.User;
+using Api.Core.DAL.Repositories;
 
 namespace Api.Core.Interfaces.DAL
 {

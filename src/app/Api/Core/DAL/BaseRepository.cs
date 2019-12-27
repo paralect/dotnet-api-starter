@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Core.DAL.Views;
+using Api.Core.DAL.Documents;
 using Api.Core.Interfaces.DAL;
 using Api.Core.Utils;
 using MongoDB.Driver;
 
 namespace Api.Core.DAL
 {
-    public abstract class BaseRepository<TView, TFilter> : IRepository<TView, TFilter> 
-        where TView : BaseView
+    public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument, TFilter> 
+        where TDocument : BaseDocument
         where TFilter : BaseFilter, new()
     {
         protected readonly IDbContext DbContext;
         protected readonly IIdGenerator IdGenerator;
-        protected readonly IMongoCollection<TView> Collection;
+        protected readonly IMongoCollection<TDocument> Collection;
 
         protected BaseRepository(
             IDbContext dbContext,
             IIdGenerator idGenerator,
-            Func<IDbContext, IMongoCollection<TView>> collectionProvider
+            Func<IDbContext, IMongoCollection<TDocument>> collectionProvider
         )
         {
             DbContext = dbContext;
@@ -29,51 +29,45 @@ namespace Api.Core.DAL
             Collection = collectionProvider(DbContext);
         }
 
-        public async Task InsertAsync(TView view)
+        public async Task InsertAsync(TDocument document)
         {
-            if (view.Id.HasNoValue())
-            {
-                view.Id = IdGenerator.Generate();
-            }
+            AddId(document);
 
-            await Collection.InsertOneAsync(view);
+            await Collection.InsertOneAsync(document);
         }
 
-        public async Task InsertManyAsync(IEnumerable<TView> views)
+        public async Task InsertManyAsync(IEnumerable<TDocument> documents)
         {
-            var viewsToInsert = views.Select(v =>
+            var documentsToInsert = documents.Select(d =>
             {
-                if (v.Id.HasNoValue())
-                {
-                    v.Id = IdGenerator.Generate();
-                }
+                AddId(d);
 
-                return v;
+                return d;
             }).ToList();
 
-            await Collection.InsertManyAsync(viewsToInsert);
+            await Collection.InsertManyAsync(documentsToInsert);
         }
 
-        public async Task<TView> FindOneAsync(TFilter filter)
+        public async Task<TDocument> FindOneAsync(TFilter filter)
         {
             var result = await Collection.FindAsync(BuildFilterQuery(filter));
             return result.SingleOrDefault();
         }
 
-        public async Task UpdateOneAsync(string id, Expression<Func<TView, object>> fieldSelector, object value)
+        public async Task UpdateOneAsync(string id, Expression<Func<TDocument, object>> fieldSelector, object value)
         {
-            var updateDefinition = Builders<TView>.Update.Set(fieldSelector, value);
+            var updateDefinition = Builders<TDocument>.Update.Set(fieldSelector, value);
             await Collection.UpdateOneAsync(GetFilterById(id), updateDefinition);
         }
 
-        public async Task UpdateOneAsync(string id, Action<TView> updater)
+        public async Task UpdateOneAsync(string id, Action<TDocument> updater)
         {
             var filter = new TFilter {Id = id};
-            var view = await FindOneAsync(filter);
-            if (view != null)
+            var document = await FindOneAsync(filter);
+            if (document != null)
             {
-                updater(view);
-                await Collection.ReplaceOneAsync(GetFilterById(id), view);
+                updater(document);
+                await Collection.ReplaceOneAsync(GetFilterById(id), document);
             }
         }
 
@@ -82,12 +76,12 @@ namespace Api.Core.DAL
             await Collection.DeleteManyAsync(BuildFilterQuery(filter));
         }
 
-        protected virtual IEnumerable<FilterDefinition<TView>> GetFilterQueries(TFilter filter)
+        protected virtual IEnumerable<FilterDefinition<TDocument>> GetFilterQueries(TFilter filter)
         {
-            return new List<FilterDefinition<TView>>();
+            return new List<FilterDefinition<TDocument>>();
         }
 
-        private FilterDefinition<TView> BuildFilterQuery(TFilter filter)
+        private FilterDefinition<TDocument> BuildFilterQuery(TFilter filter)
         {
             var filterQueries = GetFilterQueries(filter).ToList();
             if (filter.Id.HasValue())
@@ -95,12 +89,20 @@ namespace Api.Core.DAL
                 filterQueries.Add(GetFilterById(filter.Id));
             }
 
-            return Builders<TView>.Filter.And(filterQueries);
+            return Builders<TDocument>.Filter.And(filterQueries);
         }
 
-        private FilterDefinition<TView> GetFilterById(string id)
+        private FilterDefinition<TDocument> GetFilterById(string id)
         {
-            return Builders<TView>.Filter.Eq(v => v.Id, id);
+            return Builders<TDocument>.Filter.Eq(d => d.Id, id);
+        }
+
+        private void AddId(TDocument document)
+        {
+            if (document.Id.HasNoValue())
+            {
+                document.Id = IdGenerator.Generate();
+            }
         }
     }
 }

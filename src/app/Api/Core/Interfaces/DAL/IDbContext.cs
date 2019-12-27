@@ -1,5 +1,5 @@
-﻿using Api.Core.DAL.Views.Token;
-using Api.Core.DAL.Views.User;
+﻿using Api.Core.DAL.Documents.Token;
+using Api.Core.DAL.Documents.User;
 using MongoDB.Driver;
 
 namespace Api.Core.Interfaces.DAL

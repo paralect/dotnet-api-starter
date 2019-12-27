@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Core.Enums;
+using Api.Core.Interfaces.Services.Document;
 using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Interfaces.Services.View;
 using Api.Core.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;

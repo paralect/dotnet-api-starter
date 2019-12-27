@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Api.Core;
 using Api.Core.DAL.Repositories;
+using Api.Core.Interfaces.Services.Document;
 using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Interfaces.Services.View;
+using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.View.Models;
 using Api.Core.Settings;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;

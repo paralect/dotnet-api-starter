@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Api.Core;
-using Api.Core.Interfaces.Services.View;
+using Api.Core.Interfaces.Services.Document;
 using Api.Core.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
