@@ -6,8 +6,9 @@ namespace Api.Core.Interfaces.DAL
 {
     public interface IDbContext
     {
-        IMongoCollection<User> Users { get; }
+        IMongoClient Client { get; }
 
+        IMongoCollection<User> Users { get; }
         IMongoCollection<Token> Tokens { get; }
     }
 }

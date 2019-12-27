@@ -35,6 +35,8 @@ namespace Api.Core.DAL
         private static void InitializeCollections(IServiceCollection services, DbSettings dbSettings)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
+            services.AddSingleton<IMongoClient>(client);
+
             var db = client.GetDatabase(dbSettings.Database);
 
             var schemasPath = "Core/DAL/Schemas/";

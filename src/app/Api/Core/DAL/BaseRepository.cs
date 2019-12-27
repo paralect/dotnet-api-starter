@@ -62,13 +62,26 @@ namespace Api.Core.DAL
 
         public async Task UpdateOneAsync(string id, Action<TDocument> updater)
         {
-            var filter = new TFilter {Id = id};
-            var document = await FindOneAsync(filter);
-            if (document != null)
+            using var session = await DbContext.Client.StartSessionAsync();
+
+            session.StartTransaction();
+
+            try
             {
-                updater(document);
-                await Collection.ReplaceOneAsync(GetFilterById(id), document);
+                var document = await FindOneAsync(new TFilter { Id = id });
+                if (document != null)
+                {
+                    updater(document);
+                    await Collection.ReplaceOneAsync(GetFilterById(id), document);
+                }
             }
+            catch
+            {
+                await session.AbortTransactionAsync();
+                throw;
+            }
+
+            await session.CommitTransactionAsync();
         }
 
         public async Task DeleteManyAsync(TFilter filter)

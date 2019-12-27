@@ -7,14 +7,21 @@ namespace Api.Core.DAL
 {
     public class DbContext : IDbContext
     {
-        public DbContext(IMongoCollection<User> users, IMongoCollection<Token> tokens)
+        public DbContext(
+            IMongoClient client,
+            IMongoCollection<User> users,
+            IMongoCollection<Token> tokens
+        )
         {
+            Client = client;
+
             Users = users;
             Tokens = tokens;
         }
 
-        public IMongoCollection<User> Users { get; }
+        public IMongoClient Client { get; }
 
+        public IMongoCollection<User> Users { get; }
         public IMongoCollection<Token> Tokens { get; }
     }
 }
