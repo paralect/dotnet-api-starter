@@ -1,174 +1,243 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Api.Core.Abstract;
-using Api.Core.Models.User;
+﻿using System.Threading.Tasks;
+using Api.Core;
+using Api.Core.DAL.Repositories;
+using Api.Core.Interfaces.Services.Document;
+using Api.Core.Interfaces.Services.Infrastructure;
+using Api.Core.Services.Document.Models;
+using Api.Core.Services.Infrastructure.Models;
+using Api.Core.Settings;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Api.Core.Utils;
 using Microsoft.Extensions.Options;
-using Api.Settings;
-using System.Web;
-using System.Collections.Specialized;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Api.Security;
+using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
 
 namespace Api.Controllers
 {
     public class AccountController : BaseController
     {
-        private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
         private readonly IAuthService _authService;
-        private readonly IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
+        private readonly IGoogleService _googleService;
 
-        public AccountController(IUserRepository userRepository, 
-            IEmailService emailService, 
-            IUserService userService, 
+        public AccountController(
+            IEmailService emailService,
+            IUserService userService,
+            ITokenService tokenService,
             IAuthService authService,
-            IHostingEnvironment environment,
-            IOptions<AppSettings> appSettings)
+            IWebHostEnvironment environment,
+            IOptions<AppSettings> appSettings,
+            IGoogleService googleService)
         {
-            _userRepository = userRepository;
             _emailService = emailService;
             _userService = userService;
+            _tokenService = tokenService;
             _authService = authService;
 
             _environment = environment;
+            _googleService = googleService;
             _appSettings = appSettings.Value;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Signup([FromBody]SignupModel model)
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUpAsync([FromBody]SignupModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                return BadRequest(GetErrorsModel(new { Email = "User with this email is already registered." }));
+                return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
-
-            user = await _userService.CreateUserAccount(model.Email, model.FirstName, model.LastName, model.Password);
+            
+            user = await _userService.CreateUserAccountAsync(new CreateUserModel
+            {
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Password = model.Password
+            });
 
             if (_environment.IsDevelopment())
             {
                 return Ok(new { _signupToken = user.SignupToken });
             }
+
             return Ok();
         }
-        
-        [HttpGet("[controller]/[action]/{signupToken}")]
-        public async Task<IActionResult> VerifyEmail(string signupToken)
+
+        [HttpGet("verifyEmail/{token}")]
+        public async Task<IActionResult> VerifyEmailAsync(string token)
         {
-            if (signupToken == null)
+            if (token == null)
             {
-                return BadRequest("Token is required.");
+                return BadRequest("Token", "Token is required.");
             }
 
-            User user = _userRepository.FindOne(x => x.SignupToken == signupToken);
+            var user = await _userService.FindOneAsync(new UserFilter {SignupToken = token});
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Token = "Token is invalid." }));
+                return BadRequest("Token", "Token is invalid.");
             }
 
-            await _userService.MarkEmailAsVerified(user.Id);
+            var userId = user.Id;
 
-            string authToken = _authService.CreateAuthToken(user.Id);
-            
-            return Redirect($"{_appSettings.WebUrl}?token={authToken}&emailVerification=true");
+            await Task.WhenAll(
+                _userService.MarkEmailAsVerifiedAsync(userId),
+                _userService.UpdateLastRequestAsync(userId),
+                _authService.SetTokensAsync(userId)
+            );
+
+            return Redirect(_appSettings.WebUrl);
         }
 
-        [HttpPost]
-        public IActionResult Signin([FromBody]SigninModel model)
+        [HttpPost("signin")]
+        public async Task<IActionResult> SigninAsync([FromBody]SigninModel model)
         {
-            if (!ModelState.IsValid)
+            var user = await _userService.FindByEmailAsync(model.Email);
+            if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
-            if (user == null 
-                || model.Password.IsHashEqual(user.PasswordHash, user.PasswordSalt) == false)
-            {
-                return BadRequest(GetErrorsModel(new { Credentials = "Incorrect email or password." }));
+                return BadRequest("Credentials", "Incorrect email or password.");
             }
 
             if (user.IsEmailVerified == false)
             {
-                return BadRequest(GetErrorsModel(new { Email = "Please verify your email to sign in." }));
+                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
             }
 
-            string token = _authService.CreateAuthToken(user.Id);
+            await Task.WhenAll(
+                _userService.UpdateLastRequestAsync(user.Id),
+                _authService.SetTokensAsync(user.Id)
+            );
 
-            return Ok(new { token });
+            return new JsonResult(new { redirectUrl =_appSettings.WebUrl });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ForgotPassword([FromBody]ForgotPasswordModel model)
+        [HttpPost("forgotPassword")]
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Email = $"Couldn't find account associated with ${model.Email}. Please try again." }));
+                return BadRequest(nameof(model.Email), $"Couldn't find account associated with ${model.Email}. Please try again.");
             }
 
-            string resetPasswordToken = SecurityUtils.GenerateSecureToken();
-            await _userService.UpdateResetPasswordToken(user.Id, resetPasswordToken);
+            var resetPasswordToken = user.ResetPasswordToken;
+            if (resetPasswordToken.HasNoValue())
+            {
+                resetPasswordToken = SecurityUtils.GenerateSecureToken();
+                await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
+            }
 
-            _emailService.SendForgotPassword(resetPasswordToken);
+            _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
+            {
+                Email = user.Email,
+                ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
+                FirstName = user.FirstName
+            });
 
             return Ok();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordModel model)
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
-            User user = _userRepository.FindOne(x => x.ResetPasswordToken == model.Token);
+            var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
             if (user == null)
             {
-                return BadRequest(GetErrorsModel(new { Token = "Password reset link has expired or invalid." }));
+                return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
             }
 
-            await _userService.UpdatePassword(user.Id, model.Password);
-            await _userService.UpdateResetPasswordToken(user.Id, string.Empty);
+            await _userService.UpdatePasswordAsync(user.Id, model.Password);
 
             return Ok();
         }
 
-        [HttpPost]
-        public IActionResult ResendVerification([FromBody]ResendVerificationModel model)
+        [HttpPost("resend")]
+        public async Task<IActionResult> ResendVerificationAsync([FromBody]ResendVerificationModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(GetErrorsFromModelState(ModelState));
-            }
-
-            User user = _userRepository.FindOne(x => x.Email == model.Email);
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                _emailService.SendSignupWelcome(model.Email);
+                _emailService.SendSignupWelcome(new SignupWelcomeModel
+                {
+                    Email = model.Email,
+                    SignupToken = user.SignupToken
+                });
             }
 
             return Ok();
         }
 
+        [Authorize]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshTokenAsync()
+        {
+            var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
+
+            var userId = await _tokenService.FindUserIdByTokenAsync(refreshToken);
+            if (userId.HasNoValue())
+            {
+                return Unauthorized();
+            }
+
+            await _authService.SetTokensAsync(userId);
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("logout")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await _authService.UnsetTokensAsync(CurrentUserId);
+
+            return Ok();
+        }
+
+        [HttpGet("signin/google/auth")]
+        public IActionResult GetOAuthUrl()
+        {
+            var url = _googleService.GetOAuthUrl();
+
+            return Redirect(url);
+        }
+
+        [HttpGet("signin/google")]
+        public async Task<IActionResult> SigninGoogleWithCodeAsync([FromQuery]SigninGoogleModel model)
+        {
+            var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
+            if (payload == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userService.FindByEmailAsync(payload.Email);
+            if (user != null && !user.OAuth.Google)
+            {
+                await _userService.EnableGoogleAuthAsync(user.Id);
+            }
+            else
+            {
+                user = await _userService.CreateUserAccountAsync(new CreateUserGoogleModel
+                {
+                    Email = payload.Email,
+                    FirstName = payload.GivenName,
+                    LastName = payload.FamilyName
+                });
+            }
+
+            await Task.WhenAll(
+                _userService.UpdateLastRequestAsync(user.Id),
+                _authService.SetTokensAsync(user.Id)
+            );
+
+            return Redirect(_appSettings.WebUrl);
+        }
     }
 }

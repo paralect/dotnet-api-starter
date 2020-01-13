@@ -1,45 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Api.Core.Abstract;
+﻿using System.Threading.Tasks;
+using Api.Core.Interfaces.Services.Document;
 using Api.Models.User;
-using Api.Core.Models.User;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
+using Api.Security;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 
 namespace Api.Controllers
 {
     [Authorize]
     public class UsersController : BaseController
     {
-        private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
 
-        public UsersController(IUserRepository userRepository,
-            IUserService userService)
+        public UsersController(IUserService userService)
         {
-            _userRepository = userRepository;
             _userService = userService;
         }
 
-        [HttpGet("[controller]/current")]
-        public IActionResult GetCurrent()
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrentAsync()
         {
-            ObjectId userId = CurrentUserId;
-            if (userId == ObjectId.Empty)
-            {
-                return BadRequest("User not found.");
-            }
-            
-            User user = _userRepository.FindById(userId);
+            var user = await _userService.FindByIdAsync(CurrentUserId);
 
             return Ok(new
             {
                 user.Id,
-                user.CreatedOn,
                 user.FirstName,
                 user.LastName,
                 user.Email,
@@ -47,32 +31,27 @@ namespace Api.Controllers
             });
         }
 
-        [HttpPut("[controller]/current")]
-        public async Task<IActionResult> UpdateCurrent([FromBody]UpdateCurrentModel model)
+        [HttpPut("current")]
+        public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
         {
-            ObjectId userId = CurrentUserId;
-            if (userId == ObjectId.Empty)
+            var userId = CurrentUserId;
+            if (string.IsNullOrEmpty(userId))
             {
-                return BadRequest("User not found.");
+                return BadRequest("UserId", "User not found.");
             }
 
-            if (!ModelState.IsValid)
+            var isEmailInUse = await _userService.IsEmailInUseAsync(userId, model.Email);
+            if (isEmailInUse)
             {
-                return BadRequest(GetErrorsFromModelState(ModelState));
+                return BadRequest(nameof(model.Email), "This email is already in use.");
             }
 
-            if (_userRepository.FindOne(x => x.Id != userId && x.Email == model.Email) != null)
-            {
-                return BadRequest("This email is already in use.");
-            }
+            await _userService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
 
-            await _userService.UpdateInfo(userId, model.Email, model.FirstName, model.LastName);
-
-            User user = _userRepository.FindById(userId);
+            var user = await _userService.FindByIdAsync(userId);
             return Ok(new
             {
                 userId,
-                user.CreatedOn,
                 model.FirstName,
                 model.LastName,
                 model.Email,

@@ -1,0 +1,28 @@
+﻿{
+  "$jsonSchema": {
+    "required": [ "type", "value", "expireAt", "userId" ],
+    "properties": {
+      "_id": {
+        "type": "string"
+      },
+      "createdOn": {
+        "bsonType": "date"
+      },
+      "updatedOn": {
+        "bsonType": "date"
+      },
+      "type": {
+        "enum": [ "access", "refresh" ]
+      },
+      "value": {
+        "type": "string"
+      },
+      "expireAt": {
+        "bsonType": "date"
+      },
+      "userId": {
+        "type": "string"
+      }
+    }
+  }
+}

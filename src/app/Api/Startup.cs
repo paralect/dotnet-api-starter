@@ -1,135 +1,133 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Api.Core.Abstract;
-using Api.Dal.Repositories;
-using Api.Settings;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Api.Core.DAL;
+using Api.Core.DAL.Repositories;
+using Api.Core.Interfaces.DAL;
+using Api.Core.Interfaces.Services.Document;
+using Api.Core.Interfaces.Services.Infrastructure;
+using Api.Core.Services.Document;
+using Api.Core.Services.Infrastructure;
+using Api.Core.Settings;
+using Api.Core.Utils;
+using Api.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Api.Core.Services;
-using System.Diagnostics;
-using System.IO;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Cors.Internal;
-using Api.Settings.Json;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using IIdGenerator = Api.Core.Interfaces.DAL.IIdGenerator;
+using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
 {
     public class Startup
     {
         private readonly IConfiguration _configuration;
-        private readonly IHostingEnvironment _environment;
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            _environment = environment;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureSettings(services);
             ConfigureDI(services);
+            ConfigureDb(services);
 
-            JwtSettings jwtSettings = new JwtSettings();
-            _configuration.GetSection("Jwt").Bind(jwtSettings);
-            AppSettings appSettings = new AppSettings();
-            _configuration.GetSection("App").Bind(appSettings);
+            services.AddHttpContextAccessor();
 
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    var appSettings = new AppSettings();
+                    _configuration.GetSection("App").Bind(appSettings);
+
                     builder
                         .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
                         .AllowAnyHeader()
-                        .AllowAnyMethod());
+                        .AllowAnyMethod();
+                });
             });
 
-            services.AddMvc()
-                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver());
-
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services.AddAuthentication(options =>
+            services
+                .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
+                .ConfigureApiBehaviorOptions(o =>
                 {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    o.InvalidModelStateResponseFactory = context =>
                     {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = false,
-                        ValidateIssuerSigningKey = false,
+                        var errors = context.ModelState.GetErrors();
+                        var result = new BadRequestObjectResult(errors);
 
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = jwtSettings.GetSymmetricSecurityKey(),
-
-                        ClockSkew = TimeSpan.Zero // remove delay of token when expire
+                        return result;
                     };
                 });
 
-            services.Configure<IISOptions>(options =>
+            services.AddSwaggerGen(c =>
             {
-                options.ForwardClientCertificate = false;
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
 
-            services.Configure<MvcOptions>(options =>
-            {
-                options.Filters.Add(new ProducesAttribute("application / json"));
-                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowSpecificOrigin"));
-            });
-
-            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+            services.AddAuthorization();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseRouting();
+
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseAuthentication();
+            app.UseTokenAuthentication();
+            app.UseAuthorization();
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
         }
-
 
         private void ConfigureSettings(IServiceCollection services)
         {
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
-            services.Configure<JwtSettings>(options => { _configuration.GetSection("Jwt").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
+            services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
         }
 
         private void ConfigureDI(IServiceCollection services)
         {
-            services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IGoogleService, GoogleService>();
 
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<ITokenRepository, TokenRepository>();
+
+            services.AddTransient<IDbContext, DbContext>();
+
+            services.AddTransient<IIdGenerator, IdGenerator>();
+        }
+
+        private void ConfigureDb(IServiceCollection services)
+        {
+            var dbSettings = new DbSettings();
+            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+
+            services.InitializeDb(dbSettings);
         }
     }
 }
