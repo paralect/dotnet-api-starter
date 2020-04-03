@@ -47,7 +47,8 @@ namespace Api
                     builder
                         .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
 
