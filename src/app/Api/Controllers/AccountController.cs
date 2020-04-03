@@ -218,11 +218,7 @@ namespace Api.Controllers
             }
 
             var user = await _userService.FindByEmailAsync(payload.Email);
-            if (user != null && !user.OAuth.Google)
-            {
-                await _userService.EnableGoogleAuthAsync(user.Id);
-            }
-            else
+            if (user == null)
             {
                 user = await _userService.CreateUserAccountAsync(new CreateUserGoogleModel
                 {
@@ -230,6 +226,10 @@ namespace Api.Controllers
                     FirstName = payload.GivenName,
                     LastName = payload.FamilyName
                 });
+            }
+            else if (!user.OAuth.Google)
+            {
+                await _userService.EnableGoogleAuthAsync(user.Id);
             }
 
             await Task.WhenAll(
