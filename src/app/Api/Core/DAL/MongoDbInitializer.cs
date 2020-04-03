@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Api.Core.DAL.Documents.Token;
 using Api.Core.DAL.Documents.User;
 using Api.Core.Enums;
@@ -46,7 +47,15 @@ namespace Api.Core.DAL
                 {
                     Name = Constants.DbDocuments.Users,
                     DocumentType = typeof(User),
-                    SchemaPath = $"{schemasPath}UserSchema.json"
+                    SchemaPath = $"{schemasPath}UserSchema.json",
+                    IndexDescriptions = new []
+                    {
+                        new IndexDescription
+                        {
+                            IndexKeysDefinition = Builders<User>.IndexKeys.Ascending(user => user.Email),
+                            Options = new CreateIndexOptions { Unique = true }
+                        }
+                    }
                 },
                 new CollectionDescription
                 {
@@ -78,6 +87,21 @@ namespace Api.Core.DAL
                 var collection = generic.Invoke(db, new object[] { description.Name, null });
                 var collectionType = typeof(IMongoCollection<>).MakeGenericType(description.DocumentType);
 
+                if (description.IndexDescriptions != null)
+                {
+                    foreach (var indexDescription in description.IndexDescriptions)
+                    {
+                        var indexes = collection?.GetType().GetProperty("Indexes")?.GetValue(collection);
+                        if(indexes == null)
+                            continue;
+
+                        var createOneMethodInfo = indexes.GetType().GetMethod(
+                            "CreateOne", 
+                            new [] { typeof(IndexKeysDefinition<>).MakeGenericType(description.DocumentType), typeof(CreateIndexOptions), typeof(CancellationToken) });
+                        createOneMethodInfo?.Invoke(indexes, new []{ indexDescription.IndexKeysDefinition, indexDescription.Options, default(CancellationToken) });
+                    }
+                }
+
                 services.AddSingleton(collectionType, collection);
             }
         }
@@ -96,5 +120,12 @@ namespace Api.Core.DAL
         public string Name { get; set; }
         public Type DocumentType { get; set; }
         public string SchemaPath { get; set; }
+        public IList<IndexDescription> IndexDescriptions { get; set; }
+    }
+
+    public class IndexDescription
+    {
+        public object IndexKeysDefinition { get; set; }
+        public CreateIndexOptions Options { get; set; }
     }
 }
