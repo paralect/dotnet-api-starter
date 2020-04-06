@@ -178,7 +178,7 @@ namespace Api.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshTokenAsync()
         {
-            var refreshToken = Request?.Cookies?[Constants.CookieNames.RefreshToken];
+            var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
             var userId = await _tokenService.FindUserIdByTokenAsync(refreshToken);
             if (userId.HasNoValue())
@@ -195,11 +195,6 @@ namespace Api.Controllers
         [HttpGet("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            if (CurrentUserId.HasNoValue())
-            {
-                return Unauthorized();
-            }
-
             await _authService.UnsetTokensAsync(CurrentUserId);
 
             return Ok();

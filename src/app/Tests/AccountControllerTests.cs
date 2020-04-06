@@ -1,4 +1,5 @@
 using Api.Controllers;
+using Api.Core;
 using Api.Core.DAL.Documents.User;
 using Api.Core.DAL.Repositories;
 using Api.Core.Interfaces.Services.Document;
@@ -385,11 +386,18 @@ namespace Tests
         public async void RefreshTokenShouldReturnUnauthorizedWhenUserIsNotFound()
         {
             // Arrange
+            var refreshToken = "refresh token";
+            var contextMock = new Mock<HttpContext>();
+            contextMock.Setup(context => context.Request.Cookies[Constants.CookieNames.RefreshToken])
+                .Returns(refreshToken);
 
-            _tokenService.Setup(service => service.FindUserIdByTokenAsync(It.IsAny<string>()))
+            var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
+
+            _tokenService.Setup(service => service.FindUserIdByTokenAsync(refreshToken))
                 .ReturnsAsync((string)null);
 
             var controller = CreateInstance();
+            controller.ControllerContext = controllerContext;
 
             // Act
             var result = await controller.RefreshTokenAsync();
@@ -403,11 +411,18 @@ namespace Tests
         {
             // Arrange
             var userId = "user id";
+            var refreshToken = "refresh token";
+            var contextMock = new Mock<HttpContext>();
+            contextMock.Setup(context => context.Request.Cookies[Constants.CookieNames.RefreshToken])
+                .Returns(refreshToken);
 
-            _tokenService.Setup(service => service.FindUserIdByTokenAsync(It.IsAny<string>()))
+            var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
+
+            _tokenService.Setup(service => service.FindUserIdByTokenAsync(refreshToken))
                 .ReturnsAsync(userId);
 
             var controller = CreateInstance();
+            controller.ControllerContext = controllerContext;
 
             // Act
             var result = await controller.RefreshTokenAsync();
@@ -415,19 +430,6 @@ namespace Tests
             // Assert
             _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
             Assert.IsAssignableFrom<OkResult>(result);
-        }
-
-        [Fact]
-        public async void LogoutShouldReturnUnauthorizedWhenUserIsNotLoggedIn()
-        {
-            // Arrange
-            var controller = CreateInstance();
-
-            // Act
-            var result = await controller.LogoutAsync();
-
-            // Assert
-            Assert.IsAssignableFrom<UnauthorizedResult>(result);
         }
 
         [Fact]
