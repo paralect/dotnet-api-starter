@@ -9,6 +9,7 @@ using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -67,10 +68,13 @@ namespace Tests
             Assert.IsAssignableFrom<BadRequestResult>(result);
         }
 
-        [Fact]
-        public async void SignUpShouldReturnOkWhenUserDoesNotExist()
+        [Theory]
+        [InlineData("Development")]
+        [InlineData("Production")]
+        public async void SignUpShouldReturnOkWhenUserDoesNotExist(string environmentName)
         {
             // Arrange
+            var expectedResult = environmentName == "Development" ? typeof(OkObjectResult) : typeof(OkResult);
             var model = new SignUpModel
             {
                 Email = "sample@sample.com"
@@ -79,13 +83,18 @@ namespace Tests
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
                 .ReturnsAsync((User)null);
 
+            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserModel>()))
+                .ReturnsAsync(new User());
+
+            _environment.Setup(environment => environment.EnvironmentName).Returns(environmentName);
+
             var controller = CreateInstance();
 
             // Act
             var result = await controller.SignUpAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<OkResult>(result);
+            Assert.IsAssignableFrom(expectedResult, result);
         }
 
         [Fact]
@@ -419,6 +428,45 @@ namespace Tests
 
             // Assert
             Assert.IsAssignableFrom<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public async void LogoutShouldUnsetTokenAndReturnOk()
+        {
+            // Arrange
+            var contextMock = new Mock<HttpContext>();
+            var currentUserId = "user id";
+
+            contextMock.Setup(context => context.User.Identity.Name).Returns(currentUserId);
+            var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
+
+            var controller = CreateInstance();
+            controller.ControllerContext = controllerContext;
+
+            // Act
+            var result = await controller.LogoutAsync();
+
+            // Assert
+            _authService.Verify(service => service.UnsetTokensAsync(currentUserId), Times.Once);
+            Assert.IsAssignableFrom<OkResult>(result);
+        }
+
+        [Fact]
+        public void GetOAuthUrlShouldReturnRedirect()
+        {
+            // Arrange
+            var url = "test.test";
+
+            _googleService.Setup(service => service.GetOAuthUrl())
+                .Returns(url);
+
+            var controller = CreateInstance();
+
+            // Act
+            var result = controller.GetOAuthUrl();
+
+            // Assert
+            Assert.True(result is RedirectResult redirectResult && redirectResult.Url == url);
         }
 
         [Fact]
