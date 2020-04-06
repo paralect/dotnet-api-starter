@@ -4,7 +4,7 @@ namespace Api.Core.Interfaces.Services.Infrastructure
 {
     public interface IEmailService
     {
-        void SendSignupWelcome(SignupWelcomeModel model);
+        void SendSignUpWelcome(SignUpWelcomeModel model);
 
         void SendForgotPassword(ForgotPasswordModel model);
     }
