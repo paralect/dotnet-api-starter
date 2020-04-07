@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Api.Controllers;
 using Api.Core;
 using Api.Core.DAL.Documents.User;
@@ -48,7 +49,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void SignUpShouldReturnBadRequestWhenUserAlreadyExist()
+        public async Task SignUpShouldReturnBadRequestWhenUserAlreadyExist()
         {
             // Arrange
             var model = new SignUpModel
@@ -66,13 +67,13 @@ namespace Tests
             var result = await controller.SignUpAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Theory]
         [InlineData("Development")]
         [InlineData("Production")]
-        public async void SignUpShouldReturnOkWhenUserDoesNotExist(string environmentName)
+        public async Task SignUpShouldReturnOkWhenUserDoesNotExist(string environmentName)
         {
             // Arrange
             var expectedResult = environmentName == "Development" ? typeof(OkObjectResult) : typeof(OkResult);
@@ -95,11 +96,11 @@ namespace Tests
             var result = await controller.SignUpAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom(expectedResult, result);
+            Assert.IsType(expectedResult, result);
         }
 
         [Fact]
-        public async void VerifyEmailShouldReturnBadRequestWhenTokenIsNull()
+        public async Task VerifyEmailShouldReturnBadRequestWhenTokenIsNull()
         {
             // Arrange
             var controller = CreateInstance();
@@ -108,11 +109,11 @@ namespace Tests
             var result = await controller.VerifyEmailAsync(null);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void VerifyEmailShouldReturnBadRequestWhenTokenIsInvalid()
+        public async Task VerifyEmailShouldReturnBadRequestWhenTokenIsInvalid()
         {
             // Arrange
             var token = "sample";
@@ -126,11 +127,11 @@ namespace Tests
             var result = await controller.VerifyEmailAsync(token);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void VerifyEmailShouldMarkEmailAsVerifiedAndReturnRedirectToMainPage()
+        public async Task VerifyEmailShouldMarkEmailAsVerifiedAndReturnRedirectToMainPage()
         {
             // Arrange
             var token = "sample";
@@ -152,7 +153,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void SignInShouldReturnBadRequestWhenUserDoesNotExist()
+        public async Task SignInShouldReturnBadRequestWhenUserDoesNotExist()
         {
             // Arrange
             var model = new SignInModel
@@ -169,11 +170,11 @@ namespace Tests
             var result = await controller.SignInAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void SignInShouldReturnBadRequestWhenPasswordIsIncorrect()
+        public async Task SignInShouldReturnBadRequestWhenPasswordIsIncorrect()
         {
             // Arrange
             var model = new SignInModel
@@ -191,11 +192,11 @@ namespace Tests
             var result = await controller.SignInAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void SignInShouldReturnBadRequestWhenEmailDoesNotVerified()
+        public async Task SignInShouldReturnBadRequestWhenEmailDoesNotVerified()
         {
             // Arrange
             var password = "sample";
@@ -219,11 +220,11 @@ namespace Tests
             var result = await controller.SignInAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void SignInShouldReturnJsonResult()
+        public async Task SignInShouldReturnJsonResult()
         {
             // Arrange
             var userId = "user id";
@@ -251,11 +252,11 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateLastRequestAsync(userId), Times.Once);
             _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
-            Assert.IsAssignableFrom<JsonResult>(result);
+            Assert.IsType<JsonResult>(result);
         }
 
         [Fact]
-        public async void ForgotPasswordShouldReturnBadRequestWhenUserDoesNotExist()
+        public async Task ForgotPasswordShouldReturnBadRequestWhenUserDoesNotExist()
         {
             // Arrange
             var model = new ForgotPasswordModel
@@ -272,11 +273,11 @@ namespace Tests
             var result = await controller.ForgotPasswordAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void ForgotPasswordShouldGenerateAndSendResetPasswordToken()
+        public async Task ForgotPasswordShouldGenerateAndSendResetPasswordToken()
         {
             // Arrange
             var user = new User
@@ -303,11 +304,11 @@ namespace Tests
                 It.Is<Api.Core.Services.Infrastructure.Models.ForgotPasswordModel>(m => m.Email == user.Email))
             );
 
-            Assert.IsAssignableFrom<OkResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
-        public async void ResetPasswordShouldReturnBadRequestWhenTokenIsInvalid()
+        public async Task ResetPasswordShouldReturnBadRequestWhenTokenIsInvalid()
         {
             // Arrange
             var model = new ResetPasswordModel
@@ -324,11 +325,11 @@ namespace Tests
             var result = await controller.ResetPasswordAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void ResetPasswordShouldUpdatePassword()
+        public async Task ResetPasswordShouldUpdatePassword()
         {
             // Arrange
             var model = new ResetPasswordModel
@@ -351,11 +352,11 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.UpdatePasswordAsync(user.Id, model.Password));
-            Assert.IsAssignableFrom<OkResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
-        public async void ResendVerificationShouldSendSignUpEmail()
+        public async Task ResendVerificationShouldSendSignUpEmail()
         {
             // Arrange
             var model = new ResendVerificationModel
@@ -379,11 +380,11 @@ namespace Tests
             _emailService.Verify(service => service.SendSignUpWelcome(
                 It.Is<SignUpWelcomeModel>(m => m.Email == model.Email && m.SignUpToken == user.SignupToken))
             );
-            Assert.IsAssignableFrom<OkResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
-        public async void RefreshTokenShouldReturnUnauthorizedWhenUserIsNotFound()
+        public async Task RefreshTokenShouldReturnUnauthorizedWhenUserIsNotFound()
         {
             // Arrange
             var refreshToken = "refresh token";
@@ -403,11 +404,11 @@ namespace Tests
             var result = await controller.RefreshTokenAsync();
 
             // Assert
-            Assert.IsAssignableFrom<UnauthorizedResult>(result);
+            Assert.IsType<UnauthorizedResult>(result);
         }
 
         [Fact]
-        public async void RefreshTokenShouldSetToken()
+        public async Task RefreshTokenShouldSetToken()
         {
             // Arrange
             var userId = "user id";
@@ -429,11 +430,11 @@ namespace Tests
 
             // Assert
             _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
-            Assert.IsAssignableFrom<OkResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
-        public async void LogoutShouldUnsetTokenAndReturnOk()
+        public async Task LogoutShouldUnsetTokenAndReturnOk()
         {
             // Arrange
             var contextMock = new Mock<HttpContext>();
@@ -450,7 +451,7 @@ namespace Tests
 
             // Assert
             _authService.Verify(service => service.UnsetTokensAsync(currentUserId), Times.Once);
-            Assert.IsAssignableFrom<OkResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
@@ -472,7 +473,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void SignInGoogleWithCodeShouldReturnNotFoundWhenPayloadIsNull()
+        public async Task SignInGoogleWithCodeShouldReturnNotFoundWhenPayloadIsNull()
         {
             // Arrange
             var model = new SignInGoogleModel {Code = "test code"};
@@ -485,11 +486,11 @@ namespace Tests
             var result = await controller.SignInGoogleWithCodeAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<NotFoundResult>(result);
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async void SignInGoogleWithCodeShouldCreateUserWhenItDoesNotExist()
+        public async Task SignInGoogleWithCodeShouldCreateUserWhenItDoesNotExist()
         {
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };
@@ -524,7 +525,7 @@ namespace Tests
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async void SignInGoogleWithCodeShouldShouldEnableGoogleAuthWhenItDoesNotEnabled(bool isEnabled)
+        public async Task SignInGoogleWithCodeShouldShouldEnableGoogleAuthWhenItDoesNotEnabled(bool isEnabled)
         {
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };
@@ -564,7 +565,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void SignInGoogleWithCodeShouldShouldSetTokenAndReturnRedirect()
+        public async Task SignInGoogleWithCodeShouldShouldSetTokenAndReturnRedirect()
         {
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };

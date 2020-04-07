@@ -51,7 +51,7 @@ namespace Api.Core.DAL
         public async Task<TDocument> FindOneAsync(TFilter filter)
         {
             var result = await Collection.FindAsync(BuildFilterQuery(filter));
-            return result.FirstOrDefault();
+            return result.SingleOrDefault();
         }
 
         public async Task UpdateOneAsync(string id, Expression<Func<TDocument, object>> fieldSelector, object value)

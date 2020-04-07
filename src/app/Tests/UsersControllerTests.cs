@@ -1,4 +1,5 @@
-﻿using Api.Controllers;
+﻿using System.Threading.Tasks;
+using Api.Controllers;
 using Api.Core.DAL.Documents.User;
 using Api.Core.Interfaces.Services.Document;
 using Api.Models.User;
@@ -19,7 +20,7 @@ namespace Tests
         }
 
         [Fact]
-        public async void GetCurrentShouldReturnOkObjectResult()
+        public async Task GetCurrentShouldReturnOkObjectResult()
         {
             // Arrange
             var currentUserId = "test user id";
@@ -32,11 +33,11 @@ namespace Tests
             var result = await controller.GetCurrentAsync();
 
             // Assert
-            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async void UpdateCurrentShouldReturnBadRequestWhenCurrentUserIdIsNullOrEmpty()
+        public async Task UpdateCurrentShouldReturnBadRequestWhenCurrentUserIdIsNullOrEmpty()
         {
             // Arrange
             var controller = CreateInstance();
@@ -45,11 +46,11 @@ namespace Tests
             var result = await controller.UpdateCurrentAsync(null);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void UpdateCurrentShouldReturnBadRequestWhenEmailIsInUse()
+        public async Task UpdateCurrentShouldReturnBadRequestWhenEmailIsInUse()
         {
             // Arrange
             var currentUserId = "test id";
@@ -66,11 +67,11 @@ namespace Tests
             var result = await controller.UpdateCurrentAsync(model);
 
             // Assert
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async void UpdateCurrentShouldUpdateInfoAndReturnOkObjectResult()
+        public async Task UpdateCurrentShouldUpdateInfoAndReturnOkObjectResult()
         {
             // Arrange
             var currentUserId = "test id";
@@ -95,7 +96,7 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.UpdateInfoAsync(currentUserId, model.Email, model.FirstName, model.LastName));
-            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         private UsersController CreateInstance(string currentUserId = null)
