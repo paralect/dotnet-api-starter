@@ -78,10 +78,10 @@ namespace Api.Core.Services.Document
 
             await _userRepository.InsertAsync(newUser);
 
-            _emailService.SendSignupWelcome(new SignupWelcomeModel
+            _emailService.SendSignUpWelcome(new SignUpWelcomeModel
             {
                 Email = model.Email,
-                SignupToken = signupToken
+                SignUpToken = signupToken
             });
 
             return newUser;

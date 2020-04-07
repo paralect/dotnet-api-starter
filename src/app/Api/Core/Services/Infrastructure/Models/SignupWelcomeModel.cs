@@ -1,8 +1,8 @@
 ﻿namespace Api.Core.Services.Infrastructure.Models
 {
-    public class SignupWelcomeModel
+    public class SignUpWelcomeModel
     {
         public string Email { get; set; }
-        public string SignupToken { get; set; }
+        public string SignUpToken { get; set; }
     }
 }

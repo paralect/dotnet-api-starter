@@ -2,7 +2,7 @@
 
 namespace Api.Models.Account
 {
-    public class SigninModel
+    public class SignInModel
     {
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
