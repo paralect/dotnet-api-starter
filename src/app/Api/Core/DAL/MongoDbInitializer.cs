@@ -92,8 +92,10 @@ namespace Api.Core.DAL
                     foreach (var indexDescription in description.IndexDescriptions)
                     {
                         var indexes = collection?.GetType().GetProperty("Indexes")?.GetValue(collection);
-                        if(indexes == null)
+                        if (indexes == null)
+                        {
                             continue;
+                        }
 
                         var createOneMethodInfo = indexes.GetType().GetMethod(
                             "CreateOne", 
