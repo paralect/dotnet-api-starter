@@ -21,9 +21,9 @@ namespace Api.Core.DAL.Repositories
                 yield return builder.Eq(u => u.Email, filter.Email);
             }
 
-            if (filter.SignupToken.HasValue())
+            if (filter.SignUpToken.HasValue())
             {
-                yield return builder.Eq(u => u.SignupToken, filter.SignupToken);
+                yield return builder.Eq(u => u.SignupToken, filter.SignUpToken);
             }
 
             if (filter.ResetPasswordToken.HasValue())
@@ -41,7 +41,7 @@ namespace Api.Core.DAL.Repositories
     public class UserFilter : BaseFilter
     {
         public string Email { get; set; }
-        public string SignupToken { get; set; }
+        public string SignUpToken { get; set; }
         public string ResetPasswordToken { get; set; }
         public string UserIdToExclude { get; set; }
     }

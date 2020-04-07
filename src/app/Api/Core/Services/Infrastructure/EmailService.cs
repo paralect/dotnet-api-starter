@@ -13,7 +13,7 @@ namespace Api.Core.Services.Infrastructure
             _logger = logger;
         }
 
-        public void SendSignupWelcome(SignupWelcomeModel model)
+        public void SendSignUpWelcome(SignUpWelcomeModel model)
         {
             SendEmail("signup-welcome", model);
         }

@@ -47,7 +47,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUpAsync([FromBody]SignupModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody]SignUpModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
@@ -79,7 +79,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _userService.FindOneAsync(new UserFilter {SignupToken = token});
+            var user = await _userService.FindOneAsync(new UserFilter {SignUpToken = token});
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -97,7 +97,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SigninAsync([FromBody]SigninModel model)
+        public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
@@ -164,10 +164,10 @@ namespace Api.Controllers
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                _emailService.SendSignupWelcome(new SignupWelcomeModel
+                _emailService.SendSignUpWelcome(new SignUpWelcomeModel
                 {
                     Email = model.Email,
-                    SignupToken = user.SignupToken
+                    SignUpToken = user.SignupToken
                 });
             }
 
@@ -209,7 +209,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("signin/google")]
-        public async Task<IActionResult> SigninGoogleWithCodeAsync([FromQuery]SigninGoogleModel model)
+        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery]SignInGoogleModel model)
         {
             var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
             if (payload == null)
