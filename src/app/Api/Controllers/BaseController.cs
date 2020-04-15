@@ -6,7 +6,7 @@ namespace Api.Controllers
     [Route("[controller]")]
     public abstract class BaseController : ControllerBase
     {
-        protected string CurrentUserId => User.Identity.Name;
+        protected string CurrentUserId => User?.Identity?.Name;
 
         protected BadRequestResult BadRequest(string field, string errorMessage)
         {

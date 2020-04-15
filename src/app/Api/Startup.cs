@@ -8,6 +8,7 @@ using Api.Core.Services.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Security;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -71,6 +72,7 @@ namespace Api
             });
 
             services.AddAuthorization();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

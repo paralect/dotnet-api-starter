@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "app\Api\Api.csproj",
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{B1ACA15A-F425-4444-8413-3CA3575F06CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "app\Tests\Tests.csproj", "{E95802B0-9809-4F20-9453-CE0BF9EB79A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "app\Tests\Tests.csproj", "{E95802B0-9809-4F20-9453-CE0BF9EB79A5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{490938F7-A522-4B42-9298-02AA0B7DA8A8}"
 	ProjectSection(SolutionItems) = preProject
