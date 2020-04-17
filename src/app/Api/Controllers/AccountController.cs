@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Api.Core;
 using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Document;
@@ -7,14 +6,15 @@ using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
-using Api.Core.Utils;
 using Api.Models.User;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Api.Security;
 using AutoMapper;
+using Common;
 using Common.DAL.Repositories;
+using Common.Services.Interfaces;
 using Common.Utils;
 using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
 

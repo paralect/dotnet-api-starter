@@ -2,7 +2,7 @@
 using Common.DAL;
 using Common.DAL.Documents;
 
-namespace Api.Core.Services.Interfaces
+namespace Common.Services.Interfaces
 {
     public interface IDocumentService<TDocument, in TFilter>
         where TDocument : BaseDocument

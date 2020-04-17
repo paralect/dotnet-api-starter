@@ -2,6 +2,7 @@
 using Api.Core.Services.Document.Models;
 using Common.DAL.Documents.User;
 using Common.DAL.Repositories;
+using Common.Services.Interfaces;
 
 namespace Api.Core.Services.Interfaces.Document
 {

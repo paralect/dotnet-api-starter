@@ -11,9 +11,22 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongodata:/data/db
+      - /var/run/docker.sock:/var/run/docker.sock
+  api:
+    build:
+      context: .
+      dockerfile: app/Api/Dockerfile
+    networks:
+     - ship
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3001
+    volumes:
+      - "./src:/app/src"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - "mongo"
 networks:
   ship:
     name: ship_network
-volumes:
-  mongodata:

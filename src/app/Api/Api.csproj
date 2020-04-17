@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
     <PackageReference Include="Google.Apis.Oauth2.v2" Version="1.42.0.1602" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
   </ItemGroup>

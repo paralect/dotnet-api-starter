@@ -4,10 +4,11 @@ using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
-using Api.Core.Utils;
 using Common.DAL.Documents.User;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
+using Common.Services;
+using Common.Utils;
 
 namespace Api.Core.Services.Document
 {
@@ -64,7 +65,7 @@ namespace Api.Core.Services.Document
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
         {
-            var signupToken = SecurityUtils.GenerateSecureToken();
+            var signUpToken = SecurityUtils.GenerateSecureToken();
 
             var newUser = new User
             {
@@ -73,7 +74,7 @@ namespace Api.Core.Services.Document
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signupToken
+                SignupToken = signUpToken
             };
 
             await _userRepository.InsertAsync(newUser);
@@ -81,7 +82,7 @@ namespace Api.Core.Services.Document
             _emailService.SendSignUpWelcome(new SignUpWelcomeModel
             {
                 Email = model.Email,
-                SignUpToken = signupToken
+                SignUpToken = signUpToken
             });
 
             return newUser;

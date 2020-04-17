@@ -1,6 +1,6 @@
 ﻿using System.Security.Principal;
 
-namespace Api.Security
+namespace Common.Middleware
 {
     public class Principal : GenericPrincipal
     {

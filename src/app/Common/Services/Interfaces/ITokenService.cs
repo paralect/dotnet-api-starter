@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.DAL.Documents.Token;
 using Common.DAL.Repositories;
 
-namespace Api.Core.Services.Interfaces.Document
+namespace Common.Services.Interfaces
 {
     public interface ITokenService : IDocumentService<Token, TokenFilter>
     {
