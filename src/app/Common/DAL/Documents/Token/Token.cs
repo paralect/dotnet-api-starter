@@ -1,9 +1,9 @@
 ﻿using System;
 using Common.Enums;
 
-namespace Api.Core.Services.Infrastructure.Models
+namespace Common.DAL.Documents.Token
 {
-    public class TokenModel
+    public class Token : BaseDocument
     {
         public TokenTypeEnum Type { get; set; }
         public string Value { get; set; }

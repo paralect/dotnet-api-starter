@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.DAL;
-using Api.Core.DAL.Documents;
-using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services;
+using Api.Core.Services.Interfaces;
+using Common.DAL;
+using Common.DAL.Documents;
+using Common.DAL.Interfaces;
 
 namespace Api.Core.Services
 {

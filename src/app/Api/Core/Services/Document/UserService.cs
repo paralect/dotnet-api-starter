@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Api.Core.DAL.Documents.User;
-using Api.Core.DAL.Repositories;
-using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.Document;
-using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
+using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Utils;
+using Common.DAL.Documents.User;
+using Common.DAL.Interfaces;
+using Common.DAL.Repositories;
 
 namespace Api.Core.Services.Document
 {

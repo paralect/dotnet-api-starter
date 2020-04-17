@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Api.Core.DAL.Documents.Token;
-using Api.Core.DAL.Repositories;
-using Api.Core.Enums;
-using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.Document;
+using Api.Core.Services.Interfaces.Document;
 using Api.Core.Settings;
 using Api.Core.Utils;
+using Common.DAL.Documents.Token;
+using Common.DAL.Interfaces;
+using Common.DAL.Repositories;
+using Common.Enums;
 using Microsoft.Extensions.Options;
 
 namespace Api.Core.Services.Document

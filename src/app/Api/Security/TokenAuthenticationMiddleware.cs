@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Api.Core;
-using Api.Core.Interfaces.Services.Document;
-using Api.Core.Utils;
+using Api.Core.Services.Interfaces.Document;
+using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 

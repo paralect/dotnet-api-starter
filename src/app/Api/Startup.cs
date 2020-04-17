@@ -1,14 +1,15 @@
-﻿using Api.Core.DAL;
-using Api.Core.DAL.Repositories;
-using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.Document;
-using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Services.Document;
+﻿using Api.Core.Services.Document;
 using Api.Core.Services.Infrastructure;
+using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Security;
 using AutoMapper;
+using Common.DAL;
+using Common.DAL.Interfaces;
+using Common.DAL.Repositories;
+using Common.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using IIdGenerator = Api.Core.Interfaces.DAL.IIdGenerator;
+using IIdGenerator = Common.DAL.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api

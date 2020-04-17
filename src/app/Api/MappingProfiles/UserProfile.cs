@@ -1,6 +1,6 @@
-﻿using Api.Core.DAL.Documents.User;
-using Api.Models.User;
+﻿using Api.Models.User;
 using AutoMapper;
+using Common.DAL.Documents.User;
 
 namespace Api.MappingProfiles
 {

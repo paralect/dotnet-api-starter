@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Linq;
+using Common.Utils;
 
 namespace Api.Core.Utils
 {

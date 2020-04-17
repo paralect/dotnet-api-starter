@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core.DAL.Documents.User;
-using Api.Core.Interfaces.Services.Document;
+using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
 using AutoMapper;
+using Common.DAL.Documents.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
