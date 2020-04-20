@@ -3,6 +3,7 @@ version: '3.6'
 services:
   mongo:
     image: mongo:4.2
+    command: --replSet ship-rs --bind_ip_all
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=rootPassword
@@ -12,6 +13,13 @@ services:
       - "27017:27017"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  mongo-replicator:
+    container_name: ship-mongo-replicator
+    build: ./mongo-replicator
+    networks:
+      - ship
+    depends_on:
+      - mongo
   api:
     build:
       context: .
