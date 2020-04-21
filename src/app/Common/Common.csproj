@@ -32,4 +32,10 @@
     <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="common.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

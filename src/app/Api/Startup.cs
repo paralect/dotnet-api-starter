@@ -28,9 +28,13 @@ namespace Api
     {
         private readonly IConfiguration _configuration;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
-            _configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .AddConfiguration(configuration)
+                .AddJsonFile($"common.{env.EnvironmentName}.json");
+
+            _configuration = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
