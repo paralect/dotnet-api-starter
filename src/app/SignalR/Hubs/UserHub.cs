@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Common.DAL.Documents.User;
 using Microsoft.AspNetCore.SignalR;
 
 namespace SignalR.Hubs

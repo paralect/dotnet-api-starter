@@ -25,24 +25,12 @@ namespace SignalR
             _configuration = configuration;
         }
 
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureDi(services);
             ConfigureDb(services);
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowSpecificOrigin", builder =>
-                {
-                    builder
-                        .WithOrigins("http://localhost:3002") // TODO: replace with configuration
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
+            ConfigureCors(services);
 
             services.AddSignalR();
             services.AddHostedService<ChangeStreamBackgroundService>();
@@ -80,6 +68,7 @@ namespace SignalR
 
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
+            services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }
 
         private void ConfigureDb(IServiceCollection services)
@@ -88,6 +77,24 @@ namespace SignalR
             _configuration.GetSection("MongoConnection").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+        }
+
+        private void ConfigureCors(IServiceCollection services)
+        {
+            var appSettings = new AppSettings();
+            _configuration.GetSection("App").Bind(appSettings);
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder
+                        .WithOrigins(appSettings.WebUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }
