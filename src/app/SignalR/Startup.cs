@@ -1,3 +1,4 @@
+using AutoMapper;
 using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
+using SignalR.Services;
 
 namespace SignalR
 {
@@ -43,6 +45,8 @@ namespace SignalR
             });
 
             services.AddSignalR();
+            services.AddHostedService<ChangeStreamBackgroundService>();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +75,8 @@ namespace SignalR
 
             services.AddTransient<IDbContext, DbContext>();
             services.AddTransient<IIdGenerator, IdGenerator>();
+
+            services.AddTransient<IUserHubContext, UserHubContext>();
 
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });

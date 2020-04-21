@@ -1,25 +1,22 @@
 ﻿using System.Threading.Tasks;
+using Common.DAL.Documents.User;
 using Microsoft.AspNetCore.SignalR;
 
 namespace SignalR.Hubs
 {
     public class UserHub : Hub
     {
-        public async Task Subscribe(string roomId)
+        public async Task Subscribe(string groupName)
         {
-            if (HasAccessToRoom(roomId))
+            if (HasAccessToRoom(groupName))
             {
-
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             }
         }
 
-        private bool HasAccessToRoom(string roomId)
+        private bool HasAccessToRoom(string groupName)
         {
-            var roomData = roomId.Split('-');
-            var roomType = roomData[0];
-            var id = roomData[1];
-
-            return Context.User.Identity.Name == id;
+            return groupName == $"user-{Context.User.Identity.Name}";
         }
     }
 }

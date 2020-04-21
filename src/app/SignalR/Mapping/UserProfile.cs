@@ -1,8 +1,8 @@
-﻿using Api.Models.User;
-using AutoMapper;
+﻿using AutoMapper;
 using Common.DAL.Documents.User;
+using SignalR.Models;
 
-namespace Api.MappingProfiles
+namespace SignalR.Mapping
 {
     public class UserProfile : Profile
     {

@@ -14,7 +14,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   mongo-replicator:
-    container_name: ship-mongo-replicator
+    container_name: dotnet-ship-mongo-replicator
     build: ./mongo-replicator
     networks:
       - ship
