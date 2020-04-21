@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,11 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="common.Development.json" />
     <None Remove="DAL\Schemas\TokenSchema.json" />
     <None Remove="DAL\Schemas\UserSchema.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="common.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="DAL\Schemas\TokenSchema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -30,12 +34,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.3" />
     <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="common.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
