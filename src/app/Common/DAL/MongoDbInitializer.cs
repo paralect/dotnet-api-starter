@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using Common.DAL.Documents.Token;
 using Common.DAL.Documents.User;
@@ -45,14 +46,15 @@ namespace Common.DAL
 
             var db = client.GetDatabase(dbSettings.Database);
 
-            var schemasPath = "../Common/DAL/Schemas/";
+            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var schemasPath = Path.Combine(assemblyLocation, "DAL", "Schemas");
             var collectionDescriptions = new List<CollectionDescription>
             {
                 new CollectionDescription
                 {
                     Name = Constants.DbDocuments.Users,
                     DocumentType = typeof(User),
-                    SchemaPath = $"{schemasPath}UserSchema.json",
+                    SchemaPath = Path.Combine(schemasPath, "UserSchema.json"),
                     IndexDescriptions = new []
                     {
                         new IndexDescription
@@ -66,7 +68,7 @@ namespace Common.DAL
                 {
                     Name = Constants.DbDocuments.Tokens,
                     DocumentType = typeof(Token),
-                    SchemaPath = $"{schemasPath}TokenSchema.json"
+                    SchemaPath = Path.Combine(schemasPath, "TokenSchema.json")
                 }
             };
 
