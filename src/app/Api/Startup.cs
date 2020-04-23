@@ -4,6 +4,7 @@ using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
+using Api.Mapping;
 using AutoMapper;
 using Common.DAL;
 using Common.DAL.Interfaces;
@@ -79,7 +80,7 @@ namespace Api
             });
 
             services.AddAuthorization();
-            services.AddAutoMapper(typeof(Startup));
+            services.AddAutoMapper(typeof(UserProfile));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

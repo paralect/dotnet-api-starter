@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
+using SignalR.Mapping;
 using SignalR.Services;
 
 namespace SignalR
@@ -38,7 +39,7 @@ namespace SignalR
 
             services.AddSignalR();
             services.AddHostedService<ChangeStreamBackgroundService>();
-            services.AddAutoMapper(typeof(Startup));
+            services.AddAutoMapper(typeof(UserProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
