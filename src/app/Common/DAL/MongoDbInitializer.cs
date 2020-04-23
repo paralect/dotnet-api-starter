@@ -18,8 +18,6 @@ namespace Common.DAL
 {
     public static class MongoDbInitializer
     {
-        private static readonly object _locker = new object();
-
         public static void InitializeDb(this IServiceCollection services, DbSettings dbSettings)
         {
             var conventionPack = new ConventionPack
@@ -33,10 +31,7 @@ namespace Common.DAL
             // TODO rewrite to apply to all enums, if possible OR rewrite Node API to store enums as numbers
             BsonSerializer.RegisterSerializer(typeof(TokenTypeEnum), new EnumSerializer<TokenTypeEnum>());
 
-            lock (_locker)
-            {
-                InitializeCollections(services, dbSettings);
-            }
+            InitializeCollections(services, dbSettings);
         }
 
         private static void InitializeCollections(IServiceCollection services, DbSettings dbSettings)
