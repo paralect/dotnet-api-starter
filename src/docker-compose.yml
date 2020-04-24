@@ -14,13 +14,6 @@ services:
       - "27017:27017"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  mongo-replicator:
-    container_name: dotnet-ship-mongo-replicator
-    build: ./mongo-replicator
-    networks:
-      - ship
-    depends_on:
-      - "mongo"
   api:
     container_name: ship-api
     build:
@@ -36,7 +29,7 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - "mongo-replicator"
+      - "mongo"
     links:
       - "mongo"
   signal-r:
@@ -54,9 +47,9 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - "mongo-replicator"
+      - "api"
     links:
-      - "mongo"
+      - "api"
 networks:
   ship:
     name: ship_network

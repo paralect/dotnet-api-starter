@@ -19,4 +19,8 @@ RUN dotnet publish "SignalR.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SignalR.dll"]
+
+RUN apt-get update && apt-get install -y netcat-openbsd
+
+COPY ["app/SignalR/bash/", "bash"]
+ENTRYPOINT ["/bin/bash", "bash/setup.sh", "api", "3001"]
