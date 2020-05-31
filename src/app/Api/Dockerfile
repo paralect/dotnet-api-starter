@@ -20,10 +20,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-RUN apt-get update && apt-get install -y wget netcat-openbsd gnupg
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
-RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-RUN apt-get update && apt-get install -y mongodb-org=4.2.6
-
-COPY ["app/Api/bash/", "bash"]
-ENTRYPOINT ["/bin/bash", "bash/setup.sh", "mongo", "27017", "admin", "root", "rootPassword"]
+ENTRYPOINT ["dotnet", "Api.dll"]

@@ -14,6 +14,21 @@ services:
       - "27017:27017"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  replicator:
+    container_name: ship-replicator
+    build: ./replicator
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_LOGIN=root
+      - MONGO_PASSWORD=rootPassword
+      - REPLICA_NAME=ship-rs
+    depends_on:
+      - mongo
+    links:
+      - "mongo"
+    networks:
+      - ship
   api:
     container_name: ship-api
     build:
@@ -29,7 +44,7 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - "mongo"
+      - "replicator"
     links:
       - "mongo"
   signal-r:
@@ -42,6 +57,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8082
+      - WAIT_FOR_HOST=api
+      - WAIT_FOR_PORT=3001
     volumes:
       - "./src:/app/src"
     ports:

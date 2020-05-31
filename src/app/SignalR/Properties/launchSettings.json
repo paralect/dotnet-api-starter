@@ -15,6 +15,13 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "ApiStarter": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:8082",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "Docker": {
       "commandName": "Docker",
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",

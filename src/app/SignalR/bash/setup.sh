@@ -1,12 +1,13 @@
-API_HOST=$1
-API_PORT=$2
+#!/bin/bash
 
-until nc -z $API_HOST $API_PORT
-do
-	echo "Waiting for api ($API_HOST:$API_PORT) to start..."
-	sleep 0.5
-done
+if [[ -n "$WAIT_FOR_HOST" ]] && [[ -n "$WAIT_FOR_PORT" ]]; then
+    until nc -z $WAIT_FOR_HOST $WAIT_FOR_PORT
+    do
+        echo "Waiting for ($WAIT_FOR_HOST:$WAIT_FOR_PORT) to start..."
+        sleep 0.5
+    done
 
-echo "Api is up"
+    echo "$WAIT_FOR_HOST:$WAIT_FOR_PORT is up"
+fi
 
 dotnet SignalR.dll

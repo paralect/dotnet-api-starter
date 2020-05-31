@@ -4,7 +4,7 @@
     "RefreshTokenExpiresInHours": 10
   },
   "MongoConnection": {
-    "ConnectionString": "mongodb://root:rootPassword@host.docker.internal:27017",
+    "ConnectionString": "mongodb://root:rootPassword@mongo:27017",
     "Database": "api-development"
   },
   "App": {

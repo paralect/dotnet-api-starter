@@ -21,15 +21,15 @@ namespace SignalR.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var options = new ChangeStreamOptions() { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
+            var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<User>>()
                 .Match(x => x.OperationType == ChangeStreamOperationType.Replace || x.OperationType == ChangeStreamOperationType.Update);
-
-            using var cursor = _users.Watch(pipeline, options);
+            
+            using var cursor = _users.Watch(pipeline, options, stoppingToken);
             await cursor.ForEachAsync(async document =>
             {
                 await _userHubContext.SendUpdateAsync(document.FullDocument);
-            });
+            }, stoppingToken);
         }
     }
 }
