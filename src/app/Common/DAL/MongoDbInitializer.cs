@@ -91,18 +91,17 @@ namespace Common.DAL
 
                 if (description.IndexDescriptions != null)
                 {
-                    foreach (var indexDescription in description.IndexDescriptions)
+                    var indexes = collection?.GetType().GetProperty("Indexes")?.GetValue(collection);
+                    if (indexes != null)
                     {
-                        var indexes = collection?.GetType().GetProperty("Indexes")?.GetValue(collection);
-                        if (indexes == null)
-                        {
-                            continue;
-                        }
-
                         var createOneMethodInfo = indexes.GetType().GetMethod(
                             "CreateOne", 
                             new [] { typeof(IndexKeysDefinition<>).MakeGenericType(description.DocumentType), typeof(CreateIndexOptions), typeof(CancellationToken) });
-                        createOneMethodInfo?.Invoke(indexes, new []{ indexDescription.IndexKeysDefinition, indexDescription.Options, default(CancellationToken) });
+                        
+                        foreach (var indexDescription in description.IndexDescriptions)
+                        {
+                            createOneMethodInfo?.Invoke(indexes, new []{ indexDescription.IndexKeysDefinition, indexDescription.Options, default(CancellationToken) });
+                        }
                     }
                 }
 
