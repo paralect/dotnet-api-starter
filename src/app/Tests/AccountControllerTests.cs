@@ -1,15 +1,17 @@
 using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core;
-using Api.Core.DAL.Documents.User;
-using Api.Core.DAL.Repositories;
-using Api.Core.Interfaces.Services.Document;
-using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Settings;
-using Api.Core.Utils;
+using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
+using AutoMapper;
+using Common;
+using Common.DAL.Documents.User;
+using Common.DAL.Repositories;
+using Common.Services.Interfaces;
+using Common.Settings;
+using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +31,7 @@ namespace Tests
         private readonly Mock<IWebHostEnvironment> _environment;
         private readonly Mock<IOptions<AppSettings>> _appSettingsOptions;
         private readonly Mock<IGoogleService> _googleService;
+        private readonly Mock<IMapper> _mapper;
         private readonly AppSettings _appSettings;
 
         public AccountControllerTests()
@@ -40,6 +43,7 @@ namespace Tests
             _environment = new Mock<IWebHostEnvironment>();
             _appSettingsOptions = new Mock<IOptions<AppSettings>>();
             _googleService = new Mock<IGoogleService>();
+            _mapper = new Mock<IMapper>();
 
             _appSettings = new AppSettings
             {
@@ -224,7 +228,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task SignInShouldReturnJsonResult()
+        public async Task SignInShouldReturnOkObjectResult()
         {
             // Arrange
             var userId = "user id";
@@ -252,7 +256,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateLastRequestAsync(userId), Times.Once);
             _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
-            Assert.IsType<JsonResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
@@ -608,8 +612,15 @@ namespace Tests
             _appSettingsOptions.Setup(options => options.Value)
                 .Returns(_appSettings);
 
-            return new AccountController(_emailService.Object,_userService.Object, _tokenService.Object,
-                _authService.Object, _environment.Object, _appSettingsOptions.Object, _googleService.Object);
+            return new AccountController(
+                _emailService.Object, 
+                _userService.Object,
+                _tokenService.Object,
+                _authService.Object,
+                _environment.Object,
+                _appSettingsOptions.Object,
+                _googleService.Object,
+                _mapper.Object);
         }
     }
 }

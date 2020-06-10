@@ -40,6 +40,8 @@ In order to make Paralct.Ship work with this API server on Windows some changes 
 	- Add named volume "mongodata" (This will allow to save data even if container is removed)
 	- For mongo service replace "- /var/run/docker.sock:/var/run/docker.sock" with "- mongodata:/data/db" (The path /var/run/docker.sock does not exist on Windows)
 	- Remove api service entirely (.Net API server starts separately)
+	- Add mongodata volume declaration like "db-data" volume here:
+	https://docs.docker.com/compose/compose-file/#endpoint_mode
 
 2. web/src/server/config/environment/development.js:
 	- Change jwt secret setting to "jwt_secret128bits" (in .Net it needs to be more than 127 bist long)

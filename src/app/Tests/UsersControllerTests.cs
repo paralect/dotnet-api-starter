@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core.DAL.Documents.User;
-using Api.Core.Interfaces.Services.Document;
+using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
+using AutoMapper;
+using Common.DAL.Documents.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -13,10 +14,12 @@ namespace Tests
     public class UsersControllerTests
     {
         private readonly Mock<IUserService> _userService;
+        private readonly Mock<IMapper> _mapper;
 
         public UsersControllerTests()
         {
             _userService = new Mock<IUserService>();
+            _mapper = new Mock<IMapper>();
         }
 
         [Fact]
@@ -101,7 +104,7 @@ namespace Tests
 
         private UsersController CreateInstance(string currentUserId = null)
         {
-            var instance = new UsersController(_userService.Object);
+            var instance = new UsersController(_userService.Object, _mapper.Object);
 
             var httpContext = new Mock<HttpContext>();
             httpContext.Setup(context => context.User.Identity.Name).Returns(currentUserId);

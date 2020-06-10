@@ -3,6 +3,8 @@ version: '3.6'
 services:
   mongo:
     image: mongo:4.2
+    container_name: ship-mongo
+    command: --replSet ship-rs --bind_ip_all
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=rootPassword
@@ -12,7 +14,23 @@ services:
       - "27017:27017"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  replicator:
+    container_name: ship-replicator
+    build: ./replicator
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_LOGIN=root
+      - MONGO_PASSWORD=rootPassword
+      - REPLICA_NAME=ship-rs
+    depends_on:
+      - mongo
+    links:
+      - "mongo"
+    networks:
+      - ship
   api:
+    container_name: ship-api
     build:
       context: .
       dockerfile: app/Api/Dockerfile
@@ -26,7 +44,29 @@ services:
     ports:
       - "3001:3001"
     depends_on:
+      - "replicator"
+    links:
       - "mongo"
+  signal-r:
+    container_name: ship-signal-r
+    build:
+      context: .
+      dockerfile: app/SignalR/Dockerfile
+    networks:
+     - ship
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8082
+      - WAIT_FOR_HOST=api
+      - WAIT_FOR_PORT=3001
+    volumes:
+      - "./src:/app/src"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - "api"
+    links:
+      - "api"
 networks:
   ship:
     name: ship_network

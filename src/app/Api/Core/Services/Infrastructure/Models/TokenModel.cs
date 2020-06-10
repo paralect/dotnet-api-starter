@@ -1,5 +1,5 @@
 ﻿using System;
-using Api.Core.Enums;
+using Common.Enums;
 
 namespace Api.Core.Services.Infrastructure.Models
 {

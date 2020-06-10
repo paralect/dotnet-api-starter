@@ -1,13 +1,18 @@
-﻿using Api.Core.DAL;
-using Api.Core.DAL.Repositories;
-using Api.Core.Interfaces.DAL;
-using Api.Core.Interfaces.Services.Document;
-using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Services.Document;
+﻿using Api.Core.Services.Document;
 using Api.Core.Services.Infrastructure;
+using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
-using Api.Security;
+using Api.Mapping;
+using AutoMapper;
+using Common.DAL;
+using Common.DAL.Interfaces;
+using Common.DAL.Repositories;
+using Common.Middleware;
+using Common.Services;
+using Common.Services.Interfaces;
+using Common.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using IIdGenerator = Api.Core.Interfaces.DAL.IIdGenerator;
+using IIdGenerator = Common.DAL.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
@@ -24,9 +29,13 @@ namespace Api
     {
         private readonly IConfiguration _configuration;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
-            _configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .AddConfiguration(configuration)
+                .AddJsonFile($"common.{env.EnvironmentName}.json");
+
+            _configuration = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -71,6 +80,7 @@ namespace Api
             });
 
             services.AddAuthorization();
+            services.AddAutoMapper(typeof(UserProfile));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -105,6 +115,7 @@ namespace Api
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
+            services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 
         private void ConfigureDI(IServiceCollection services)

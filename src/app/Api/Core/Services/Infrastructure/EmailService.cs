@@ -1,5 +1,5 @@
-﻿using Api.Core.Interfaces.Services.Infrastructure;
-using Api.Core.Services.Infrastructure.Models;
+﻿using Api.Core.Services.Infrastructure.Models;
+using Api.Core.Services.Interfaces.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace Api.Core.Services.Infrastructure

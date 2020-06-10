@@ -1,18 +1,21 @@
 ﻿using System.Threading.Tasks;
-using Api.Core;
-using Api.Core.DAL.Repositories;
-using Api.Core.Interfaces.Services.Document;
-using Api.Core.Interfaces.Services.Infrastructure;
 using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Settings;
+using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
-using Api.Core.Utils;
+using Api.Models.User;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Api.Security;
+using AutoMapper;
+using Common;
+using Common.DAL.Repositories;
+using Common.Services.Interfaces;
+using Common.Settings;
+using Common.Utils;
 using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
 
 namespace Api.Controllers
@@ -26,6 +29,7 @@ namespace Api.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
         private readonly IGoogleService _googleService;
+        private readonly IMapper _mapper;
 
         public AccountController(
             IEmailService emailService,
@@ -34,7 +38,8 @@ namespace Api.Controllers
             IAuthService authService,
             IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings,
-            IGoogleService googleService)
+            IGoogleService googleService,
+            IMapper mapper)
         {
             _emailService = emailService;
             _userService = userService;
@@ -44,6 +49,7 @@ namespace Api.Controllers
             _environment = environment;
             _googleService = googleService;
             _appSettings = appSettings.Value;
+            _mapper = mapper;
         }
 
         [HttpPost("signup")]
@@ -115,7 +121,7 @@ namespace Api.Controllers
                 _authService.SetTokensAsync(user.Id)
             );
 
-            return new JsonResult(new { redirectUrl =_appSettings.WebUrl });
+            return Ok(_mapper.Map<UserViewModel>(user));
         }
 
         [HttpPost("forgotPassword")]
@@ -191,11 +197,13 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [Authorize]
-        [HttpGet("logout")]
+        [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            await _authService.UnsetTokensAsync(CurrentUserId);
+            if (CurrentUserId.HasValue())
+            {
+                await _authService.UnsetTokensAsync(CurrentUserId);
+            }
 
             return Ok();
         }
