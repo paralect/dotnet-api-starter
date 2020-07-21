@@ -186,13 +186,13 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var userId = await _tokenService.FindUserIdByTokenAsync(refreshToken);
-            if (userId.HasNoValue())
+            var token = await _tokenService.FindAsync(refreshToken);
+            if (token == null || token.IsExpired)
             {
                 return Unauthorized();
             }
 
-            await _authService.SetTokensAsync(userId);
+            await _authService.SetTokensAsync(token.UserId);
 
             return Ok();
         }
