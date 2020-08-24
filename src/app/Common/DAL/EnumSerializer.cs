@@ -36,7 +36,7 @@ namespace Common.DAL
         /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
         /// </summary>
         public EnumSerializer()
-            : this((BsonType)0) // 0 means use underlying type
+            : this(0) // 0 means use underlying type
         {
         }
 
@@ -55,7 +55,7 @@ namespace Common.DAL
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for an EnumSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for an EnumSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -63,7 +63,7 @@ namespace Common.DAL
             var enumTypeInfo = typeof(TEnum).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)
             {
-                var message = string.Format("{0} is not an enum type.", typeof(TEnum).FullName);
+                var message = $"{typeof(TEnum).FullName} is not an enum type.";
                 throw new BsonSerializationException(message);
             }
 
@@ -102,7 +102,7 @@ namespace Common.DAL
                 case BsonType.String:
                 {
                     var value = bsonReader.ReadString();
-                    foreach (TEnum enumValue in (TEnum[])Enum.GetValues(typeof(TEnum)))
+                    foreach (var enumValue in (TEnum[])Enum.GetValues(typeof(TEnum)))
                     {
                         var description = enumValue.GetDescription();
                         if (string.Equals(value, description, StringComparison.InvariantCulture))
@@ -110,7 +110,7 @@ namespace Common.DAL
                             return enumValue;
                         }
                     }
-                    return (TEnum)Enum.Parse(typeof(TEnum), bsonReader.ReadString());
+                    return (TEnum)Enum.Parse(typeof(TEnum), value);
                 }
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
@@ -164,14 +164,7 @@ namespace Common.DAL
         /// <returns>The reconfigured serializer.</returns>
         public EnumSerializer<TEnum> WithRepresentation(BsonType representation)
         {
-            if (representation == _representation)
-            {
-                return this;
-            }
-            else
-            {
-                return new EnumSerializer<TEnum>(representation);
-            }
+            return representation == _representation ? this : new EnumSerializer<TEnum>(representation);
         }
 
         // explicit interface implementations

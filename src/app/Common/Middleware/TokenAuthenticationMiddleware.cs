@@ -33,10 +33,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var userId = await _tokenService.FindUserIdByTokenAsync(accessToken);
-                if (userId.HasValue())
+                var token = await _tokenService.FindAsync(accessToken);
+                if (token != null && !token.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(userId), new string[] { });
+                    var principal = new Principal(new GenericIdentity(token.UserId), new string[] { });
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

@@ -52,10 +52,9 @@ namespace Common.Services
             return tokens;
         }
 
-        public async Task<string> FindUserIdByTokenAsync(string tokenValue)
+        public async Task<Token> FindAsync(string tokenValue)
         {
-            var token = await FindOneAsync(new TokenFilter { Value = tokenValue });
-            return token?.UserId;
+            return await FindOneAsync(new TokenFilter { Value = tokenValue });
         }
 
         public async Task DeleteUserTokensAsync(string userId)

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Api.Controllers;
 using Api.Core.Services.Document.Models;
@@ -7,6 +8,7 @@ using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using AutoMapper;
 using Common;
+using Common.DAL.Documents.Token;
 using Common.DAL.Documents.User;
 using Common.DAL.Repositories;
 using Common.Services.Interfaces;
@@ -388,7 +390,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task RefreshTokenShouldReturnUnauthorizedWhenUserIsNotFound()
+        public async Task RefreshTokenShouldReturnUnauthorizedWhenTokenIsNotFound()
         {
             // Arrange
             var refreshToken = "refresh token";
@@ -398,8 +400,8 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindUserIdByTokenAsync(refreshToken))
-                .ReturnsAsync((string)null);
+            _tokenService.Setup(service => service.FindAsync(refreshToken))
+                .ReturnsAsync((Token)null);
 
             var controller = CreateInstance();
             controller.ControllerContext = controllerContext;
@@ -423,8 +425,8 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindUserIdByTokenAsync(refreshToken))
-                .ReturnsAsync(userId);
+            _tokenService.Setup(service => service.FindAsync(refreshToken))
+                .ReturnsAsync(new Token { UserId = userId, ExpireAt = DateTime.UtcNow.AddYears(1) });
 
             var controller = CreateInstance();
             controller.ControllerContext = controllerContext;

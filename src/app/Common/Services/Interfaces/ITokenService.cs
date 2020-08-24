@@ -8,7 +8,7 @@ namespace Common.Services.Interfaces
     public interface ITokenService : IDocumentService<Token, TokenFilter>
     {
         Task<List<Token>> CreateAuthTokensAsync(string userId);
-        Task<string> FindUserIdByTokenAsync(string tokenValue);
+        Task<Token> FindAsync(string tokenValue);
         Task DeleteUserTokensAsync(string userId);
     }
 }
