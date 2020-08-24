@@ -187,7 +187,7 @@ namespace Api.Controllers
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
             var token = await _tokenService.FindAsync(refreshToken);
-            if (token == null || token.IsExpired)
+            if (token == null || token.IsExpired())
             {
                 return Unauthorized();
             }

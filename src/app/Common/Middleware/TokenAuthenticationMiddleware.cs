@@ -34,7 +34,7 @@ namespace Common.Middleware
             if (accessToken.HasValue())
             {
                 var token = await _tokenService.FindAsync(accessToken);
-                if (token != null && !token.IsExpired)
+                if (token != null && !token.IsExpired())
                 {
                     var principal = new Principal(new GenericIdentity(token.UserId), new string[] { });
 

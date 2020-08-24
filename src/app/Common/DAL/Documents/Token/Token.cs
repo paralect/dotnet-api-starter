@@ -1,6 +1,5 @@
 ﻿using System;
 using Common.Enums;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Common.DAL.Documents.Token
 {
@@ -10,8 +9,5 @@ namespace Common.DAL.Documents.Token
         public string Value { get; set; }
         public DateTime ExpireAt { get; set; }
         public string UserId { get; set; }
-        
-        [BsonIgnore]
-        public bool IsExpired => ExpireAt <= DateTime.UtcNow;
     }
 }
