@@ -7,6 +7,7 @@ using Api.Core.Services.Interfaces.Infrastructure;
 using Common.DAL.Documents.User;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
+using Common.DAL.UpdateDocumentOperators;
 using Common.Services;
 using Common.Utils;
 
@@ -46,20 +47,20 @@ namespace Api.Core.Services.Document
 
         public async Task UpdatePasswordAsync(string id, string newPassword)
         {
-            await _userRepository.UpdateOneAsync(id, u =>
+            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
             {
-                u.PasswordHash = newPassword.GetHash();
-                u.ResetPasswordToken = string.Empty;
+                new SetOperator<User, string>(user => user.PasswordHash, newPassword.GetHash()),
+                new SetOperator<User, string>(user => user.ResetPasswordToken, string.Empty)
             });
         }
 
         public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
-            await _userRepository.UpdateOneAsync(id, u =>
+            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
             {
-                u.Email = email;
-                u.FirstName = firstName;
-                u.LastName = lastName;
+                new SetOperator<User, string>(user => user.Email, email),
+                new SetOperator<User, string>(user => user.FirstName, firstName),
+                new SetOperator<User, string>(user => user.LastName, lastName)
             });
         }
 
