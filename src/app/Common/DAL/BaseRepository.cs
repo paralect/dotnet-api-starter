@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DAL.Documents;
 using Common.DAL.Interfaces;
+using Common.DAL.UpdateDocumentOperators;
 using Common.Utils;
 using MongoDB.Driver;
 
@@ -54,34 +55,39 @@ namespace Common.DAL
             return result.SingleOrDefault();
         }
 
-        public async Task UpdateOneAsync(string id, Expression<Func<TDocument, object>> fieldSelector, object value)
+        public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
         {
-            var updateDefinition = Builders<TDocument>.Update.Set(fieldSelector, value);
-            await Collection.UpdateOneAsync(GetFilterById(id), updateDefinition);
+            await UpdateOneAsync(id, new SetOperator<TDocument, TField>(fieldSelector, value));
         }
 
-        public async Task UpdateOneAsync(string id, Action<TDocument> updater)
+        public async Task UpdateOneAsync(string id, IUpdateOperator<TDocument> update)
         {
-            using var session = await DbContext.Client.StartSessionAsync();
+            await UpdateOneAsync(id, new[] { update });
+        }
 
-            session.StartTransaction();
+        public async Task UpdateOneAsync(string id, IEnumerable<IUpdateOperator<TDocument>> updates)
+        {
+            var filterDefinition = GetFilterById(id);
+            var updateDefinition = Builders<TDocument>.Update.Combine(updates.Select(update => update.ToUpdateDefinition()));
 
-            try
-            {
-                var document = await FindOneAsync(new TFilter { Id = id });
-                if (document != null)
-                {
-                    updater(document);
-                    await Collection.ReplaceOneAsync(GetFilterById(id), document);
-                }
-            }
-            catch
-            {
-                await session.AbortTransactionAsync();
-                throw;
-            }
+            await Collection.UpdateOneAsync(filterDefinition, updateDefinition);
+        }
 
-            await session.CommitTransactionAsync();
+        public async Task ReplaceOneAsync(TDocument document)
+        {
+            await Collection.ReplaceOneAsync(GetFilterById(document.Id), document);
+        }
+
+        public async Task ReplaceOneAsync(TDocument document, Action<TDocument> updater)
+        {
+            updater(document);
+            await ReplaceOneAsync(document);
+        }
+        
+        public async Task ReplaceOneAsync(string id, Action<TDocument> updater)
+        {
+            var document = await FindOneAsync(new TFilter { Id = id });
+            await ReplaceOneAsync(document, updater);
         }
 
         public async Task DeleteManyAsync(TFilter filter)
@@ -105,7 +111,7 @@ namespace Common.DAL
             return Builders<TDocument>.Filter.And(filterQueries);
         }
 
-        private FilterDefinition<TDocument> GetFilterById(string id)
+        private static FilterDefinition<TDocument> GetFilterById(string id)
         {
             return Builders<TDocument>.Filter.Eq(d => d.Id, id);
         }

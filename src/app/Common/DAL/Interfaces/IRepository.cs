@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DAL.Documents;
+using Common.DAL.UpdateDocumentOperators;
 
 namespace Common.DAL.Interfaces
 {
@@ -15,8 +16,13 @@ namespace Common.DAL.Interfaces
 
         Task<TDocument> FindOneAsync(TFilter filter);
 
-        Task UpdateOneAsync(string id, Expression<Func<TDocument, object>> fieldSelector, object value);
-        Task UpdateOneAsync(string id, Action<TDocument> updater);
+        Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value);
+        Task UpdateOneAsync(string id, IUpdateOperator<TDocument> update);
+        Task UpdateOneAsync(string id, IEnumerable<IUpdateOperator<TDocument>> updates);
+
+        Task ReplaceOneAsync(string id, Action<TDocument> updater);
+        Task ReplaceOneAsync(TDocument document, Action<TDocument> updater);
+        Task ReplaceOneAsync(TDocument document);
 
         Task DeleteManyAsync(TFilter filter);
     }
