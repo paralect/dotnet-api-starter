@@ -40,14 +40,16 @@ namespace Api.Core.Services.Infrastructure
             {
                 HttpOnly = false,
                 Expires = accessToken.ExpireAt,
-                Domain = domain
+                Domain = domain,
+                SameSite = SameSiteMode.Strict
             });
 
             _httpContext.Response.Cookies.Append(Constants.CookieNames.RefreshToken, refreshToken.Value, new CookieOptions
             {
                 HttpOnly = true,
                 Expires = refreshToken.ExpireAt,
-                Domain = domain
+                Domain = domain,
+                SameSite = SameSiteMode.Strict
             });
         }
 
