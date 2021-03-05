@@ -23,4 +23,4 @@ COPY --from=publish /app/publish .
 RUN apt-get update && apt-get install -y netcat-openbsd
 
 COPY ["app/SignalR/bash/", "bash"]
-ENTRYPOINT ["/bin/bash", "bash/setup.sh", "api", "3001"]
+ENTRYPOINT ["/bin/bash", "bash/setup.sh"]
