@@ -1,4 +1,3 @@
-using AutoMapper;
 using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;

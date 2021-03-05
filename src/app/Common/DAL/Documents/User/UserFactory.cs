@@ -4,13 +4,13 @@
     {
         public User UnverifiedUser()
         {
-            UserBuilder builder = new UserBuilder();
+            var builder = new UserBuilder();
             return builder.NotVerifiedEmail().Build();
         }
 
         public User VerifiedUser()
         {
-            UserBuilder builder = new UserBuilder();
+            var builder = new UserBuilder();
             return builder.Build();
         }
     }

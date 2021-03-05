@@ -8,7 +8,7 @@ namespace Api.Security
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (!context.HttpContext.User.Identity.IsAuthenticated)
+            if (!(context.HttpContext.User.Identity?.IsAuthenticated ?? false))
             {
                 context.Result = new UnauthorizedResult();
             }

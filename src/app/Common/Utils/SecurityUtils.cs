@@ -7,7 +7,7 @@ namespace Common.Utils
     {
         public static string GenerateSecureToken(int tokenLength = 48)
         {
-            byte[] buf = new byte[tokenLength];
+            var buf = new byte[tokenLength];
             using (var rngCsp = new RNGCryptoServiceProvider())
             {
                 rngCsp.GetBytes(buf);

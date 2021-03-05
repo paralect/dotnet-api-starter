@@ -31,14 +31,14 @@ namespace Common.Services
 
             var tokens = new List<Token>
             {
-                new Token
+                new()
                 {
                     Type = TokenTypeEnum.Access,
                     ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
                     UserId = userId,
                     Value = accessTokenValue
                 },
-                new Token
+                new()
                 {
                     Type = TokenTypeEnum.Refresh,
                     ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
