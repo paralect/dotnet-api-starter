@@ -108,7 +108,7 @@ namespace Common.DAL
                 filterQueries.Add(GetFilterById(filter.Id));
             }
 
-            if (!filterQueries.Any() && !filter.EmptyFilterAllowed)
+            if (!filterQueries.Any() && !filter.IsEmptyFilterAllowed)
             {
                 throw new ApplicationException("Empty filter is not allowed");
             }
