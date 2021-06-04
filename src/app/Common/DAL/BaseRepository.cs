@@ -108,7 +108,14 @@ namespace Common.DAL
                 filterQueries.Add(GetFilterById(filter.Id));
             }
 
-            return Builders<TDocument>.Filter.And(filterQueries);
+            if (!filterQueries.Any() && !filter.IsEmptyFilterAllowed)
+            {
+                throw new ApplicationException("Empty filter is not allowed");
+            }
+
+            return filterQueries.Any()
+                ? Builders<TDocument>.Filter.And(filterQueries)
+                : FilterDefinition<TDocument>.Empty;
         }
 
         private static FilterDefinition<TDocument> GetFilterById(string id)
