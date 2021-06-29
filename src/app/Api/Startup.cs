@@ -5,7 +5,6 @@ using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Mapping;
-using AutoMapper;
 using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;

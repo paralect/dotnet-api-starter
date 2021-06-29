@@ -25,7 +25,7 @@ namespace Common.DAL
                 new CamelCaseElementNameConvention(),
                 new EnumRepresentationConvention(BsonType.String)
             };
-            ConventionRegistry.Register("overrides", conventionPack, t => true);
+            ConventionRegistry.Register("overrides", conventionPack, _ => true);
 
             // custom serialization/deserialization to store enum Description attributes in DB
             // TODO rewrite to apply to all enums, if possible OR rewrite Node API to store enums as numbers
@@ -45,7 +45,7 @@ namespace Common.DAL
             var schemasPath = Path.Combine(assemblyLocation, "DAL", "Schemas");
             var collectionDescriptions = new List<CollectionDescription>
             {
-                new CollectionDescription
+                new()
                 {
                     Name = Constants.DbDocuments.Users,
                     DocumentType = typeof(User),
@@ -59,7 +59,7 @@ namespace Common.DAL
                         }
                     }
                 },
-                new CollectionDescription
+                new()
                 {
                     Name = Constants.DbDocuments.Tokens,
                     DocumentType = typeof(Token),

@@ -53,7 +53,7 @@ namespace Api.Core.Services.Infrastructure
 
         private GoogleAuthorizationCodeFlow CreateFlow()
         {
-            return new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+            return new(new GoogleAuthorizationCodeFlow.Initializer
             {
                 ClientSecrets = new ClientSecrets
                 {
