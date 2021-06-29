@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "app\Api\Api.csproj", "{A4BC8A2B-53D9-462D-AB34-C9ECBE30EDFD}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{B1ACA15A-F425-4444-8413-3CA3575F06CC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "app\Tests\Tests.csproj", "{E95802B0-9809-4F20-9453-CE0BF9EB79A5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{490938F7-A522-4B42-9298-02AA0B7DA8A8}"
@@ -16,7 +14,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "app\Common\Common.csproj", "{6B61B67E-5B79-4DA1-9A1C-DBDCD189AC4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR", "app\SignalR\SignalR.csproj", "{6740BAD9-50EA-4D0D-9DA5-9878628C1447}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR", "app\SignalR\SignalR.csproj", "{6740BAD9-50EA-4D0D-9DA5-9878628C1447}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{486C84F4-35ED-498C-9369-8F90996B87DE}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +32,6 @@ Global
 		{A4BC8A2B-53D9-462D-AB34-C9ECBE30EDFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4BC8A2B-53D9-462D-AB34-C9ECBE30EDFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4BC8A2B-53D9-462D-AB34-C9ECBE30EDFD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1ACA15A-F425-4444-8413-3CA3575F06CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1ACA15A-F425-4444-8413-3CA3575F06CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1ACA15A-F425-4444-8413-3CA3575F06CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1ACA15A-F425-4444-8413-3CA3575F06CC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E95802B0-9809-4F20-9453-CE0BF9EB79A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E95802B0-9809-4F20-9453-CE0BF9EB79A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E95802B0-9809-4F20-9453-CE0BF9EB79A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
