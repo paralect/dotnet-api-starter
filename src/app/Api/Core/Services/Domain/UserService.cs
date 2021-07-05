@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Api.Core.Services.Document.Models;
+using Api.Core.Services.Domain.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Domain;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common.DAL.Documents.User;
 using Common.DAL.Interfaces;
@@ -11,7 +11,7 @@ using Common.DAL.UpdateDocumentOperators;
 using Common.Services;
 using Common.Utils;
 
-namespace Api.Core.Services.Document
+namespace Api.Core.Services.Domain
 {
     public class UserService : BaseDocumentService<User, UserFilter>, IUserService
     {

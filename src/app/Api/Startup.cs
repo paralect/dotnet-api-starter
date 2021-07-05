@@ -1,6 +1,6 @@
-﻿using Api.Core.Services.Document;
+﻿using Api.Core.Services.Domain;
 using Api.Core.Services.Infrastructure;
-using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Domain;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
@@ -8,6 +8,7 @@ using Api.Mapping;
 using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
+using Common.DALSql;
 using Common.Middleware;
 using Common.Services;
 using Common.Services.Interfaces;
@@ -112,6 +113,7 @@ namespace Api
         private void ConfigureSettings(IServiceCollection services)
         {
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<SqlConnectionSettings>(options => { _configuration.GetSection("SqlConnection").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
@@ -122,6 +124,7 @@ namespace Api
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IUserSqlService, UserSqlService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IGoogleService, GoogleService>();
 
@@ -139,6 +142,11 @@ namespace Api
             _configuration.GetSection("MongoConnection").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+            
+            var sqlConnectionSettings = new SqlConnectionSettings();
+            _configuration.GetSection("SqlConnection").Bind(sqlConnectionSettings);
+            
+            services.InitializePostgreSqlDb(sqlConnectionSettings);
         }
     }
 }

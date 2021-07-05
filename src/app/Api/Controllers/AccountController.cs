@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Services.Document.Models;
+using Api.Core.Services.Domain.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Domain;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using Microsoft.AspNetCore.Mvc;
