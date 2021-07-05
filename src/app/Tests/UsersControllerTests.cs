@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Domain;
 using Api.Models.User;
 using AutoMapper;
 using Common.DAL.Documents.User;

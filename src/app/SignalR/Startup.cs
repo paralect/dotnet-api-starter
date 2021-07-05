@@ -71,6 +71,7 @@ namespace SignalR
             services.AddTransient<IUserHubContext, UserHubContext>();
 
             services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<SqlConnectionSettings>(options => { _configuration.GetSection("SqlConnection").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }

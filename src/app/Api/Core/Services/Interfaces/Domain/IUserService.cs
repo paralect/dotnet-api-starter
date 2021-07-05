@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Services.Document.Models;
+using Api.Core.Services.Domain.Models;
 using Common.DAL.Documents.User;
 using Common.DAL.Repositories;
 using Common.Services.Interfaces;
 
-namespace Api.Core.Services.Interfaces.Document
+namespace Api.Core.Services.Interfaces.Domain
 {
     public interface IUserService : IDocumentService<User, UserFilter>
     {
