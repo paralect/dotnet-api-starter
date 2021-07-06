@@ -7,7 +7,9 @@ namespace Api.Core.Services.Interfaces.Domain
     public interface IUserSqlService
     {
         Task<User> FindByIdAsync(long id);
-        Task<User> FindBySignupTokenAsync(string signupToken);
+        Task<User> FindBySignupTokenAsync(string token);
+        Task<User> FindByResetPasswordTokenAsync(string token);
+
         //Task<User> FindOneAsync(TFilter filter);
 
         Task<User> CreateUserAccountAsync(CreateUserModel model);

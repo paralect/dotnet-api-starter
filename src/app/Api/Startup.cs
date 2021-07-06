@@ -124,9 +124,12 @@ namespace Api
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IUserSqlService, UserSqlService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IGoogleService, GoogleService>();
+            
+            services.AddTransient<IUserSqlService, UserSqlService>();
+            services.AddTransient<ITokenSqlService, TokenSqlService>();
+            services.AddTransient<IAuthSqlService, AuthSqlService>();
 
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITokenRepository, TokenRepository>();
