@@ -27,9 +27,14 @@ namespace Api.Core.Services.Domain
             return await _context.Users.FirstOrDefaultAsync(u => u.UserId == id); // TODO consider AsNoTracking
         }
 
-        public async Task<User> FindBySignupTokenAsync(string signupToken)
+        public async Task<User> FindBySignupTokenAsync(string token)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.SignupToken == signupToken);
+            return await _context.Users.FirstOrDefaultAsync(u => u.SignupToken == token);
+        }
+
+        public async Task<User> FindByResetPasswordTokenAsync(string token)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.ResetPasswordToken == token);
         }
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
@@ -75,7 +80,7 @@ namespace Api.Core.Services.Domain
 
         public async Task<User> FindByEmailAsync(string email)
         {
-            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task UpdateLastRequestAsync(long id)
@@ -117,6 +122,7 @@ namespace Api.Core.Services.Domain
         {
             var user = await FindByIdAsync(id);
             user.IsEmailVerified = true;
+            user.LastRequest = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
         }
