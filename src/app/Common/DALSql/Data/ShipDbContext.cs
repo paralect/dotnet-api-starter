@@ -1,11 +1,11 @@
-﻿using Common.DALSql.Models;
+﻿using Common.DALSql.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Common.DALSql.Data
 {
-    public class ShipContext : DbContext
+    public class ShipDbContext : DbContext
     {
-        public ShipContext(DbContextOptions<ShipContext> options) : base(options)
+        public ShipDbContext(DbContextOptions<ShipDbContext> options) : base(options)
         {
         }
 

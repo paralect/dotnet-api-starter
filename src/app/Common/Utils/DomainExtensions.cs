@@ -10,7 +10,7 @@ namespace Common.Utils
             return token.ExpireAt <= DateTime.UtcNow;
         }
         
-        public static bool IsExpired(this Common.DALSql.Models.Token token)
+        public static bool IsExpired(this DALSql.Entities.Token token)
         {
             return token.ExpireAt <= DateTime.UtcNow;
         }
