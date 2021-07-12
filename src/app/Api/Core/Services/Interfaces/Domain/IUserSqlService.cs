@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Api.Core.Services.Domain.Models;
-using Common.DALSql.Models;
+using Common.DALSql.Entities;
 
 namespace Api.Core.Services.Interfaces.Domain
 {

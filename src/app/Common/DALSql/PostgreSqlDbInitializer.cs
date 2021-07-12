@@ -10,7 +10,7 @@ namespace Common.DALSql
     {
         public static void InitializePostgreSqlDb(this IServiceCollection services, SqlConnectionSettings settings)
         {
-            services.AddDbContext<ShipContext>(options =>
+            services.AddDbContext<ShipDbContext>(options =>
                 options.UseNpgsql(settings.ConnectionString));
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.DALSql.Data;
-using Common.DALSql.Models;
+using Common.DALSql.Entities;
 using Common.Enums;
 using Common.Services.Interfaces;
 using Common.Settings;
@@ -15,18 +15,18 @@ namespace Common.Services
 {
     public class TokenSqlService : ITokenSqlService
     {
-        private readonly ShipContext _context;
+        private readonly ShipDbContext _dbContext;
         private readonly TokenExpirationSettings _tokenExpirationSettings;
 
-        public TokenSqlService(ShipContext context, IOptions<TokenExpirationSettings> tokenExpirationSettings)
+        public TokenSqlService(ShipDbContext dbContext, IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
-            _context = context;
+            _dbContext = dbContext;
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
         public async Task<Token> FindByIdAsync(long id)
         {
-            return await _context.Tokens.FirstOrDefaultAsync(t => t.TokenId == id);
+            return await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Id == id);
         }
         
         public async Task<List<Token>> CreateAuthTokensAsync(long userId)
@@ -52,24 +52,24 @@ namespace Common.Services
                 }
             };
 
-            _context.Tokens.AddRange(tokens);
+            _dbContext.Tokens.AddRange(tokens);
 
-            await _context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             return tokens;
         }
 
         public async Task<Token> FindByValueAsync(string tokenValue)
         {
-            return await _context.Tokens.FirstOrDefaultAsync(t => t.Value == tokenValue);
+            return await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Value == tokenValue);
         }
 
         public async Task DeleteUserTokensAsync(long userId)
         {
-            var tokens = _context.Tokens.Where(t => t.UserId == userId);
-            _context.Tokens.RemoveRange(tokens);
+            var tokens = _dbContext.Tokens.Where(t => t.UserId == userId);
+            _dbContext.Tokens.RemoveRange(tokens);
 
-            await _context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

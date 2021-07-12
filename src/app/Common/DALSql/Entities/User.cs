@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Common.DALSql.Models
+namespace Common.DALSql.Entities
 {
-    public class User
+    public class User : BaseEntity
     {
-        public long UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PasswordHash { get; set; }

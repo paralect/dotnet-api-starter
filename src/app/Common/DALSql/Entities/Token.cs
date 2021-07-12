@@ -1,11 +1,10 @@
 ﻿using System;
 using Common.Enums;
 
-namespace Common.DALSql.Models
+namespace Common.DALSql.Entities
 {
-    public class Token
+    public class Token : BaseEntity
     {
-        public long TokenId { get; set; }
         public TokenTypeEnum Type { get; set; }
         public string Value { get; set; }
         public DateTime ExpireAt { get; set; }

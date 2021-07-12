@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common.DALSql.Models;
+using Common.DALSql.Entities;
 
 namespace Common.Services.Interfaces
 {
