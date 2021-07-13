@@ -147,7 +147,7 @@ namespace Api
             services.AddTransient<IUserSqlRepository, UserSqlRepository>();
             services.AddTransient<ITokenSqlRepository, TokenSqlRepository>();
 
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         private void ConfigureDb(IServiceCollection services)

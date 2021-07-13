@@ -12,6 +12,8 @@ namespace Common.DALSql.Repositories
         Task<T> Find(long id);
         Task<T> FindAsNoTracking(long id);
         Task<T> FindIgnoreQueryFilters(long id);
+        Task<T> FindOneByQueryAsNoTracking(DbQuery<T> queryParams);
+        Task<IEnumerable<T>> FindByQueryAsNoTracking(DbQuery<T> queryParams);
         
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
