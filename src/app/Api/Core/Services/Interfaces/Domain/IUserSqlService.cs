@@ -13,9 +13,8 @@ namespace Api.Core.Services.Interfaces.Domain
         //Task<User> FindOneAsync(TFilter filter);
 
         Task<User> CreateUserAccountAsync(CreateUserModel model);
+        Task VerifyEmail(long userId);
         // Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
-        //
-        Task<User> FindByEmailAsync(string email);
         //
         // Task UpdateLastRequestAsync(long id);
         // Task UpdateResetPasswordTokenAsync(long id, string token);

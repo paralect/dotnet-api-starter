@@ -11,6 +11,7 @@ namespace Common.DALSql.Repositories
 {
     public class BaseRepository<T> : IRepository<T> where T : BaseEntity
     {
+        private IRepository<T> _repositoryImplementation;
         protected DbSet<T> Table { get; }
         
         protected BaseRepository(ShipDbContext context)
@@ -47,6 +48,16 @@ namespace Common.DALSql.Repositories
             return await Table.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<T> FindOneByQueryAsNoTracking(DbQuery<T> queryParams)
+        {
+            return await ConstructQuery(queryParams).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<T>> FindByQueryAsNoTracking(DbQuery<T> queryParams)
+        {
+            return await ConstructQuery(queryParams).ToListAsync();
+        }
+
         public void Add(T entity)
         {
             Table.Add(entity);
@@ -81,5 +92,16 @@ namespace Common.DALSql.Repositories
         // {
         //     await Context.Database.ExecuteSqlRawAsync(sql, sqlParametersObjects);
         // }
+        
+        private IQueryable<T> ConstructQuery(DbQuery<T> queryParams)
+        {
+            var query = Table.AsNoTracking();
+            if (queryParams.Predicates.Any())
+            {
+                queryParams.Predicates.ForEach(predicate => query = query.Where(predicate));
+            }
+
+            return query;
+        }
     }
 }

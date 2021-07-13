@@ -8,6 +8,9 @@ using Api.Models.User;
 using Api.Security;
 using AutoMapper;
 using Common;
+using Common.DALSql;
+using Common.DALSql.Entities;
+using Common.DALSql.Repositories;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
@@ -21,6 +24,8 @@ namespace Api.Controllers
 {
     public class AccountSqlController : BaseController
     {
+        private readonly IUnitOfWork _unitOfWork;
+        
         private readonly IEmailService _emailService;
 
         private readonly IUserSqlService _userSqlService;
@@ -33,6 +38,8 @@ namespace Api.Controllers
         private readonly IMapper _mapper;
 
         public AccountSqlController(
+            IUnitOfWork unitOfWork,
+            
             IEmailService emailService,
             IUserSqlService userSqlService,
             ITokenSqlService tokenSqlService,
@@ -42,6 +49,8 @@ namespace Api.Controllers
             IGoogleService googleService,
             IMapper mapper)
         {
+            _unitOfWork = unitOfWork;
+
             _emailService = emailService;
             _userSqlService = userSqlService;
             _tokenSqlService = tokenSqlService;
@@ -56,13 +65,15 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _userSqlService.FindByEmailAsync(model.Email);
+            var user = await _unitOfWork.Users.FindOneByQueryAsNoTracking(
+                new DbQuery<User>().AddFilter(u => u.Email == model.Email)
+            );
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            user = await _userSqlService.CreateUserAccountAsync(new CreateUserModel
+            var newUser = await _userSqlService.CreateUserAccountAsync(new CreateUserModel
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
@@ -72,35 +83,32 @@ namespace Api.Controllers
 
             if (_environment.IsDevelopment())
             {
-                return Ok(new {_signupToken = user.SignupToken});
+                return Ok(new {_signupToken = newUser.SignupToken});
             }
 
             return Ok();
         }
 
-        // [HttpGet("verifyEmail/{token}")]
-        // public async Task<IActionResult> VerifyEmailAsync(string token)
-        // {
-        //     if (token == null)
-        //     {
-        //         return BadRequest("Token", "Token is required.");
-        //     }
-        //
-        //     var user = await _userSqlService.FindBySignupTokenAsync(token);
-        //     if (user == null)
-        //     {
-        //         return BadRequest("Token", "Token is invalid.");
-        //     }
-        //
-        //     var userId = user.Id;
-        //
-        //     await Task.WhenAll(
-        //         _userSqlService.MarkEmailAsVerifiedAsync(userId),
-        //         _authSqlService.SetTokensAsync(userId)
-        //     );
-        //
-        //     return Redirect(_appSettings.WebUrl);
-        // }
+        [HttpGet("verifyEmail/{token}")]
+        public async Task<IActionResult> VerifyEmailAsync(string token)
+        {
+            if (token == null)
+            {
+                return BadRequest("Token", "Token is required.");
+            }
+
+            var user = await _unitOfWork.Users.FindOneByQueryAsNoTracking(
+                new DbQuery<User>().AddFilter(u => u.SignupToken == token)
+            );
+            if (user == null)
+            {
+                return BadRequest("Token", "Token is invalid.");
+            }
+            
+            await _userSqlService.VerifyEmail(user.Id);
+          
+            return Redirect(_appSettings.WebUrl);
+        }
         //
         // [HttpPost("signin")]
         // public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)

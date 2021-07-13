@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Core.Services.Domain.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Domain;
 using Api.Core.Services.Interfaces.Infrastructure;
+using Common;
 using Common.DALSql.Data;
 using Common.DALSql.Entities;
 using Common.DALSql.Repositories;
+using Common.Enums;
+using Common.Settings;
 using Common.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Api.Core.Services.Domain
 {
@@ -16,11 +21,19 @@ namespace Api.Core.Services.Domain
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly IAuthSqlService _authSqlService;
+        private readonly TokenExpirationSettings _tokenExpirationSettings;
 
-        public UserSqlService(IUnitOfWork unitOfWork, IEmailService emailService)
+        public UserSqlService(
+            IUnitOfWork unitOfWork,
+            IEmailService emailService,
+            IAuthSqlService authSqlService,
+            IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _authSqlService = authSqlService;
+            _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
         // public async Task<User> FindByIdAsync(long id)
@@ -64,6 +77,40 @@ namespace Api.Core.Services.Domain
             return user;
         }
 
+        public async Task VerifyEmail(long userId)
+        {
+            var user = await _unitOfWork.Users.Find(userId);
+            user.IsEmailVerified = true;
+            user.LastRequest = DateTime.UtcNow;
+            
+            var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+            var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+
+            var tokens = new List<Token>
+            {
+                new Token
+                {
+                    Type = TokenTypeEnum.Access,
+                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
+                    UserId = userId,
+                    Value = accessTokenValue
+                },
+                new Token
+                {
+                    Type = TokenTypeEnum.Refresh,
+                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
+                    UserId = userId,
+                    Value = refreshTokenValue
+                }
+            };
+
+            _unitOfWork.Tokens.AddRange(tokens);
+
+            await _unitOfWork.Complete();
+
+            _authSqlService.SetTokens(tokens);
+        }
+
         // public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
         // {
         //     var user = _dbContext.Users.Add(new User
@@ -80,10 +127,6 @@ namespace Api.Core.Services.Domain
         //     return user;
         // }
         //
-        public async Task<User> FindByEmailAsync(string email)
-        {
-            return await _unitOfWork.Users.FindByEmail(email);;
-        }
         //
         // public async Task UpdateLastRequestAsync(long id)
         // {
