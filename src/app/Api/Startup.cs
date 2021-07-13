@@ -9,6 +9,8 @@ using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
 using Common.DALSql;
+using Common.DALSql.Data;
+using Common.DALSql.Repositories;
 using Common.Middleware;
 using Common.Services;
 using Common.Services.Interfaces;
@@ -83,8 +85,10 @@ namespace Api
             services.AddAutoMapper(typeof(UserProfile));
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ShipDbContext dbContext)
         {
+            dbContext.Database.EnsureCreated();
+            
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
@@ -127,16 +131,23 @@ namespace Api
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IGoogleService, GoogleService>();
             
-            services.AddTransient<IUserSqlService, UserSqlService>();
-            services.AddTransient<ITokenSqlService, TokenSqlService>();
-            services.AddTransient<IAuthSqlService, AuthSqlService>();
-
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITokenRepository, TokenRepository>();
 
             services.AddTransient<IDbContext, DbContext>();
 
             services.AddTransient<IIdGenerator, IdGenerator>();
+            
+            // SQL
+            
+            services.AddTransient<IUserSqlService, UserSqlService>();
+            services.AddTransient<ITokenSqlService, TokenSqlService>();
+            services.AddTransient<IAuthSqlService, AuthSqlService>();
+
+            services.AddTransient<IUserSqlRepository, UserSqlRepository>();
+            services.AddTransient<ITokenSqlRepository, TokenSqlRepository>();
+
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
         }
 
         private void ConfigureDb(IServiceCollection services)

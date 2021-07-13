@@ -13,16 +13,15 @@ namespace Common.DALSql.Repositories
         Task<T> FindAsNoTracking(long id);
         Task<T> FindIgnoreQueryFilters(long id);
         
-        Task Add(T entity, bool persist = true);
-        Task AddRange(IEnumerable<T> entities, bool persist = true);
+        void Add(T entity);
+        void AddRange(IEnumerable<T> entities);
         
-        Task Update(T entity, bool persist = true);
-        Task UpdateRange(IEnumerable<T> entities, bool persist = true);
+        void Update(T entity);
+        void UpdateRange(IEnumerable<T> entities);
         
-        Task Delete(T entity, bool persist = true);
-        Task DeleteRange(IEnumerable<T> entities, bool persist = true);
+        void Delete(T entity);
+        void DeleteRange(IEnumerable<T> entities);
 
-        Task ExecuteQuery(string sql, object[] sqlParametersObjects);
-        Task SaveChanges();
+        //Task ExecuteQuery(string sql, object[] sqlParametersObjects);
     }
 }

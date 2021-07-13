@@ -78,51 +78,51 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpGet("verifyEmail/{token}")]
-        public async Task<IActionResult> VerifyEmailAsync(string token)
-        {
-            if (token == null)
-            {
-                return BadRequest("Token", "Token is required.");
-            }
-        
-            var user = await _userSqlService.FindBySignupTokenAsync(token);
-            if (user == null)
-            {
-                return BadRequest("Token", "Token is invalid.");
-            }
-        
-            var userId = user.Id;
-        
-            await Task.WhenAll(
-                _userSqlService.MarkEmailAsVerifiedAsync(userId),
-                _authSqlService.SetTokensAsync(userId)
-            );
-        
-            return Redirect(_appSettings.WebUrl);
-        }
-        
-        [HttpPost("signin")]
-        public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
-        {
-            var user = await _userSqlService.FindByEmailAsync(model.Email);
-            if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
-            {
-                return BadRequest("Credentials", "Incorrect email or password.");
-            }
-        
-            if (user.IsEmailVerified == false)
-            {
-                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
-            }
-        
-            await Task.WhenAll(
-                _userSqlService.UpdateLastRequestAsync(user.Id),
-                _authSqlService.SetTokensAsync(user.Id)
-            );
-        
-            return Ok(_mapper.Map<UserViewModel>(user));
-        }
+        // [HttpGet("verifyEmail/{token}")]
+        // public async Task<IActionResult> VerifyEmailAsync(string token)
+        // {
+        //     if (token == null)
+        //     {
+        //         return BadRequest("Token", "Token is required.");
+        //     }
+        //
+        //     var user = await _userSqlService.FindBySignupTokenAsync(token);
+        //     if (user == null)
+        //     {
+        //         return BadRequest("Token", "Token is invalid.");
+        //     }
+        //
+        //     var userId = user.Id;
+        //
+        //     await Task.WhenAll(
+        //         _userSqlService.MarkEmailAsVerifiedAsync(userId),
+        //         _authSqlService.SetTokensAsync(userId)
+        //     );
+        //
+        //     return Redirect(_appSettings.WebUrl);
+        // }
+        //
+        // [HttpPost("signin")]
+        // public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
+        // {
+        //     var user = await _userSqlService.FindByEmailAsync(model.Email);
+        //     if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
+        //     {
+        //         return BadRequest("Credentials", "Incorrect email or password.");
+        //     }
+        //
+        //     if (user.IsEmailVerified == false)
+        //     {
+        //         return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
+        //     }
+        //
+        //     await Task.WhenAll(
+        //         _userSqlService.UpdateLastRequestAsync(user.Id),
+        //         _authSqlService.SetTokensAsync(user.Id)
+        //     );
+        //
+        //     return Ok(_mapper.Map<UserViewModel>(user));
+        // }
         //
         // [HttpPost("forgotPassword")]
         // public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
