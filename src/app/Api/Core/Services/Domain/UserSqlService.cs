@@ -6,6 +6,7 @@ using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Domain;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common;
+using Common.DALSql;
 using Common.DALSql.Entities;
 using Common.DALSql.Repositories;
 using Common.Enums;
@@ -87,17 +88,6 @@ namespace Api.Core.Services.Domain
             _authSqlService.SetTokens(tokens);
         }
 
-
-        //
-        //
-        // public async Task UpdateLastRequestAsync(long id)
-        // {
-        //     var user = await FindByIdAsync(id);
-        //     user.LastRequest = DateTime.UtcNow;
-        //
-        //     await _dbContext.SaveChangesAsync();
-        // }
-        //
         public async Task UpdateResetPasswordTokenAsync(long id, string token)
         {
             var user = await _unitOfWork.Users.Find(id);
@@ -117,7 +107,7 @@ namespace Api.Core.Services.Domain
 
             return user.ResetPasswordToken;
         }
-        //
+
         public async Task UpdatePasswordAsync(long id, string newPassword)
         {
             var user = await _unitOfWork.Users.Find(id);
@@ -126,37 +116,25 @@ namespace Api.Core.Services.Domain
 
             await _unitOfWork.Complete();
         }
-        //
-        // public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
-        // {
-        //     var user = await FindByIdAsync(id);
-        //     user.Email = email;
-        //     user.FirstName = firstName;
-        //     user.LastName = lastName;
-        //
-        //     await _dbContext.SaveChangesAsync();
-        // }
-        //
-        // public async Task MarkEmailAsVerifiedAsync(long id)
-        // {
-        //     var user = await FindByIdAsync(id);
-        //     user.IsEmailVerified = true;
-        //     user.LastRequest = DateTime.UtcNow;
-        //
-        //     await _dbContext.SaveChangesAsync();
-        // }
-        //
+        
+        public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
+        {
+            var user = await _unitOfWork.Users.Find(id);
+            user.Email = email;
+            user.FirstName = firstName;
+            user.LastName = lastName;
 
-        //
-        // public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
-        // {
-        //     var user = await _dbContext.Users.FirstOrDefaultAsync(u =>
-        //         u.Id != userIdToExclude &&
-        //         u.Email == email
-        //     );
-        //
-        //     return user != null;
-        // }
+            await _unitOfWork.Complete();
+        }
+        
+        public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
+        {
+            var user = await _unitOfWork.Users.FindOneByQueryAsNoTracking(new DbQuery<User>().AddFilter(u =>
+                u.Id != userIdToExclude &&
+                u.Email == email));
+        
+            return user != null;
+        }
 
         public IList<Token> GenerateTokens(long userId)
         {
