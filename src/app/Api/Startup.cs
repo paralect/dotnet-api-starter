@@ -141,7 +141,6 @@ namespace Api
             // SQL
             
             services.AddTransient<IUserSqlService, UserSqlService>();
-            services.AddTransient<ITokenSqlService, TokenSqlService>();
             services.AddTransient<IAuthSqlService, AuthSqlService>();
 
             services.AddTransient<IUserSqlRepository, UserSqlRepository>();

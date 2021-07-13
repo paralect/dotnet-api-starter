@@ -10,6 +10,7 @@ using Common.DALSql.Repositories;
 using Common.Enums;
 using Common.Services.Interfaces;
 using Common.Settings;
+using Common.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -18,20 +19,20 @@ namespace Api.Core.Services.Infrastructure
     public class AuthSqlService : IAuthSqlService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ITokenSqlService _tokenSqlService;
         private readonly AppSettings _appSettings;
         private readonly HttpContext _httpContext;
+        private readonly TokenExpirationSettings _tokenExpirationSettings;
 
         public AuthSqlService(
             IUnitOfWork unitOfWork,
-            ITokenSqlService tokenSqlService,
             IOptions<AppSettings> appSettings,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
             _unitOfWork = unitOfWork;
-            _tokenSqlService = tokenSqlService;
             _appSettings = appSettings.Value;
             _httpContext = httpContextAccessor.HttpContext;
+            _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
         public async Task SetTokensAsync(long userId)
@@ -50,10 +51,38 @@ namespace Api.Core.Services.Infrastructure
 
         public async Task UnsetTokensAsync(long userId)
         {
-            await _tokenSqlService.DeleteUserTokensAsync(userId);
+            var tokens = await _unitOfWork.Tokens.FindByUserId(userId);
+            _unitOfWork.Tokens.DeleteRange(tokens);
+            await _unitOfWork.Complete();
 
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);
+        }
+        
+        public IList<Token> GenerateTokens(long userId)
+        {
+            var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+            var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+
+            var tokens = new List<Token>
+            {
+                new Token
+                {
+                    Type = TokenTypeEnum.Access,
+                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
+                    UserId = userId,
+                    Value = accessTokenValue
+                },
+                new Token
+                {
+                    Type = TokenTypeEnum.Refresh,
+                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
+                    UserId = userId,
+                    Value = refreshTokenValue
+                }
+            };
+
+            return tokens;
         }
 
         private void SetTokenCookies(ICollection<Token> tokens)

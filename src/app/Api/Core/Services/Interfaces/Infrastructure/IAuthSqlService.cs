@@ -9,5 +9,6 @@ namespace Api.Core.Services.Interfaces.Infrastructure
         Task SetTokensAsync(long userId);
         void SetTokens(IEnumerable<Token> tokens);
         Task UnsetTokensAsync(long userId);
+        IList<Token> GenerateTokens(long userId);
     }
 }

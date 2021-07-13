@@ -17,7 +17,7 @@ namespace Common.DALSql.Repositories
 
         public async Task<User> FindByEmail(string email)
         {
-            return await Table.FirstOrDefaultAsync(u => u.Email == email);
+            return await Table.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }
