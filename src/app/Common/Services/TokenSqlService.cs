@@ -1,32 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Common.DALSql.Data;
 using Common.DALSql.Entities;
+using Common.DALSql.Repositories;
 using Common.Enums;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Common.Services
 {
     public class TokenSqlService : ITokenSqlService
     {
-        private readonly ShipDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly TokenExpirationSettings _tokenExpirationSettings;
 
-        public TokenSqlService(ShipDbContext dbContext, IOptions<TokenExpirationSettings> tokenExpirationSettings)
+        public TokenSqlService(IUnitOfWork unitOfWork, IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
         public async Task<Token> FindByIdAsync(long id)
         {
-            return await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Id == id);
+            return await _unitOfWork.Tokens.Find(id);
         }
         
         public async Task<List<Token>> CreateAuthTokensAsync(long userId)
@@ -52,24 +50,24 @@ namespace Common.Services
                 }
             };
 
-            _dbContext.Tokens.AddRange(tokens);
+            _unitOfWork.Tokens.AddRange(tokens);
 
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.Complete();
 
             return tokens;
         }
 
-        public async Task<Token> FindByValueAsync(string tokenValue)
+        public async Task<Token> FindByValueAsync(string value)
         {
-            return await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Value == tokenValue);
+            return await _unitOfWork.Tokens.FindByValue(value);
         }
 
         public async Task DeleteUserTokensAsync(long userId)
         {
-            var tokens = _dbContext.Tokens.Where(t => t.UserId == userId);
-            _dbContext.Tokens.RemoveRange(tokens);
+            var tokens = await _unitOfWork.Tokens.FindByUserId(userId);
+            _unitOfWork.Tokens.DeleteRange(tokens);
 
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.Complete();
         }
     }
 }

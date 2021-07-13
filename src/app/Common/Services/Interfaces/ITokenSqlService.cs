@@ -9,7 +9,7 @@ namespace Common.Services.Interfaces
         Task<Token> FindByIdAsync(long id);
         //Task<TDocument> FindOneAsync(TFilter filter);
         Task<List<Token>> CreateAuthTokensAsync(long userId);
-        Task<Token> FindByValueAsync(string tokenValue);
+        Task<Token> FindByValueAsync(string value);
         Task DeleteUserTokensAsync(long userId);
     }
 }

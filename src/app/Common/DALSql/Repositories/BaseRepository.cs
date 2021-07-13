@@ -11,20 +11,15 @@ namespace Common.DALSql.Repositories
 {
     public class BaseRepository<T> : IRepository<T> where T : BaseEntity
     {
-        private bool _isDisposed;
-        private readonly bool _disposeContext;
-        public DbSet<T> Table { get; }
-        public ShipDbContext Context { get; }
+        protected DbSet<T> Table { get; }
         
         protected BaseRepository(ShipDbContext context)
         {
-            Context = context;
-            Table = Context.Set<T>();
+            Table = context.Set<T>();
         }
         
         protected BaseRepository(DbContextOptions<ShipDbContext> options) : this(new ShipDbContext(options))
         {
-            _disposeContext = true;
         }
         
         public IAsyncEnumerable<T> GetAll()
@@ -52,120 +47,39 @@ namespace Common.DALSql.Repositories
             return await Table.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task Add(T entity, bool persist = true)
+        public void Add(T entity)
         {
-            await Table.AddAsync(entity);
-            if (persist)
-            {
-                await SaveChanges();
-            }
+            Table.Add(entity);
         }
 
-        public async Task AddRange(IEnumerable<T> entities, bool persist = true)
+        public void AddRange(IEnumerable<T> entities)
         {
-            await Table.AddRangeAsync(entities);
-            if (persist)
-            {
-                await SaveChanges();
-            }
+            Table.AddRange(entities);
         }
 
-        public async Task Update(T entity, bool persist = true)
+        public void Update(T entity)
         {
             Table.Update(entity);
-            if (persist)
-            {
-                await SaveChanges();
-            }
         }
 
-        public async Task UpdateRange(IEnumerable<T> entities, bool persist = true)
+        public void UpdateRange(IEnumerable<T> entities)
         {
             Table.UpdateRange(entities);
-            if (persist)
-            {
-                await SaveChanges();
-            }
         }
 
-        public async Task Delete(T entity, bool persist = true)
+        public void Delete(T entity)
         {
             Table.Remove(entity);
-            if (persist)
-            {
-                await SaveChanges();
-            }
         }
 
-        public async Task DeleteRange(IEnumerable<T> entities, bool persist = true)
+        public void DeleteRange(IEnumerable<T> entities)
         {
             Table.RemoveRange(entities);
-            if (persist)
-            {
-                await SaveChanges();
-            }
         }
 
-        public async Task ExecuteQuery(string sql, object[] sqlParametersObjects)
-        {
-            await Context.Database.ExecuteSqlRawAsync(sql, sqlParametersObjects);
-        }
-
-        public async Task SaveChanges()
-        {
-            try
-            {
-                await Context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                //A concurrency error occurred
-                //Should log and handle intelligently
-                throw;
-            }
-            catch (RetryLimitExceededException ex)
-            {
-                //DbResiliency retry limit exceeded
-                //Should log and handle intelligently
-                throw;
-            }
-            catch (DbUpdateException ex)
-            {
-                //Should log and handle intelligently
-                throw;
-            }
-            catch (Exception ex)
-            {
-                //Should log and handle intelligently
-                throw;
-            }
-        }
-        
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-            if (disposing)
-            {
-                if (_disposeContext)
-                {
-                    Context.Dispose();
-                }
-            }
-            _isDisposed = true;
-        }
-        
-        ~BaseRepository()
-        {
-            Dispose(false);
-        }
+        // public async Task ExecuteQuery(string sql, object[] sqlParametersObjects)
+        // {
+        //     await Context.Database.ExecuteSqlRawAsync(sql, sqlParametersObjects);
+        // }
     }
 }
