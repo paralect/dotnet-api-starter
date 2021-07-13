@@ -11,16 +11,12 @@ namespace Api.Core.Services.Interfaces.Domain
         Task<User> CreateUserAccountAsync(CreateUserModel model);
         Task VerifyEmail(long userId);
         Task SignIn(long userId);
-
+        Task SignInGoogleWithCodeAsync(GooglePayloadModel payload);
         Task UpdateResetPasswordTokenAsync(long id, string token);
         Task UpdatePasswordAsync(long id, string newPassword);
-        // Task UpdateInfoAsync(long id, string email, string firstName, string lastName);
-        // Task MarkEmailAsVerifiedAsync(long id);
-        //
-        // Task<bool> IsEmailInUseAsync(long userIdToExclude, string email);
+        Task UpdateInfoAsync(long id, string email, string firstName, string lastName);
+        Task<bool> IsEmailInUseAsync(long userIdToExclude, string email);
         Task<string> SetResetPasswordToken(long userId);
-
         public IList<Token> GenerateTokens(long userId);
-        Task SignInGoogleWithCodeAsync(GooglePayloadModel payload);
     }
 }

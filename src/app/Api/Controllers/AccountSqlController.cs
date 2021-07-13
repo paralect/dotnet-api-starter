@@ -21,7 +21,7 @@ using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
 
 namespace Api.Controllers
 {
-    public class AccountSqlController : BaseController
+    public class AccountSqlController : BaseSqlController
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -201,9 +201,9 @@ namespace Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            if (CurrentUserId.HasValue())
+            if (CurrentUserId != null)
             {
-                await _authSqlService.UnsetTokensAsync(long.Parse(CurrentUserId));
+                await _authSqlService.UnsetTokensAsync(CurrentUserId.Value);
             }
 
             return Ok();
