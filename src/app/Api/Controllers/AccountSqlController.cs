@@ -76,14 +76,14 @@ namespace Api.Controllers
 
             if (_environment.IsDevelopment())
             {
-                return Ok(new {_signupToken = newUser.SignupToken});
+                return Ok(new {signupToken = newUser.SignupToken});
             }
 
             return Ok();
         }
 
-        [HttpGet("verifyEmail/{token}")]
-        public async Task<IActionResult> VerifyEmailAsync(string token)
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmailAsync([FromQuery] string token)
         {
             if (token == null)
             {
@@ -122,7 +122,7 @@ namespace Api.Controllers
             return Ok(_mapper.Map<UserViewModel>(user));
         }
 
-        [HttpPost("forgotPassword")]
+        [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
             var user = await _unitOfWork.Users.FindByEmail(model.Email);
@@ -144,7 +144,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("resetPassword")]
+        [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
             var user = await _unitOfWork.Users.FindOneByQueryAsNoTracking(
