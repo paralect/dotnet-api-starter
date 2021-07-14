@@ -3,8 +3,6 @@ using Api.Core.Services.Interfaces.Domain;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
-using Common.DALSql;
-using Common.DALSql.Entities;
 using Common.DALSql.Repositories;
 using Microsoft.AspNetCore.Mvc;
 

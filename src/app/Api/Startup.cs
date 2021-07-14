@@ -105,7 +105,7 @@ namespace Api
 
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseTokenAuthentication();
+            app.UseTokenAuthenticationSql();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

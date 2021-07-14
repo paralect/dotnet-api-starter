@@ -1,26 +1,24 @@
-﻿using System;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Enums;
-using Common.Services.Interfaces;
+using Common.DALSql.Data;
+using Common.DALSql.Repositories;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Common.Middleware
 {
-    public class TokenAuthenticationMiddleware
+    public class TokenAuthenticationSqlMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ITokenService _tokenService;
 
-        public TokenAuthenticationMiddleware(RequestDelegate next, ITokenService tokenService)
+        public TokenAuthenticationSqlMiddleware(RequestDelegate next)
         {
             _next = next;
-            _tokenService = tokenService;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
         {
             var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
             if (accessToken.HasNoValue())
@@ -34,10 +32,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var userToken = await _tokenService.GetUserTokenAsync(accessToken);
-                if (userToken != null && !userToken.IsExpired())
+                var token = await unitOfWork.Tokens.FindByValue(accessToken);
+                if (token != null && !token.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(userToken.UserId), new string[] { Enum.GetName(typeof(UserRoleEnum), userToken.UserRole) });
+                    var principal = new Principal(new GenericIdentity(token.UserId.ToString()), new string[] { });
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;
