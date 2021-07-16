@@ -3,20 +3,23 @@ using System.Threading.Tasks;
 using Common.DALSql.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace Common.DALSql.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ShipDbContext _context;
+        private readonly ILogger<UnitOfWork> _logger;
         private bool _isDisposed;
-        
+
         public IUserSqlRepository Users { get; }
         public ITokenSqlRepository Tokens { get; }
         
-        public UnitOfWork(ShipDbContext context)
+        public UnitOfWork(ShipDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
+            _logger = logger;
             Users = new UserSqlRepository(_context);
             Tokens = new TokenSqlRepository(_context);
         }
@@ -29,24 +32,22 @@ namespace Common.DALSql.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                //A concurrency error occurred
-                //Should log and handle intelligently
+                _logger.LogError(ex, ex.Message);
                 throw;
             }
             catch (RetryLimitExceededException ex)
             {
-                //DbResiliency retry limit exceeded
-                //Should log and handle intelligently
+                _logger.LogError(ex, ex.Message);
                 throw;
             }
             catch (DbUpdateException ex)
             {
-                //Should log and handle intelligently
+                _logger.LogError(ex, ex.Message);
                 throw;
             }
             catch (Exception ex)
             {
-                //Should log and handle intelligently
+                _logger.LogError(ex, ex.Message);
                 throw;
             }
         }

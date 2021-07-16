@@ -9,7 +9,6 @@ using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
 using Common.DALSql;
-using Common.DALSql.Data;
 using Common.DALSql.Repositories;
 using Common.Middleware;
 using Common.Services;
@@ -85,10 +84,8 @@ namespace Api
             services.AddAutoMapper(typeof(UserProfile));
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ShipDbContext dbContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            dbContext.Database.EnsureCreated();
-            
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
@@ -105,7 +102,10 @@ namespace Api
 
             app.UseCors("AllowSpecificOrigin");
 
+            // choose one of these options depending on where tokens are stored
+            // app.UseTokenAuthentication();
             app.UseTokenAuthenticationSql();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

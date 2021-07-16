@@ -4,12 +4,13 @@
     "RefreshTokenExpiresInHours": 10
   },
   "MongoConnection": {
-    // "ConnectionString": "mongodb://root:rootPassword@mongo:27017", // for docker-compose
     "ConnectionString": "mongodb://localhost:27017", // for local instance
+    //"ConnectionString": "mongodb://root:rootPassword@mongo:27017", // for docker-compose
     "Database": "api-development"
   },
   "SqlConnection": {
-    "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd"
+    "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd" // for local instance
+    //"ConnectionString": "Host=postgres;Database=api-development;Username=postgres;Password=rootPassword" // for docker-compose
   },
   "App": {
     "WebUrl": "http://localhost:3002",

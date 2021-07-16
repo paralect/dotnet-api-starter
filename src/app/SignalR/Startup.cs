@@ -51,7 +51,11 @@ namespace SignalR
 
             app.UseCors("AllowSpecificOrigin");
             app.UseRouting();
-            app.UseTokenAuthentication();
+
+            // choose one of these options depending on where tokens are stored
+            // app.UseTokenAuthentication();
+            app.UseTokenAuthenticationSql();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
