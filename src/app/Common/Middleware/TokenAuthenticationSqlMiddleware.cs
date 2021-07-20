@@ -3,11 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.DALSql;
 using Common.DALSql.Data;
-using Common.DALSql.Entities;
-using Common.DALSql.Repositories;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 namespace Common.Middleware
 {

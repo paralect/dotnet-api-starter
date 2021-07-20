@@ -9,7 +9,6 @@ using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
 using Common.DALSql;
-using Common.DALSql.Repositories;
 using Common.Middleware;
 using Common.Services;
 using Common.Services.Interfaces;
@@ -125,6 +124,8 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
+            // MongoDB
+            
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IUserService, UserService>();
@@ -138,13 +139,10 @@ namespace Api
 
             services.AddTransient<IIdGenerator, IdGenerator>();
             
-            // SQL
+            // PostgreSQL
             
             services.AddTransient<IUserSqlService, UserSqlService>();
             services.AddTransient<IAuthSqlService, AuthSqlService>();
-
-            services.AddTransient<IUserSqlRepository, UserSqlRepository>();
-            services.AddTransient<ITokenSqlRepository, TokenSqlRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
