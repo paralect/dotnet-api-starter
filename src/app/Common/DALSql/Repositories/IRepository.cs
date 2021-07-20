@@ -6,14 +6,10 @@ namespace Common.DALSql.Repositories
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        IAsyncEnumerable<T> GetAll();
-        IAsyncEnumerable<T> GetAllIgnoreQueryFilters();
-        
-        Task<T> Find(long id);
-        Task<T> FindAsNoTracking(long id);
-        Task<T> FindIgnoreQueryFilters(long id);
-        Task<T> FindOneByQueryAsNoTracking(DbQuery<T> queryParams);
-        Task<IEnumerable<T>> FindByQueryAsNoTracking(DbQuery<T> queryParams);
+        Task<T> FindOne(long id);
+        Task<T> FindOneByQuery(DbQuery<T> queryParams);
+        Task<IEnumerable<T>> FindByQuery(DbQuery<T> queryParams);
+        Task<T> FindOneIgnoreQueryFilters(long id);
         
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
@@ -23,7 +19,5 @@ namespace Common.DALSql.Repositories
         
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entities);
-
-        //Task ExecuteQuery(string sql, object[] sqlParametersObjects);
     }
 }

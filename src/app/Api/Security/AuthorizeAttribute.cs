@@ -2,6 +2,7 @@
 using System.Linq;
 using Common.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -18,6 +19,14 @@ namespace Api.Security
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            var isAllowAnonymous = context.ActionDescriptor.EndpointMetadata
+                .OfType<AllowAnonymousAttribute>()
+                .Any();
+            if (isAllowAnonymous)
+            {
+                return;
+            }
+            
             if (!(context.HttpContext.User.Identity?.IsAuthenticated ?? false))
             {
                 context.Result = new UnauthorizedResult();

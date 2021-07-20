@@ -1,9 +1,13 @@
 ﻿using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.DALSql;
+using Common.DALSql.Data;
+using Common.DALSql.Entities;
 using Common.DALSql.Repositories;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Common.Middleware
 {
@@ -30,7 +34,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var token = await unitOfWork.Tokens.FindByValue(accessToken);
+                var token = await unitOfWork.Tokens.FindOneByFilterAsNoTracking(new TokenFilter
+                {
+                    Value = accessToken
+                });
                 if (token != null && !token.IsExpired())
                 {
                     var principal = new Principal(new GenericIdentity(token.UserId.ToString()), new string[] { });

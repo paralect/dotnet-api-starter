@@ -1,39 +1,41 @@
 ﻿using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Domain;
 using Api.Models.User;
-using Api.Security;
 using AutoMapper;
-using Common.DALSql.Repositories;
+using Common.DALSql;
+using Common.DALSql.Data;
+using Common.DALSql.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers
 {
-    [Authorize]
+    [Security.Authorize]
     public class UsersSqlController : BaseSqlController
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserSqlService _userSqlService;
         private readonly IMapper _mapper;
+        private readonly DbSet<User> _users;
 
         public UsersSqlController(
-            IUnitOfWork unitOfWork,
             IUserSqlService userSqlService,
-            IMapper mapper)
+            IMapper mapper,
+            IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
             _userSqlService = userSqlService;
             _mapper = mapper;
+            _users = unitOfWork.Users;
         }
 
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _unitOfWork.Users.FindAsNoTracking(CurrentUserId.Value);
+            var user = await _users.FindOneAsNoTracking(CurrentUserId.Value);
             var viewModel = _mapper.Map<UserViewModel>(user);
         
             return Ok(viewModel);
         }
-        
+
         [HttpPut("current")]
         public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
         {
@@ -52,7 +54,7 @@ namespace Api.Controllers
         
             await _userSqlService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
 
-            var user = await _unitOfWork.Users.FindAsNoTracking(userId); // TODO check if needed
+            var user = await _users.FindAsync(userId);
             return Ok(new
             {
                 userId,

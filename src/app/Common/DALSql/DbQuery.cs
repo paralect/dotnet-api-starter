@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Common.DALSql.Data;
 using Common.DALSql.Entities;
 
 namespace Common.DALSql
 {
-    public class DbQuery<T> where T : BaseEntity
+    public class DbQuery<TEntity> where TEntity : BaseEntity
     {
         public DbQuery()
         {
-            Predicates = new List<Expression<Func<T, bool>>>();
+            Predicates = new List<Expression<Func<TEntity, bool>>>();
         }
         
-        public List<Expression<Func<T, bool>>> Predicates { get; set; }
+        public List<Expression<Func<TEntity, bool>>> Predicates { get; set; }
         
-        public  DbQuery<T> AddFilter(Expression<Func<T, bool>> predicate)
+        public DbQuery<TEntity> AddFilter(Expression<Func<TEntity, bool>> predicate)
         {
             Predicates.Add(predicate);
+            return this;
+        }
+
+        public DbQuery<TEntity> AddFilter<TFilter>(TFilter filter) where TFilter : BaseFilter<TEntity>
+        {
+            var predicates = filter.GetPredicates();
+            Predicates.AddRange(predicates);
             return this;
         }
     }

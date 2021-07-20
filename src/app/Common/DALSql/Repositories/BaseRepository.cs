@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.DALSql.Data;
 using Common.DALSql.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Common.DALSql.Repositories
 {
     public class BaseRepository<T> : IRepository<T> where T : BaseEntity
     {
-        private IRepository<T> _repositoryImplementation;
+        private readonly ShipDbContext _dbContext;
         protected DbSet<T> Table { get; }
         
         protected BaseRepository(ShipDbContext context)
         {
+            _dbContext = context; 
             Table = context.Set<T>();
         }
         
@@ -23,48 +22,36 @@ namespace Common.DALSql.Repositories
         {
         }
         
-        public IAsyncEnumerable<T> GetAll()
+        public async Task<T> FindOne(long id)
         {
-            return Table;
+            return await Table.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
-
-        public IAsyncEnumerable<T> GetAllIgnoreQueryFilters()
-        {
-            return Table.IgnoreQueryFilters().AsAsyncEnumerable();
-        }
-
-        public async Task<T> Find(long id)
-        {
-            return await Table.FindAsync(id);
-        }
-
-        public async Task<T> FindAsNoTracking(long id)
-        {
-            return await Table.Where(x => x.Id == id).AsNoTracking().FirstOrDefaultAsync();
-        }
-
-        public async Task<T> FindIgnoreQueryFilters(long id)
-        {
-            return await Table.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task<T> FindOneByQueryAsNoTracking(DbQuery<T> queryParams)
+        
+        public async Task<T> FindOneByQuery(DbQuery<T> queryParams)
         {
             return await ConstructQuery(queryParams).FirstOrDefaultAsync();
         }
-
-        public async Task<IEnumerable<T>> FindByQueryAsNoTracking(DbQuery<T> queryParams)
+        
+        public async Task<IEnumerable<T>> FindByQuery(DbQuery<T> queryParams)
         {
             return await ConstructQuery(queryParams).ToListAsync();
         }
 
+        public async Task<T> FindOneIgnoreQueryFilters(long id)
+        {
+            return await Table.IgnoreQueryFilters().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public void Add(T entity)
         {
+            _dbContext.Attach(entity);
             Table.Add(entity);
         }
 
         public void AddRange(IEnumerable<T> entities)
         {
+            //var entitiesToAdd = entities.ToList();
+            //_dbContext.Attach(entitiesToAdd);
             Table.AddRange(entities);
         }
 
@@ -75,24 +62,24 @@ namespace Common.DALSql.Repositories
 
         public void UpdateRange(IEnumerable<T> entities)
         {
-            Table.UpdateRange(entities);
+            var entitiesToUpdate = entities.ToList();
+            _dbContext.Attach(entitiesToUpdate);
+            Table.UpdateRange(entitiesToUpdate);
         }
 
         public void Delete(T entity)
         {
+            _dbContext.Attach(entity);
             Table.Remove(entity);
         }
 
         public void DeleteRange(IEnumerable<T> entities)
         {
-            Table.RemoveRange(entities);
+            var entitiesToDelete = entities.ToList();
+            _dbContext.Attach(entitiesToDelete);
+            Table.RemoveRange(entitiesToDelete);
         }
 
-        // public async Task ExecuteQuery(string sql, object[] sqlParametersObjects)
-        // {
-        //     await Context.Database.ExecuteSqlRawAsync(sql, sqlParametersObjects);
-        // }
-        
         private IQueryable<T> ConstructQuery(DbQuery<T> queryParams)
         {
             var query = Table.AsNoTracking();

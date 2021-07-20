@@ -9,12 +9,13 @@ using Api.Security;
 using AutoMapper;
 using Common;
 using Common.DALSql;
+using Common.DALSql.Data;
 using Common.DALSql.Entities;
-using Common.DALSql.Repositories;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
@@ -24,7 +25,9 @@ namespace Api.Controllers
     public class AccountSqlController : BaseSqlController
     {
         private readonly IUnitOfWork _unitOfWork;
-
+        private readonly DbSet<User> _users;
+        private readonly DbSet<Token> _tokens;
+        
         private readonly IEmailService _emailService;
 
         private readonly IUserSqlService _userSqlService;
@@ -46,7 +49,9 @@ namespace Api.Controllers
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-
+            _users = unitOfWork.Users;
+            _tokens = unitOfWork.Tokens;
+            
             _emailService = emailService;
             _userSqlService = userSqlService;
             _authSqlService = authSqlService;
@@ -60,7 +65,10 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _unitOfWork.Users.FindByEmail(model.Email);
+            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            {
+                Email = model.Email
+            });
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
@@ -90,9 +98,10 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _unitOfWork.Users.FindOneByQueryAsNoTracking(
-                new DbQuery<User>().AddFilter(u => u.SignupToken == token)
-            );
+            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            {
+                SignupToken = token
+            });
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -106,7 +115,11 @@ namespace Api.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _unitOfWork.Users.FindByEmail(model.Email);
+            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            {
+                Email = model.Email
+            });
+            
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
                 return BadRequest("Credentials", "Incorrect email or password.");
@@ -125,7 +138,10 @@ namespace Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _unitOfWork.Users.FindByEmail(model.Email);
+            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            {
+                Email = model.Email
+            });
             if (user == null)
             {
                 return BadRequest(nameof(model.Email),
@@ -147,9 +163,10 @@ namespace Api.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _unitOfWork.Users.FindOneByQueryAsNoTracking(
-                new DbQuery<User>().AddFilter(u => u.ResetPasswordToken == model.Token)
-            );
+            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            {
+                ResetPasswordToken = model.Token
+            });
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -163,7 +180,10 @@ namespace Api.Controllers
         [HttpPost("resend")]
         public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _unitOfWork.Users.FindByEmail(model.Email);
+            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            {
+                Email = model.Email
+            });
             if (user != null)
             {
                 _emailService.SendSignUpWelcome(new SignUpWelcomeModel
@@ -181,17 +201,21 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _unitOfWork.Tokens.FindOneByQueryAsNoTracking(
-                new DbQuery<Token>().AddFilter(t => t.Value == refreshToken)
-            );
+            var token = await _tokens.FindOneByFilterAsNoTracking(new TokenFilter
+            {
+                Value = refreshToken
+            });
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
             }
 
             var tokens = _userSqlService.GenerateTokens(token.UserId);
-            _unitOfWork.Tokens.AddRange(tokens);
-            await _unitOfWork.Complete();
+
+            await _unitOfWork.Perform(async () =>
+            {
+                await _tokens.AddRangeAsync(tokens);
+            });
 
             _authSqlService.SetTokens(tokens);
 

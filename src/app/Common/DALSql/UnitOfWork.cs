@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.DALSql.Data;
+using Common.DALSql.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
-namespace Common.DALSql.Repositories
+namespace Common.DALSql
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -13,18 +14,36 @@ namespace Common.DALSql.Repositories
         private readonly ILogger<UnitOfWork> _logger;
         private bool _isDisposed;
 
-        public IUserSqlRepository Users { get; }
-        public ITokenSqlRepository Tokens { get; }
+        public DbSet<User> Users { get; }
+        public DbSet<Token> Tokens { get; }
         
         public UnitOfWork(ShipDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
+            Users = _context.Users;
+            Tokens = _context.Tokens;
+            
             _logger = logger;
-            Users = new UserSqlRepository(_context);
-            Tokens = new TokenSqlRepository(_context);
+        }
+
+        public void Attach(BaseEntity entity)
+        {
+            _context.Attach(entity);
+        }
+
+        public async Task Perform(Func<Task> action)
+        {
+            await action();
+            await Complete();
         }
         
-        public async Task Complete()
+        public async Task Perform(Action action)
+        {
+            action();
+            await Complete();
+        }
+        
+        private async Task Complete()
         {
             try
             {
@@ -51,7 +70,7 @@ namespace Common.DALSql.Repositories
                 throw;
             }
         }
-        
+
         public void Dispose()
         {
             Dispose(true);

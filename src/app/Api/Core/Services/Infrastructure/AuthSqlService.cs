@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common;
 using Common.DALSql;
+using Common.DALSql.Data;
 using Common.DALSql.Entities;
-using Common.DALSql.Repositories;
 using Common.Enums;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Api.Core.Services.Infrastructure
@@ -19,6 +19,8 @@ namespace Api.Core.Services.Infrastructure
     public class AuthSqlService : IAuthSqlService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly DbSet<Token> _tokens;
+        
         private readonly AppSettings _appSettings;
         private readonly HttpContext _httpContext;
         private readonly TokenExpirationSettings _tokenExpirationSettings;
@@ -30,6 +32,7 @@ namespace Api.Core.Services.Infrastructure
             IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
             _unitOfWork = unitOfWork;
+            _tokens = unitOfWork.Tokens;
             _appSettings = appSettings.Value;
             _httpContext = httpContextAccessor.HttpContext;
             _tokenExpirationSettings = tokenExpirationSettings.Value;
@@ -37,9 +40,10 @@ namespace Api.Core.Services.Infrastructure
 
         public async Task SetTokensAsync(long userId)
         {
-            var tokens = (await _unitOfWork.Tokens.FindByQueryAsNoTracking(
-                new DbQuery<Token>().AddFilter(t => t.UserId == userId)
-            )).ToList();
+            var tokens = (await _tokens.FindByFilterAsNoTracking(new TokenFilter
+            {
+                UserId = userId
+            })).ToList();
             
             SetTokenCookies(tokens);
         }
@@ -51,10 +55,16 @@ namespace Api.Core.Services.Infrastructure
 
         public async Task UnsetTokensAsync(long userId)
         {
-            var tokens = await _unitOfWork.Tokens.FindByUserId(userId);
-            _unitOfWork.Tokens.DeleteRange(tokens);
-            await _unitOfWork.Complete();
+            var tokens = await _tokens.FindByFilterAsNoTracking(new TokenFilter
+            {
+                UserId = userId
+            });
 
+            await _unitOfWork.Perform(() =>
+            {
+                _tokens.RemoveRange(tokens);
+            });
+            
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);
         }
