@@ -1,9 +1,7 @@
-﻿using Common.DALSql.Data;
-using Common.Settings;
+﻿using Common.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-// TODO rename namespace
 namespace Common.DALSql
 {
     public static class PostgreSqlDbInitializer

@@ -131,7 +131,7 @@ namespace Api
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IGoogleService, GoogleService>();
-            
+
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITokenRepository, TokenRepository>();
 

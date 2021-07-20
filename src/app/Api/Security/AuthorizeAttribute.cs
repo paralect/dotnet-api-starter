@@ -19,14 +19,6 @@ namespace Api.Security
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var isAllowAnonymous = context.ActionDescriptor.EndpointMetadata
-                .OfType<AllowAnonymousAttribute>()
-                .Any();
-            if (isAllowAnonymous)
-            {
-                return;
-            }
-            
             if (!(context.HttpContext.User.Identity?.IsAuthenticated ?? false))
             {
                 context.Result = new UnauthorizedResult();

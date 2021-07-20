@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.DALSql.Data;
 using Common.DALSql.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;

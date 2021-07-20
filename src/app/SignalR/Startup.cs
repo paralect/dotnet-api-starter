@@ -53,8 +53,8 @@ namespace SignalR
             app.UseRouting();
 
             // choose one of these options depending on where tokens are stored
-            // app.UseTokenAuthentication();
-            app.UseTokenAuthenticationSql();
+            app.UseTokenAuthentication();
+            //app.UseTokenAuthenticationSql();
 
             app.UseAuthorization();
 

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DALSql.Entities;
-using Common.Utils;
+using Common.DALSql.Filters;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.DALSql.Data
+namespace Common.DALSql
 {
     public class ShipDbContext : DbContext
     {
@@ -58,63 +57,50 @@ namespace Common.DALSql.Data
             {
                 queryParams.Predicates.ForEach(predicate => query = query.Where(predicate));
             }
-        
+            
+            if (queryParams.IncludeProperties.Any())
+            {
+                foreach (var includeProperty in queryParams.IncludeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+            
+            if (queryParams.OrderingProperties.Any())
+            {
+                query = Queryable.OrderBy(query, (dynamic)queryParams.OrderingProperties[0]);
+                if (queryParams.OrderingProperties.Count > 1)
+                {
+                    foreach (var orderingProperty in queryParams.OrderingProperties.Skip(1))
+                    {
+                        query = Queryable.ThenBy((IOrderedQueryable<TEntity>)query, (dynamic)orderingProperty);
+                    }
+                }
+            }
+            
+            if (queryParams.OrderingByDescendingProperties.Any())
+            {
+                query = Queryable.OrderByDescending(query, (dynamic)queryParams.OrderingByDescendingProperties[0]);
+                if (queryParams.OrderingByDescendingProperties.Count > 1)
+                {
+                    foreach (var orderingProperty in queryParams.OrderingByDescendingProperties.Skip(1))
+                    {
+                        query = Queryable.ThenByDescending((IOrderedQueryable<TEntity>)query, (dynamic)orderingProperty);
+                    }
+                }
+            }
+            
+            if (queryParams.SkipCount > 0)
+            {
+                query = query.Skip(queryParams.SkipCount);
+            }
+            
+            if (queryParams.TakeCount > 0)
+            {
+                query = query.Take(queryParams.TakeCount);
+            }
+            
             return query;
-        }
-    }
-
-    public abstract class BaseFilter<TEntity>
-    {
-        public abstract IEnumerable<Expression<Func<TEntity, bool>>> GetPredicates();
-    }
-
-    public class UserFilter : BaseFilter<User>
-    {
-        public string Email { get; set; }
-        public string SignupToken { get; set; }
-        public string ResetPasswordToken { get; set; }
-        public long? IdToExclude { get; set; }
-
-        public override IEnumerable<Expression<Func<User, bool>>> GetPredicates()
-        {
-            if (Email.HasValue())
-            {
-                yield return entity => entity.Email == Email;
-            }
-            
-            if (SignupToken.HasValue())
-            {
-                yield return entity => entity.SignupToken == SignupToken;
-            }
-            
-            if (ResetPasswordToken.HasValue())
-            {
-                yield return entity => entity.ResetPasswordToken == ResetPasswordToken;
-            }
-
-            if (IdToExclude.HasValue)
-            {
-                yield return entity => entity.Id != IdToExclude;
-            }
-        }
-    }
-
-    public class TokenFilter : BaseFilter<Token>
-    {
-        public string Value { get; set; }
-        public long? UserId { get; set; }
-
-        public override IEnumerable<Expression<Func<Token, bool>>> GetPredicates()
-        {
-            if (Value.HasValue())
-            {
-                yield return entity => entity.Value == Value;
-            }
-            
-            if (UserId.HasValue)
-            {
-                yield return entity => entity.UserId == UserId;
-            }
         }
     }
 }
