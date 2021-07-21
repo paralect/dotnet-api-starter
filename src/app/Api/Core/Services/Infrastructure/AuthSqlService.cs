@@ -20,6 +20,7 @@ namespace Api.Core.Services.Infrastructure
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly DbSet<Token> _tokens;
+        private readonly ShipDbContext _shipDbContext;
         
         private readonly AppSettings _appSettings;
         private readonly HttpContext _httpContext;
@@ -27,30 +28,47 @@ namespace Api.Core.Services.Infrastructure
 
         public AuthSqlService(
             IUnitOfWork unitOfWork,
+            ShipDbContext shipDbContext,
             IOptions<AppSettings> appSettings,
             IHttpContextAccessor httpContextAccessor,
             IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
             _unitOfWork = unitOfWork;
+            _shipDbContext = shipDbContext;
             _tokens = unitOfWork.Tokens;
             _appSettings = appSettings.Value;
             _httpContext = httpContextAccessor.HttpContext;
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task SetTokensAsync(long userId)
+        public void SetTokens(long userId)
         {
-            var tokens = (await _tokens.FindByFilterAsNoTracking(new TokenFilter
-            {
-                UserId = userId
-            })).ToList();
+            var tokens = GenerateTokens(userId);
             
-            SetTokenCookies(tokens);
+            _tokens.AddRange(tokens);
+
+            SetCookies(tokens);
         }
 
-        public void SetTokens(IEnumerable<Token> tokens)
+        public async Task SetTokens(User user)
         {
-            SetTokenCookies(tokens.ToList());
+            if (_shipDbContext.Entry(user).State == EntityState.Detached)
+            {
+                _unitOfWork.Attach(user);
+            }
+            
+            var tokens = GenerateTokens(user.Id);
+
+            var tokensCollection = _shipDbContext.Entry(user).Collection(u => u.Tokens);
+            if (!tokensCollection.IsLoaded)
+            {
+                await tokensCollection.LoadAsync();
+            }
+
+            var newTokens = user.Tokens.Concat(tokens);
+            user.Tokens = newTokens.ToList();
+            
+            SetCookies(tokens);
         }
 
         public async Task UnsetTokensAsync(long userId)
@@ -60,16 +78,13 @@ namespace Api.Core.Services.Infrastructure
                 UserId = userId
             });
 
-            await _unitOfWork.Perform(() =>
-            {
-                _tokens.RemoveRange(tokens);
-            });
-            
+            _tokens.RemoveRange(tokens);
+
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);
         }
         
-        public IList<Token> GenerateTokens(long userId)
+        private IList<Token> GenerateTokens(long userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
@@ -95,7 +110,7 @@ namespace Api.Core.Services.Infrastructure
             return tokens;
         }
 
-        private void SetTokenCookies(ICollection<Token> tokens)
+        private void SetCookies(ICollection<Token> tokens)
         {
             var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
             var refreshToken = tokens.Single(t => t.Type == TokenTypeEnum.Refresh);

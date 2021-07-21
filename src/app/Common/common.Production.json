@@ -8,7 +8,7 @@
     "Database": "api-development"
   },
   "SqlConnection": {
-    "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd"
+    "ConnectionString": "Host=postgres;Database=api-development;Username=postgres;Password=rootPassword"
   },
   "App": {
     "WebUrl": "http://localhost:3002",

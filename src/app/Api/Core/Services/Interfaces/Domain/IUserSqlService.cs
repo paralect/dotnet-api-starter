@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Api.Core.Services.Domain.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Common.DALSql.Entities;
@@ -17,6 +16,5 @@ namespace Api.Core.Services.Interfaces.Domain
         Task UpdateInfoAsync(long id, string email, string firstName, string lastName);
         Task<bool> IsEmailInUseAsync(long userIdToExclude, string email);
         Task<string> SetResetPasswordToken(long userId);
-        public IList<Token> GenerateTokens(long userId);
     }
 }

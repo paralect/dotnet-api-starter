@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Api.Core.Services.Domain.Models;
 using Api.Core.Services.Infrastructure.Models;
@@ -9,11 +10,8 @@ using Common;
 using Common.DALSql;
 using Common.DALSql.Entities;
 using Common.DALSql.Filters;
-using Common.Enums;
-using Common.Settings;
 using Common.Utils;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace Api.Core.Services.Domain
 {
@@ -22,23 +20,18 @@ namespace Api.Core.Services.Domain
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly IAuthSqlService _authSqlService;
-        private readonly TokenExpirationSettings _tokenExpirationSettings;
         private readonly DbSet<User> _users;
-        private readonly DbSet<Token> _tokens;
 
         public UserSqlService(
             IUnitOfWork unitOfWork,
             IEmailService emailService,
-            IAuthSqlService authSqlService,
-            IOptions<TokenExpirationSettings> tokenExpirationSettings)
+            IAuthSqlService authSqlService)
         {
             _unitOfWork = unitOfWork;
             _users = unitOfWork.Users;
-            _tokens = unitOfWork.Tokens;
             
             _emailService = emailService;
             _authSqlService = authSqlService;
-            _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
@@ -72,32 +65,25 @@ namespace Api.Core.Services.Domain
         public async Task VerifyEmail(long userId)
         {
             var user = await _users.FindAsync(userId);
-            var tokens = GenerateTokens(userId);
 
             await _unitOfWork.Perform(() =>
             {
                 user.IsEmailVerified = true;
                 user.LastRequest = DateTime.UtcNow;
 
-                _tokens.AddRange(tokens);
+                _authSqlService.SetTokens(userId);
             });
-
-            _authSqlService.SetTokens(tokens);
         }
 
         public async Task SignIn(long userId)
         {
             var user = await _users.FindAsync(userId);
-            var tokens = GenerateTokens(userId);
 
             await _unitOfWork.Perform(() =>
             {
                 user.LastRequest = DateTime.UtcNow;
-
-                _tokens.AddRange(tokens);
+                _authSqlService.SetTokens(userId);
             });
-            
-            _authSqlService.SetTokens(tokens);
         }
 
         public async Task UpdateResetPasswordTokenAsync(long id, string token)
@@ -156,41 +142,14 @@ namespace Api.Core.Services.Domain
             return user != null;
         }
 
-        public IList<Token> GenerateTokens(long userId)
-        {
-            var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
-            var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
-
-            var tokens = new List<Token>
-            {
-                new Token
-                {
-                    Type = TokenTypeEnum.Access,
-                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
-                    UserId = userId,
-                    Value = accessTokenValue
-                },
-                new Token
-                {
-                    Type = TokenTypeEnum.Refresh,
-                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
-                    UserId = userId,
-                    Value = refreshTokenValue
-                }
-            };
-
-            return tokens;
-        }
-
         public async Task SignInGoogleWithCodeAsync(GooglePayloadModel payload)
         {
             var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 Email = payload.Email
             });
-            var tokens = GenerateTokens(user.Id);
-
-            await _unitOfWork.Perform(() =>
+            
+            await _unitOfWork.Perform(async () =>
             {
                 if (user == null)
                 {
@@ -213,10 +172,8 @@ namespace Api.Core.Services.Domain
                     user.LastRequest = DateTime.UtcNow;
                 }
                 
-                _tokens.AddRange(tokens);
+                await _authSqlService.SetTokens(user);
             });
-            
-            _authSqlService.SetTokens(tokens);
         }
     }
 }

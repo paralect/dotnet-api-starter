@@ -6,9 +6,8 @@ namespace Api.Core.Services.Interfaces.Infrastructure
 {
     public interface IAuthSqlService
     {
-        Task SetTokensAsync(long userId);
-        void SetTokens(IEnumerable<Token> tokens);
+        void SetTokens(long userId);
+        Task SetTokens(User user);
         Task UnsetTokensAsync(long userId);
-        IList<Token> GenerateTokens(long userId);
     }
 }

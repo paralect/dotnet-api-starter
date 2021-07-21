@@ -210,14 +210,10 @@ namespace Api.Controllers
                 return Unauthorized();
             }
 
-            var tokens = _userSqlService.GenerateTokens(token.UserId);
-
-            await _unitOfWork.Perform(async () =>
+            await _unitOfWork.Perform(() =>
             {
-                await _tokens.AddRangeAsync(tokens);
+                _authSqlService.SetTokens(token.UserId);
             });
-
-            _authSqlService.SetTokens(tokens);
 
             return Ok();
         }
@@ -227,7 +223,10 @@ namespace Api.Controllers
         {
             if (CurrentUserId != null)
             {
-                await _authSqlService.UnsetTokensAsync(CurrentUserId.Value);
+                await _unitOfWork.Perform(async () =>
+                {
+                    await _authSqlService.UnsetTokensAsync(CurrentUserId.Value);
+                });
             }
 
             return Ok();
