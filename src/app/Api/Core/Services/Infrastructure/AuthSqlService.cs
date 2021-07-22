@@ -11,31 +11,25 @@ using Common.Enums;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Api.Core.Services.Infrastructure
 {
     public class AuthSqlService : IAuthSqlService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly DbSet<Token> _tokens;
-        private readonly ShipDbContext _shipDbContext;
+        private readonly ShipDbContext _dbContext;
         
         private readonly AppSettings _appSettings;
         private readonly HttpContext _httpContext;
         private readonly TokenExpirationSettings _tokenExpirationSettings;
 
         public AuthSqlService(
-            IUnitOfWork unitOfWork,
-            ShipDbContext shipDbContext,
+            ShipDbContext dbContext,
             IOptions<AppSettings> appSettings,
             IHttpContextAccessor httpContextAccessor,
             IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
-            _unitOfWork = unitOfWork;
-            _shipDbContext = shipDbContext;
-            _tokens = unitOfWork.Tokens;
+            _dbContext = dbContext;
             _appSettings = appSettings.Value;
             _httpContext = httpContextAccessor.HttpContext;
             _tokenExpirationSettings = tokenExpirationSettings.Value;
@@ -45,21 +39,16 @@ namespace Api.Core.Services.Infrastructure
         {
             var tokens = GenerateTokens(userId);
             
-            _tokens.AddRange(tokens);
+            _dbContext.Tokens.AddRange(tokens);
 
             SetCookies(tokens);
         }
 
         public async Task SetTokens(User user)
         {
-            if (_shipDbContext.Entry(user).State == EntityState.Detached)
-            {
-                _unitOfWork.Attach(user);
-            }
-            
             var tokens = GenerateTokens(user.Id);
 
-            var tokensCollection = _shipDbContext.Entry(user).Collection(u => u.Tokens);
+            var tokensCollection = _dbContext.Entry(user).Collection(u => u.Tokens);
             if (!tokensCollection.IsLoaded)
             {
                 await tokensCollection.LoadAsync();
@@ -73,12 +62,12 @@ namespace Api.Core.Services.Infrastructure
 
         public async Task UnsetTokensAsync(long userId)
         {
-            var tokens = await _tokens.FindByFilterAsNoTracking(new TokenFilter
+            var tokens = await _dbContext.Tokens.FindByFilterAsNoTracking(new TokenFilter
             {
                 UserId = userId
             });
 
-            _tokens.RemoveRange(tokens);
+            _dbContext.Tokens.RemoveRange(tokens);
 
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
             _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);

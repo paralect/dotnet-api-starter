@@ -17,7 +17,7 @@ namespace Common.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
+        public async Task Invoke(HttpContext context, ShipDbContext dbContext)
         {
             var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
             if (accessToken.HasNoValue())
@@ -31,7 +31,7 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var token = await unitOfWork.Tokens.FindOneByFilterAsNoTracking(new TokenFilter
+                var token = await dbContext.Tokens.FindOneByFilterAsNoTracking(new TokenFilter
                 {
                     Value = accessToken
                 });

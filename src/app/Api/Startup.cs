@@ -143,8 +143,6 @@ namespace Api
             
             services.AddTransient<IUserSqlService, UserSqlService>();
             services.AddTransient<IAuthSqlService, AuthSqlService>();
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         private void ConfigureDb(IServiceCollection services)

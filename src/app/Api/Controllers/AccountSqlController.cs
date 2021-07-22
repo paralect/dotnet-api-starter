@@ -9,13 +9,11 @@ using Api.Security;
 using AutoMapper;
 using Common;
 using Common.DALSql;
-using Common.DALSql.Entities;
 using Common.DALSql.Filters;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
@@ -24,9 +22,7 @@ namespace Api.Controllers
 {
     public class AccountSqlController : BaseSqlController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly DbSet<User> _users;
-        private readonly DbSet<Token> _tokens;
+        private readonly ShipDbContext _dbContext;
         
         private readonly IEmailService _emailService;
 
@@ -39,7 +35,7 @@ namespace Api.Controllers
         private readonly IMapper _mapper;
 
         public AccountSqlController(
-            IUnitOfWork unitOfWork,
+            ShipDbContext dbContext,
             IEmailService emailService,
             IUserSqlService userSqlService,
             IAuthSqlService authSqlService,
@@ -48,9 +44,7 @@ namespace Api.Controllers
             IGoogleService googleService,
             IMapper mapper)
         {
-            _unitOfWork = unitOfWork;
-            _users = unitOfWork.Users;
-            _tokens = unitOfWork.Tokens;
+            _dbContext = dbContext;
             
             _emailService = emailService;
             _userSqlService = userSqlService;
@@ -65,7 +59,7 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 Email = model.Email
             });
@@ -98,7 +92,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 SignupToken = token
             });
@@ -115,7 +109,7 @@ namespace Api.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 Email = model.Email
             });
@@ -138,7 +132,7 @@ namespace Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 Email = model.Email
             });
@@ -163,7 +157,7 @@ namespace Api.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 ResetPasswordToken = model.Token
             });
@@ -180,7 +174,7 @@ namespace Api.Controllers
         [HttpPost("resend")]
         public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
             {
                 Email = model.Email
             });
@@ -201,7 +195,7 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _tokens.FindOneByFilterAsNoTracking(new TokenFilter
+            var token = await _dbContext.Tokens.FindOneByFilterAsNoTracking(new TokenFilter
             {
                 Value = refreshToken
             });
@@ -210,10 +204,9 @@ namespace Api.Controllers
                 return Unauthorized();
             }
 
-            await _unitOfWork.Perform(() =>
-            {
-                _authSqlService.SetTokens(token.UserId);
-            });
+            _authSqlService.SetTokens(token.UserId);
+
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -223,10 +216,8 @@ namespace Api.Controllers
         {
             if (CurrentUserId != null)
             {
-                await _unitOfWork.Perform(async () =>
-                {
-                    await _authSqlService.UnsetTokensAsync(CurrentUserId.Value);
-                });
+                await _authSqlService.UnsetTokensAsync(CurrentUserId.Value);
+                await _dbContext.SaveChangesAsync();
             }
 
             return Ok();
