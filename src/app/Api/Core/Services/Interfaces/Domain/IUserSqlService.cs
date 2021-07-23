@@ -8,13 +8,13 @@ namespace Api.Core.Services.Interfaces.Domain
     public interface IUserSqlService
     {
         Task<User> CreateUserAccountAsync(CreateUserModel model);
-        Task VerifyEmail(long userId);
-        Task SignIn(long userId);
+        Task VerifyEmailAsync(long userId);
+        Task SignInAsync(long userId);
         Task SignInGoogleWithCodeAsync(GooglePayloadModel payload);
         Task UpdateResetPasswordTokenAsync(long id, string token);
         Task UpdatePasswordAsync(long id, string newPassword);
         Task UpdateInfoAsync(long id, string email, string firstName, string lastName);
         Task<bool> IsEmailInUseAsync(long userIdToExclude, string email);
-        Task<string> SetResetPasswordToken(long userId);
+        Task<string> SetResetPasswordTokenAsync(long userId);
     }
 }

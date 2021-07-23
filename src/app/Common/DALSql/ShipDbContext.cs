@@ -23,7 +23,7 @@ namespace Common.DALSql
 
     public static class DbSetExtensions
     {
-        public static async Task<IEnumerable<TEntity>> FindByFilterAsNoTracking<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
+        public static async Task<IEnumerable<TEntity>> FindByFilterAsNoTrackingAsync<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
             where TEntity : BaseEntity
             where TFilter : BaseFilter<TEntity>
         {
@@ -33,7 +33,7 @@ namespace Common.DALSql
             return await ConstructQuery(table, dbQuery).ToListAsync();
         }
         
-        public static async Task<TEntity> FindOneByFilterAsNoTracking<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
+        public static async Task<TEntity> FindOneByFilterAsNoTrackingAsync<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
             where TEntity : BaseEntity
             where TFilter : BaseFilter<TEntity>
         {
@@ -43,7 +43,7 @@ namespace Common.DALSql
             return await ConstructQuery(table, dbQuery).FirstOrDefaultAsync();
         }
         
-        public static async Task<TEntity> FindOneAsNoTracking<TEntity>(this DbSet<TEntity> table, long id)
+        public static async Task<TEntity> FindOneAsNoTrackingAsync<TEntity>(this DbSet<TEntity> table, long id)
             where TEntity : BaseEntity
         {
             return await table.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);

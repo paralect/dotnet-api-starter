@@ -27,7 +27,7 @@ namespace Api.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _dbContext.Users.FindOneAsNoTracking(CurrentUserId.Value);
+            var user = await _dbContext.Users.FindOneAsNoTrackingAsync(CurrentUserId.Value);
             var viewModel = _mapper.Map<UserViewModel>(user);
         
             return Ok(viewModel);

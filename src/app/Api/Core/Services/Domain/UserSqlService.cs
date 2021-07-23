@@ -54,7 +54,7 @@ namespace Api.Core.Services.Domain
             return user;
         }
 
-        public async Task VerifyEmail(long userId)
+        public async Task VerifyEmailAsync(long userId)
         {
             var user = await _dbContext.Users.FindAsync(userId);
             user.IsEmailVerified = true;
@@ -65,7 +65,7 @@ namespace Api.Core.Services.Domain
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task SignIn(long userId)
+        public async Task SignInAsync(long userId)
         {
             var user = await _dbContext.Users.FindAsync(userId);
             user.LastRequest = DateTime.UtcNow;
@@ -82,7 +82,7 @@ namespace Api.Core.Services.Domain
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<string> SetResetPasswordToken(long userId)
+        public async Task<string> SetResetPasswordTokenAsync(long userId)
         {
             var user = await _dbContext.Users.FindAsync(userId);
             if (user.ResetPasswordToken.HasNoValue())
@@ -115,7 +115,7 @@ namespace Api.Core.Services.Domain
         
         public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 IdToExclude = userIdToExclude,
                 Email = email
@@ -126,7 +126,7 @@ namespace Api.Core.Services.Domain
 
         public async Task SignInGoogleWithCodeAsync(GooglePayloadModel payload)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 Email = payload.Email
             });
@@ -155,7 +155,7 @@ namespace Api.Core.Services.Domain
                 }
             }
                 
-            await _authSqlService.SetTokens(user);
+            await _authSqlService.SetTokensAsync(user);
 
             await _dbContext.SaveChangesAsync();
         }

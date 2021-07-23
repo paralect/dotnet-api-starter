@@ -59,7 +59,7 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -92,7 +92,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 SignupToken = token
             });
@@ -101,7 +101,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is invalid.");
             }
 
-            await _userSqlService.VerifyEmail(user.Id);
+            await _userSqlService.VerifyEmailAsync(user.Id);
 
             return Redirect(_appSettings.WebUrl);
         }
@@ -109,7 +109,7 @@ namespace Api.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -124,7 +124,7 @@ namespace Api.Controllers
                 return BadRequest(nameof(model.Email), "Please verify your email to sign in.");
             }
 
-            await _userSqlService.SignIn(user.Id);
+            await _userSqlService.SignInAsync(user.Id);
 
             return Ok(_mapper.Map<UserViewModel>(user));
         }
@@ -132,7 +132,7 @@ namespace Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -142,7 +142,7 @@ namespace Api.Controllers
                     $"Couldn't find account associated with ${model.Email}. Please try again.");
             }
 
-            var resetPasswordToken = await _userSqlService.SetResetPasswordToken(user.Id);
+            var resetPasswordToken = await _userSqlService.SetResetPasswordTokenAsync(user.Id);
 
             _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
             {
@@ -157,7 +157,7 @@ namespace Api.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 ResetPasswordToken = model.Token
             });
@@ -174,7 +174,7 @@ namespace Api.Controllers
         [HttpPost("resend")]
         public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTracking(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -195,7 +195,7 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _dbContext.Tokens.FindOneByFilterAsNoTracking(new TokenFilter
+            var token = await _dbContext.Tokens.FindOneByFilterAsNoTrackingAsync(new TokenFilter
             {
                 Value = refreshToken
             });

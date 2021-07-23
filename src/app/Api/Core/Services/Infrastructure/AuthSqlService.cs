@@ -44,7 +44,7 @@ namespace Api.Core.Services.Infrastructure
             SetCookies(tokens);
         }
 
-        public async Task SetTokens(User user)
+        public async Task SetTokensAsync(User user)
         {
             var tokens = GenerateTokens(user.Id);
 
@@ -62,7 +62,7 @@ namespace Api.Core.Services.Infrastructure
 
         public async Task UnsetTokensAsync(long userId)
         {
-            var tokens = await _dbContext.Tokens.FindByFilterAsNoTracking(new TokenFilter
+            var tokens = await _dbContext.Tokens.FindByFilterAsNoTrackingAsync(new TokenFilter
             {
                 UserId = userId
             });
