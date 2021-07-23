@@ -68,7 +68,7 @@ namespace Api.Controllers
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            var newUser = await _userSqlService.CreateUserAccountAsync(new CreateUserModel
+            var newUser = _userSqlService.CreateUserAccount(new CreateUserModel
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
@@ -208,8 +208,6 @@ namespace Api.Controllers
 
             _authSqlService.SetTokens(token.UserId);
 
-            await _dbContext.SaveChangesAsync();
-
             return Ok();
         }
 
@@ -219,7 +217,6 @@ namespace Api.Controllers
             if (CurrentUserId != null)
             {
                 await _authSqlService.UnsetTokensAsync(CurrentUserId.Value);
-                await _dbContext.SaveChangesAsync();
             }
 
             return Ok();

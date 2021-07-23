@@ -7,7 +7,7 @@ namespace Api.Core.Services.Interfaces.Domain
 {
     public interface IUserSqlService
     {
-        Task<User> CreateUserAccountAsync(CreateUserModel model);
+        User CreateUserAccount(CreateUserModel model);
         Task VerifyEmailAsync(long userId);
         Task SignInAsync(long userId);
         Task SignInGoogleWithCodeAsync(GooglePayloadModel payload);

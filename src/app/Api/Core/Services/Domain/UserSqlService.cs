@@ -8,7 +8,6 @@ using Common.DALSql;
 using Common.DALSql.Entities;
 using Common.DALSql.Filters;
 using Common.Utils;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Core.Services.Domain
 {
@@ -29,7 +28,7 @@ namespace Api.Core.Services.Domain
             _authSqlService = authSqlService;
         }
 
-        public async Task<User> CreateUserAccountAsync(CreateUserModel model)
+        public User CreateUserAccount(CreateUserModel model)
         {
             var signUpToken = SecurityUtils.GenerateSecureToken();
 
@@ -44,7 +43,6 @@ namespace Api.Core.Services.Domain
             };
             
             _dbContext.Users.Add(user);
-            await _dbContext.SaveChangesAsync();
 
             _emailService.SendSignUpWelcome(new SignUpWelcomeModel
             {
@@ -62,8 +60,6 @@ namespace Api.Core.Services.Domain
             user.LastRequest = DateTime.UtcNow;
 
             _authSqlService.SetTokens(userId);
-
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task SignInAsync(long userId)
@@ -71,16 +67,12 @@ namespace Api.Core.Services.Domain
             var user = await _dbContext.Users.FindAsync(userId);
             user.LastRequest = DateTime.UtcNow;
             _authSqlService.SetTokens(userId);
-            
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateResetPasswordTokenAsync(long id, string token)
         {
             var user = await _dbContext.Users.FindAsync(id);
             user.ResetPasswordToken = token;
-            
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<string> SetResetPasswordTokenAsync(long userId)
@@ -89,7 +81,6 @@ namespace Api.Core.Services.Domain
             if (user.ResetPasswordToken.HasNoValue())
             {
                 user.ResetPasswordToken = SecurityUtils.GenerateSecureToken();
-                await _dbContext.SaveChangesAsync();
             }
 
             return user.ResetPasswordToken;
@@ -100,8 +91,6 @@ namespace Api.Core.Services.Domain
             var user = await _dbContext.Users.FindAsync(id);
             user.PasswordHash = newPassword.GetHash();
             user.ResetPasswordToken = string.Empty;
-
-            await _dbContext.SaveChangesAsync();
         }
         
         public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
@@ -110,8 +99,6 @@ namespace Api.Core.Services.Domain
             user.Email = email;
             user.FirstName = firstName;
             user.LastName = lastName;
-            
-            await _dbContext.SaveChangesAsync();
         }
         
         public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
@@ -128,13 +115,12 @@ namespace Api.Core.Services.Domain
 
         public async Task SignInGoogleWithCodeAsync(GooglePayloadModel payload)
         {
-            var filter = new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
                 {
                     Email = payload.Email
                 }
-                .Include(u => u.Tokens);
-            
-            var user = await _dbContext.Users.FindOneByFilterAsync(filter);
+                .Include(u => u.Tokens)
+            );
             if (user == null)
             {
                 user = new User
@@ -158,8 +144,6 @@ namespace Api.Core.Services.Domain
             }
                 
             _authSqlService.SetTokens(user);
-
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

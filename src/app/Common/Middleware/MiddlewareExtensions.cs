@@ -2,7 +2,7 @@
 
 namespace Common.Middleware
 {
-    public static class TokenAuthenticationMiddlewareExtensions
+    public static class MiddlewareExtensions
     {
         public static IApplicationBuilder UseTokenAuthentication(this IApplicationBuilder builder)
         {
@@ -12,6 +12,11 @@ namespace Common.Middleware
         public static IApplicationBuilder UseTokenAuthenticationSql(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<TokenAuthenticationSqlMiddleware>();
+        }
+        
+        public static IApplicationBuilder UseDbContextSaveChanges(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<DbContextSaveChangesMiddleware>();
         }
     }
 }
