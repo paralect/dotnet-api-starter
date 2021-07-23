@@ -8,6 +8,7 @@ using Common.DALSql;
 using Common.DALSql.Entities;
 using Common.DALSql.Filters;
 using Common.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Core.Services.Domain
 {
@@ -115,10 +116,11 @@ namespace Api.Core.Services.Domain
         
         public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
                 IdToExclude = userIdToExclude,
-                Email = email
+                Email = email,
+                AsNoTracking = true
             });
         
             return user != null;
@@ -126,11 +128,13 @@ namespace Api.Core.Services.Domain
 
         public async Task SignInGoogleWithCodeAsync(GooglePayloadModel payload)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
-            {
-                Email = payload.Email
-            });
+            var filter = new UserFilter
+                {
+                    Email = payload.Email
+                }
+                .Include(u => u.Tokens);
             
+            var user = await _dbContext.Users.FindOneByFilterAsync(filter);
             if (user == null)
             {
                 user = new User
@@ -146,8 +150,6 @@ namespace Api.Core.Services.Domain
             }
             else
             {
-                _dbContext.Attach(user);
-                    
                 if (!user.OAuthGoogle)
                 {
                     user.OAuthGoogle = true;
@@ -155,7 +157,7 @@ namespace Api.Core.Services.Domain
                 }
             }
                 
-            await _authSqlService.SetTokensAsync(user);
+            _authSqlService.SetTokens(user);
 
             await _dbContext.SaveChangesAsync();
         }

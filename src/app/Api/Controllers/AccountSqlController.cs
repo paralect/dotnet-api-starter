@@ -59,7 +59,7 @@ namespace Api.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -92,7 +92,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
                 SignupToken = token
             });
@@ -109,7 +109,7 @@ namespace Api.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -132,7 +132,7 @@ namespace Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
                 Email = model.Email
             });
@@ -157,7 +157,7 @@ namespace Api.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
                 ResetPasswordToken = model.Token
             });
@@ -174,9 +174,10 @@ namespace Api.Controllers
         [HttpPost("resend")]
         public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsNoTrackingAsync(new UserFilter
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
             {
-                Email = model.Email
+                Email = model.Email,
+                AsNoTracking = true
             });
             if (user != null)
             {
@@ -195,9 +196,10 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _dbContext.Tokens.FindOneByFilterAsNoTrackingAsync(new TokenFilter
+            var token = await _dbContext.Tokens.FindOneByFilterAsync(new TokenFilter
             {
-                Value = refreshToken
+                Value = refreshToken,
+                AsNoTracking = true
             });
             if (token == null || token.IsExpired())
             {

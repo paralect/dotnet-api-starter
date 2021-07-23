@@ -31,9 +31,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var token = await dbContext.Tokens.FindOneByFilterAsNoTrackingAsync(new TokenFilter
+                var token = await dbContext.Tokens.FindOneByFilterAsync(new TokenFilter
                 {
-                    Value = accessToken
+                    Value = accessToken,
+                    AsNoTracking = true
                 });
                 if (token != null && !token.IsExpired())
                 {

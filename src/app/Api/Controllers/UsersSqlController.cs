@@ -3,6 +3,7 @@ using Api.Core.Services.Interfaces.Domain;
 using Api.Models.User;
 using AutoMapper;
 using Common.DALSql;
+using Common.DALSql.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -27,9 +28,12 @@ namespace Api.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _dbContext.Users.FindOneAsNoTrackingAsync(CurrentUserId.Value);
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter {
+                Id = CurrentUserId!.Value,
+                AsNoTracking = true
+            });
             var viewModel = _mapper.Map<UserViewModel>(user);
-        
+
             return Ok(viewModel);
         }
 

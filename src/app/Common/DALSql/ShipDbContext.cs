@@ -23,81 +23,80 @@ namespace Common.DALSql
 
     public static class DbSetExtensions
     {
-        public static async Task<IEnumerable<TEntity>> FindByFilterAsNoTrackingAsync<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
+        public static async Task<IEnumerable<TEntity>> FindByFilterAsync<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
             where TEntity : BaseEntity
             where TFilter : BaseFilter<TEntity>
         {
-            var dbQuery = new DbQuery<TEntity>();
-            dbQuery.AddFilter(filter);
-            
-            return await ConstructQuery(table, dbQuery).ToListAsync();
+            return await ConstructQuery(table, filter).ToListAsync();
         }
         
-        public static async Task<TEntity> FindOneByFilterAsNoTrackingAsync<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
+        public static async Task<TEntity> FindOneByFilterAsync<TEntity, TFilter>(this DbSet<TEntity> table, TFilter filter)
             where TEntity : BaseEntity
             where TFilter : BaseFilter<TEntity>
         {
-            var dbQuery = new DbQuery<TEntity>();
-            dbQuery.AddFilter(filter);
-            
-            return await ConstructQuery(table, dbQuery).FirstOrDefaultAsync();
+            return await ConstructQuery(table, filter).FirstOrDefaultAsync();
         }
         
-        public static async Task<TEntity> FindOneAsNoTrackingAsync<TEntity>(this DbSet<TEntity> table, long id)
+        private static IQueryable<TEntity> ConstructQuery<TEntity>(DbSet<TEntity> table, BaseFilter<TEntity> filter)
             where TEntity : BaseEntity
         {
-            return await table.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-        }
-        
-        private static IQueryable<TEntity> ConstructQuery<TEntity>(DbSet<TEntity> table, DbQuery<TEntity> queryParams)
-            where TEntity : BaseEntity
-        {
-            var query = table.AsNoTracking();
-            if (queryParams.Predicates.Any())
+            var query = table.AsQueryable();
+            if (filter.AsNoTracking)
             {
-                queryParams.Predicates.ForEach(predicate => query = query.Where(predicate));
+                query = query.AsNoTracking();
             }
             
-            if (queryParams.IncludeProperties.Any())
+            var predicates = filter.GetPredicates().ToList();
+            if (filter.Id.HasValue)
             {
-                foreach (var includeProperty in queryParams.IncludeProperties)
+                predicates.Add(entity => entity.Id == filter.Id);
+            }
+            
+            if (predicates.Any())
+            {
+                predicates.ForEach(predicate => query = query.Where(predicate));
+            }
+            
+            if (filter.IncludeProperties.Any())
+            {
+                foreach (var includeProperty in filter.IncludeProperties)
                 {
                     query = query.Include(includeProperty);
                 }
             }
             
-            if (queryParams.OrderingProperties.Any())
+            if (filter.OrderingProperties.Any())
             {
-                query = Queryable.OrderBy(query, (dynamic)queryParams.OrderingProperties[0]);
-                if (queryParams.OrderingProperties.Count > 1)
+                query = Queryable.OrderBy(query, (dynamic)filter.OrderingProperties[0]);
+                if (filter.OrderingProperties.Count > 1)
                 {
-                    foreach (var orderingProperty in queryParams.OrderingProperties.Skip(1))
+                    foreach (var orderingProperty in filter.OrderingProperties.Skip(1))
                     {
                         query = Queryable.ThenBy((IOrderedQueryable<TEntity>)query, (dynamic)orderingProperty);
                     }
                 }
             }
             
-            if (queryParams.OrderingByDescendingProperties.Any())
+            if (filter.OrderingByDescendingProperties.Any())
             {
-                query = Queryable.OrderByDescending(query, (dynamic)queryParams.OrderingByDescendingProperties[0]);
-                if (queryParams.OrderingByDescendingProperties.Count > 1)
+                query = Queryable.OrderByDescending(query, (dynamic)filter.OrderingByDescendingProperties[0]);
+                if (filter.OrderingByDescendingProperties.Count > 1)
                 {
-                    foreach (var orderingProperty in queryParams.OrderingByDescendingProperties.Skip(1))
+                    foreach (var orderingProperty in filter.OrderingByDescendingProperties.Skip(1))
                     {
                         query = Queryable.ThenByDescending((IOrderedQueryable<TEntity>)query, (dynamic)orderingProperty);
                     }
                 }
             }
             
-            if (queryParams.SkipCount > 0)
+            if (filter.SkipCount > 0)
             {
-                query = query.Skip(queryParams.SkipCount);
+                query = query.Skip(filter.SkipCount);
             }
             
-            if (queryParams.TakeCount > 0)
+            if (filter.TakeCount > 0)
             {
-                query = query.Take(queryParams.TakeCount);
+                query = query.Take(filter.TakeCount);
             }
             
             return query;
