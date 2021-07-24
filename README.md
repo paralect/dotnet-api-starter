@@ -34,7 +34,7 @@ Our initial idea is to reuse everything except REST api. Things we use for Node.
 
 ## How to set it up
 
-In order to make Paralct.Ship work with this API server on Windows some changes in files are needed to be made.
+In order to make Paralect.Ship work with this API server on Windows some changes in files are needed to be made.
 
 1. docker-compose.yml:
 	- Add named volume "mongodata" (This will allow to save data even if container is removed)
@@ -48,3 +48,21 @@ In order to make Paralct.Ship work with this API server on Windows some changes 
 
 
 To run API service inside docker container api/src/docker-compose.yml file is used. To run the rest of services top level docker-compose.yml file is used. So to run Ship you'll have to run "docker-compose up" twice.
+
+## SQL database
+
+MongoDB database is used by default, but the solutions also contains samples for PostgreSQL with EF Core as ORM. Most of the code is in `Common.DALSql` folder and it's used by controllers/services with `Sql` in names (like `AccountSqlController`, `UserSqlService`, etc).
+
+In order to start using SQL backend with Ship React client, please do the following:
+- run PostgreSQL DB either standalone or in Docker and update connection string if necessary (see `Common/common.Development.json`);
+- uncomment `DbContext` initialization in `Api.Startup.cs`:
+  - services.InitializePostgreSqlDb(sqlConnectionSettings);
+- enable middleware in `Api.Startup.cs`:
+  - UseTokenAuthenticationSql
+  - UseDbContextSaveChanges
+- update endpoint paths either on front-end (like `account/sign-in` -> `acccountsql/sign-in`) or back-end side.
+- install [EF Core Tools](https://docs.microsoft.com/en-us/ef/core/cli/dotnet)
+- go to `src/app/Api` and run
+  - `dotnet ef database update`
+
+Please note `SignalR` project does not support SQL DB at the moment.

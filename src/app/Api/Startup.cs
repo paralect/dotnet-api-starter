@@ -102,9 +102,14 @@ namespace Api
             app.UseCors("AllowSpecificOrigin");
 
             // choose one of these options depending on where tokens are stored
-            // app.UseTokenAuthentication();
-            app.UseTokenAuthenticationSql();
-            app.UseDbContextSaveChanges();
+            app.UseTokenAuthentication();
+            // app.UseTokenAuthenticationSql();
+            
+            // Only for SQL DB. The middleware makes requests to DB,
+            // if there are any changes on EF DbContext.
+            // It's still possible to update DB manually from controllers/services -
+            // in this case the middleware does nothing.
+            // app.UseDbContextSaveChanges();
 
             app.UseAuthorization();
 
@@ -156,7 +161,8 @@ namespace Api
             var sqlConnectionSettings = new SqlConnectionSettings();
             _configuration.GetSection("SqlConnection").Bind(sqlConnectionSettings);
             
-            services.InitializePostgreSqlDb(sqlConnectionSettings);
+            // uncomment to use PostgreSQL DB
+            // services.InitializePostgreSqlDb(sqlConnectionSettings);
         }
     }
 }
