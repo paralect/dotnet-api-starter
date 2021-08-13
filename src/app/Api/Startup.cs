@@ -41,9 +41,9 @@ namespace Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureDb(services);
             ConfigureSettings(services);
             ConfigureDI(services);
-            ConfigureDb(services);
 
             services.AddHttpContextAccessor();
 
@@ -130,7 +130,7 @@ namespace Api
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITokenRepository, TokenRepository>();
 
-            services.AddTransient<IDbContext, DbContext>();
+            //services.AddTransient<IDbContext, DbContext>();
         }
 
         private void ConfigureDb(IServiceCollection services)
@@ -140,7 +140,7 @@ namespace Api
 
             services.InitializeDb(dbSettings);
 
-            services.AddLinqToDbContext<DbContext>((provider, options) =>
+            services.AddLinqToDbContext<IDbContext, DbContext>((provider, options) =>
             {
                 options
                 //will configure the AppDataConnection to use
@@ -151,7 +151,7 @@ namespace Api
                 //default logging will log everything using
                 //an ILoggerFactory configured in the provider
                 .UseDefaultLogging(provider);
-            });
+            }, ServiceLifetime.Transient);
         }
     }
 }

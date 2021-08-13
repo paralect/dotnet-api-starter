@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
 using SignalR.Mapping;
-using SignalR.Services;
 
 namespace SignalR
 {
@@ -37,7 +36,7 @@ namespace SignalR
             ConfigureCors(services);
 
             services.AddSignalR();
-            services.AddHostedService<ChangeStreamBackgroundService>();
+            //services.AddHostedService<ChangeStreamBackgroundService>();
             services.AddAutoMapper(typeof(UserProfile));
         }
 
@@ -66,7 +65,6 @@ namespace SignalR
             services.AddTransient<ITokenRepository, TokenRepository>();
 
             services.AddTransient<IDbContext, DbContext>();
-            services.AddTransient<IIdGenerator, IdGenerator>();
 
             services.AddTransient<IUserHubContext, UserHubContext>();
 
@@ -80,7 +78,7 @@ namespace SignalR
             var dbSettings = new DbSettings();
             _configuration.GetSection("MongoConnection").Bind(dbSettings);
 
-            services.InitializeDb(dbSettings);
+            //services.InitializeDb(dbSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)

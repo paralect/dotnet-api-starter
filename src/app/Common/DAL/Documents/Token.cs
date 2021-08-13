@@ -8,7 +8,7 @@ namespace Common.DAL.Documents
     public class Token : BaseEntity
     {
         [Column, NotNull] public TokenTypeEnum Type { get; set; }
-        [Column, NotNull] public string Value { get; set; }
+        [Column, Nullable] public string? Value { get; set; }
         [Column, NotNull] public DateTime ExpireAt { get; set; }
         [Column, NotNull] public long UserId { get; set; }
     }
