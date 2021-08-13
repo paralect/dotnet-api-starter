@@ -17,6 +17,7 @@ using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
+using System;
 
 namespace Api.Controllers
 {
@@ -53,14 +54,14 @@ namespace Api.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUpAsync([FromBody]SignUpModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
-            
+
             user = await _userService.CreateUserAccountAsync(new CreateUserModel
             {
                 Email = model.Email,
@@ -85,25 +86,23 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _userService.FindOneAsync(new UserFilter {SignUpToken = token});
-            if (user == null)
+            var userId = await _userService.FindUserIDBySignUpTokenAsync(token);
+            if (!userId.HasValue)
             {
                 return BadRequest("Token", "Token is invalid.");
             }
 
-            var userId = user.Id;
-
             await Task.WhenAll(
-                _userService.MarkEmailAsVerifiedAsync(userId),
-                _userService.UpdateLastRequestAsync(userId),
-                _authService.SetTokensAsync(userId)
+                _userService.MarkEmailAsVerifiedAsync(userId.Value),
+                _userService.UpdateLastRequestAsync(userId.Value),
+                _authService.SetTokensAsync(userId.Value)
             );
 
             return Redirect(_appSettings.WebUrl);
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
+        public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
@@ -113,7 +112,7 @@ namespace Api.Controllers
 
             if (user.IsEmailVerified == false)
             {
-                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
+                return BadRequest(nameof(model.Email), "Please verify your email to sign in.");
             }
 
             await Task.WhenAll(
@@ -125,7 +124,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("forgotPassword")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null)
@@ -151,21 +150,21 @@ namespace Api.Controllers
         }
 
         [HttpPost("resetPassword")]
-        public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
-            if (user == null)
+            var userId = await _userService.FindUserIDByResetPasswordTokenAsync(model.Token);
+            if (!userId.HasValue)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
             }
 
-            await _userService.UpdatePasswordAsync(user.Id, model.Password);
+            await _userService.UpdatePasswordAsync(userId.Value, model.Password);
 
             return Ok();
         }
 
         [HttpPost("resend")]
-        public async Task<IActionResult> ResendVerificationAsync([FromBody]ResendVerificationModel model)
+        public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
@@ -180,13 +179,15 @@ namespace Api.Controllers
             return Ok();
         }
 
+
+
         [Authorize]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshTokenAsync()
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _tokenService.FindAsync(refreshToken);
+            var token = await _tokenService.FindAsync(refreshToken, Common.Enums.TokenTypeEnum.Refresh);
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
@@ -200,12 +201,23 @@ namespace Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            if (CurrentUserId.HasValue())
+            var currentUserId = getCurrentUserId();
+            if (currentUserId.HasValue)
             {
-                await _authService.UnsetTokensAsync(CurrentUserId);
+                await _authService.UnsetTokensAsync(currentUserId.Value);
             }
 
             return Ok();
+
+            #region Inline
+
+            long? getCurrentUserId()
+            {
+                var userId = User?.Identity?.Name;
+                return string.IsNullOrEmpty(userId) ? null : Convert.ToInt64(userId);
+            }
+
+            #endregion
         }
 
         [HttpGet("signin/google/auth")]
@@ -217,7 +229,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("signin/google")]
-        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery]SignInGoogleModel model)
+        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery] SignInGoogleModel model)
         {
             var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
             if (payload == null)
@@ -235,7 +247,7 @@ namespace Api.Controllers
                     LastName = payload.FamilyName
                 });
             }
-            else if (!user.OAuth.Google)
+            else if (!user.OAuthGoogle)
             {
                 await _userService.EnableGoogleAuthAsync(user.Id);
             }

@@ -1,9 +1,9 @@
-﻿using Common.DAL.Documents.User;
+﻿using Common.DAL.Documents;
 using Common.DAL.Repositories;
 
 namespace Common.DAL.Interfaces
 {
-    public interface IUserRepository : IRepository<User, UserFilter>
+    public interface IUserRepository : IRepository<User>
     {
     }
 }

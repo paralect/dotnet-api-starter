@@ -28,7 +28,7 @@ namespace Api.Core.Services.Infrastructure
             _httpContext = httpContextAccessor.HttpContext;
         }
 
-        public async Task SetTokensAsync(string userId)
+        public async Task SetTokensAsync(long userId)
         {
             var tokens = await _tokenService.CreateAuthTokensAsync(userId);
             var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
@@ -51,7 +51,7 @@ namespace Api.Core.Services.Infrastructure
             });
         }
 
-        public async Task UnsetTokensAsync(string userId)
+        public async Task UnsetTokensAsync(long userId)
         {
             await _tokenService.DeleteUserTokensAsync(userId);
 

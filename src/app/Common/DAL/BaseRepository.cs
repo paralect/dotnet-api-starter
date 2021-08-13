@@ -1,134 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DAL.Documents;
 using Common.DAL.Interfaces;
-using Common.DAL.UpdateDocumentOperators;
-using Common.Utils;
-using MongoDB.Driver;
+using LinqToDB;
+using LinqToDB.Data;
+using LinqToDB.Linq;
 
 namespace Common.DAL
 {
-    public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument, TFilter> 
-        where TDocument : BaseDocument
-        where TFilter : BaseFilter, new()
+    public abstract class BaseRepository<TEntity> : IRepository<TEntity>
+        where TEntity : BaseEntity
     {
-        protected readonly IDbContext DbContext;
-        protected readonly IIdGenerator IdGenerator;
-        protected readonly IMongoCollection<TDocument> Collection;
+        protected readonly IDbContext context;
 
-        protected BaseRepository(
-            IDbContext dbContext,
-            IIdGenerator idGenerator,
-            Func<IDbContext, IMongoCollection<TDocument>> collectionProvider
-        )
+        public BaseRepository(IDbContext context)
         {
-            DbContext = dbContext;
-            IdGenerator = idGenerator;
-            Collection = collectionProvider(DbContext);
+            this.context = context;
         }
 
-        public async Task InsertAsync(TDocument document)
+        public IQueryable<TEntity> GetQuery()
         {
-            AddId(document);
-
-            await Collection.InsertOneAsync(document);
+            return context.GetTable<TEntity>();
         }
 
-        public async Task InsertManyAsync(IEnumerable<TDocument> documents)
+        public IUpdatable<TEntity> GetUpdateQuery(long entityID)
         {
-            var documentsToInsert = documents.Select(d =>
-            {
-                AddId(d);
-
-                return d;
-            }).ToList();
-
-            await Collection.InsertManyAsync(documentsToInsert);
+            return context.GetTable<TEntity>()
+                .Where(x => x.Id == entityID)
+                .AsUpdatable();
         }
 
-        public async Task<TDocument> FindOneAsync(TFilter filter)
+        public Task<BulkCopyRowsCopied> InsertRangeAsync(IEnumerable<TEntity> entities)
         {
-            var result = await Collection.FindAsync(BuildFilterQuery(filter));
-            return result.SingleOrDefault();
+            return context.GetTable<TEntity>().BulkCopyAsync(entities);
         }
 
-        public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
+        public Task<int> DeleteAsync(long entityID)
         {
-            await UpdateOneAsync(id, new SetOperator<TDocument, TField>(fieldSelector, value));
+            return context.GetTable<TEntity>().Where(x => x.Id == entityID).DeleteAsync();
         }
 
-        public async Task UpdateOneAsync(string id, IUpdateOperator<TDocument> update)
+        public Task<int> InsertAsync(TEntity entity)
         {
-            await UpdateOneAsync(id, new[] { update });
-        }
-
-        public async Task UpdateOneAsync(string id, IEnumerable<IUpdateOperator<TDocument>> updates)
-        {
-            var filterDefinition = GetFilterById(id);
-            var updateDefinition = Builders<TDocument>.Update.Combine(updates.Select(update => update.ToUpdateDefinition()));
-
-            await Collection.UpdateOneAsync(filterDefinition, updateDefinition);
-        }
-
-        public async Task ReplaceOneAsync(TDocument document)
-        {
-            await Collection.ReplaceOneAsync(GetFilterById(document.Id), document);
-        }
-
-        public async Task ReplaceOneAsync(TDocument document, Action<TDocument> updater)
-        {
-            updater(document);
-            await ReplaceOneAsync(document);
-        }
-        
-        public async Task ReplaceOneAsync(string id, Action<TDocument> updater)
-        {
-            var document = await FindOneAsync(new TFilter { Id = id });
-            await ReplaceOneAsync(document, updater);
-        }
-
-        public async Task DeleteManyAsync(TFilter filter)
-        {
-            await Collection.DeleteManyAsync(BuildFilterQuery(filter));
-        }
-
-        protected virtual IEnumerable<FilterDefinition<TDocument>> GetFilterQueries(TFilter filter)
-        {
-            return new List<FilterDefinition<TDocument>>();
-        }
-
-        private FilterDefinition<TDocument> BuildFilterQuery(TFilter filter)
-        {
-            var filterQueries = GetFilterQueries(filter).ToList();
-            if (filter.Id.HasValue())
-            {
-                filterQueries.Add(GetFilterById(filter.Id));
-            }
-
-            if (!filterQueries.Any() && !filter.IsEmptyFilterAllowed)
-            {
-                throw new ApplicationException("Empty filter is not allowed");
-            }
-
-            return filterQueries.Any()
-                ? Builders<TDocument>.Filter.And(filterQueries)
-                : FilterDefinition<TDocument>.Empty;
-        }
-
-        private static FilterDefinition<TDocument> GetFilterById(string id)
-        {
-            return Builders<TDocument>.Filter.Eq(d => d.Id, id);
-        }
-
-        private void AddId(TDocument document)
-        {
-            if (document.Id.HasNoValue())
-            {
-                document.Id = IdGenerator.Generate();
-            }
+            return context.InsertAsync(entity);
         }
     }
 }

@@ -1,14 +1,10 @@
-﻿using Common.DAL.Documents.Token;
-using Common.DAL.Documents.User;
-using MongoDB.Driver;
+﻿using Common.DAL.Documents;
+using LinqToDB;
 
 namespace Common.DAL.Interfaces
 {
-    public interface IDbContext
+    public interface IDbContext: IDataContext
     {
-        IMongoClient Client { get; }
-
-        IMongoCollection<User> Users { get; }
-        IMongoCollection<Token> Tokens { get; }
+        public ITable<T> GetTable<T>() where T : class;
     }
 }

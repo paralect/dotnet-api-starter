@@ -12,6 +12,9 @@ using Common.Middleware;
 using Common.Services;
 using Common.Services.Interfaces;
 using Common.Settings;
+using LinqToDB.AspNet;
+using LinqToDB.AspNet.Logging;
+using LinqToDB.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +22,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using IIdGenerator = Common.DAL.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
@@ -111,7 +113,7 @@ namespace Api
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("PostgresConnection").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
@@ -129,16 +131,27 @@ namespace Api
             services.AddTransient<ITokenRepository, TokenRepository>();
 
             services.AddTransient<IDbContext, DbContext>();
-
-            services.AddTransient<IIdGenerator, IdGenerator>();
         }
 
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+            _configuration.GetSection("PostgresConnection").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+
+            services.AddLinqToDbContext<DbContext>((provider, options) =>
+            {
+                options
+                //will configure the AppDataConnection to use
+                //SqlServer with the provided connection string
+                //there are methods for each supported database
+                .UsePostgreSQL(dbSettings.ConnectionString)
+
+                //default logging will log everything using
+                //an ILoggerFactory configured in the provider
+                .UseDefaultLogging(provider);
+            });
         }
     }
 }

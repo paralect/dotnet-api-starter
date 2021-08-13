@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Common.DAL.Documents.Token;
+using Common.DAL.Documents;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
 using Common.Enums;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
+using LinqToDB;
 using Microsoft.Extensions.Options;
 
 namespace Common.Services
 {
-    public class TokenService : BaseDocumentService<Token, TokenFilter>, ITokenService
+    public class TokenService : BaseDocumentService<Token>, ITokenService
     {
         private readonly ITokenRepository _tokenRepository;
         private readonly TokenExpirationSettings _tokenExpirationSettings;
@@ -24,7 +26,7 @@ namespace Common.Services
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task<List<Token>> CreateAuthTokensAsync(string userId)
+        public async Task<List<Token>> CreateAuthTokensAsync(long userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
@@ -47,19 +49,19 @@ namespace Common.Services
                 }
             };
 
-            await _tokenRepository.InsertManyAsync(tokens);
+            await _tokenRepository.InsertRangeAsync(tokens);
 
             return tokens;
         }
 
-        public async Task<Token> FindAsync(string tokenValue)
+        public Task<Token?> FindAsync(string tokenValue, TokenTypeEnum type)
         {
-            return await FindOneAsync(new TokenFilter { Value = tokenValue });
+            return _tokenRepository.GetQuery().FirstOrDefaultAsync(x => x.Type == type && x.Value == tokenValue);
         }
 
-        public async Task DeleteUserTokensAsync(string userId)
+        public async Task DeleteUserTokensAsync(long userId)
         {
-            await _tokenRepository.DeleteManyAsync(new TokenFilter { UserId = userId });
+            await _tokenRepository.DeleteAsync(userId);
         }
     }
 }

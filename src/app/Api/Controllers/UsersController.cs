@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Authorize]
-    public class UsersController : BaseController
+     
+    public class UsersController : BaseAuthorizedController
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
@@ -22,7 +22,7 @@ namespace Api.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _userService.FindByIdAsync(CurrentUserId);
+            var user = await _userService.FindByIdAsync(GetCurrentUserId());
             var viewModel = _mapper.Map<UserViewModel>(user);
 
             return Ok(viewModel);
@@ -31,11 +31,11 @@ namespace Api.Controllers
         [HttpPut("current")]
         public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
         {
-            var userId = CurrentUserId;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return BadRequest("UserId", "User not found.");
-            }
+            var userId = GetCurrentUserId();
+            //if (string.IsNullOrEmpty(userId))
+            //{
+            //    return BadRequest("UserId", "User not found.");
+            //}
 
             var isEmailInUse = await _userService.IsEmailInUseAsync(userId, model.Email);
             if (isEmailInUse)

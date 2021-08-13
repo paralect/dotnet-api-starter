@@ -1,27 +1,15 @@
-﻿using Common.DAL.Documents.Token;
-using Common.DAL.Documents.User;
+﻿using Common.DAL.Documents;
 using Common.DAL.Interfaces;
-using MongoDB.Driver;
+using LinqToDB;
 
 namespace Common.DAL
 {
-    public class DbContext : IDbContext
+    public class DbContext :  LinqToDB.Data.DataConnection, IDbContext
     {
-        public DbContext(
-            IMongoClient client,
-            IMongoCollection<User> users,
-            IMongoCollection<Token> tokens
-        )
-        {
-            Client = client;
+        //public ITable<User> Users { get { return this.GetTable<User>(); } }
+        //public ITable<Token> Tokens { get { return this.GetTable<Token>(); } }
 
-            Users = users;
-            Tokens = tokens;
-        }
-
-        public IMongoClient Client { get; }
-
-        public IMongoCollection<User> Users { get; }
-        public IMongoCollection<Token> Tokens { get; }
+        //public IMongoCollection<User> Users { get; }
+        //public IMongoCollection<Token> Tokens { get; }
     }
 }

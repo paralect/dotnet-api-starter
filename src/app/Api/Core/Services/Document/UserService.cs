@@ -1,19 +1,19 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
-using Common.DAL.Documents.User;
+using Common.DAL.Documents;
 using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
-using Common.DAL.UpdateDocumentOperators;
 using Common.Services;
 using Common.Utils;
+using LinqToDB;
 
 namespace Api.Core.Services.Document
 {
-    public class UserService : BaseDocumentService<User, UserFilter>, IUserService
+    public class UserService : BaseDocumentService<User>, IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
@@ -25,43 +25,41 @@ namespace Api.Core.Services.Document
             _emailService = emailService;
         }
 
-        public async Task<User> FindByEmailAsync(string email)
+        public Task<User?> FindByEmailAsync(string email)
         {
-            return await FindOneAsync(new UserFilter { Email = email });
+            return _userRepository.GetQuery().FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task MarkEmailAsVerifiedAsync(string id)
+        public Task MarkEmailAsVerifiedAsync(long id)
         {
-            await _userRepository.UpdateOneAsync(id, u => u.IsEmailVerified,  true);
+            return _userRepository.GetUpdateQuery(id).Set(x => x.IsEmailVerified, true).UpdateAsync();
         }
 
-        public async Task UpdateLastRequestAsync(string id)
+        public Task UpdateLastRequestAsync(long id)
         {
-            await _userRepository.UpdateOneAsync(id, u => u.LastRequest, DateTime.UtcNow);
+            return _userRepository.GetUpdateQuery(id).Set(u => u.LastRequest, DateTime.UtcNow).UpdateAsync();
         }
 
-        public async Task UpdateResetPasswordTokenAsync(string id, string token)
+        public Task UpdateResetPasswordTokenAsync(long id, string token)
         {
-            await _userRepository.UpdateOneAsync(id, u => u.ResetPasswordToken, token);
+            return _userRepository.GetUpdateQuery(id).Set(u => u.ResetPasswordToken, token).UpdateAsync();
         }
 
-        public async Task UpdatePasswordAsync(string id, string newPassword)
+        public Task UpdatePasswordAsync(long id, string newPassword)
         {
-            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
-            {
-                new SetOperator<User, string>(user => user.PasswordHash, newPassword.GetHash()),
-                new SetOperator<User, string>(user => user.ResetPasswordToken, string.Empty)
-            });
+            return _userRepository.GetUpdateQuery(id)
+                .Set(user => user.PasswordHash, newPassword.GetHash())
+                .Set(user => user.ResetPasswordToken, string.Empty)
+                .UpdateAsync();
         }
 
-        public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
+        public Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
         {
-            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
-            {
-                new SetOperator<User, string>(user => user.Email, email),
-                new SetOperator<User, string>(user => user.FirstName, firstName),
-                new SetOperator<User, string>(user => user.LastName, lastName)
-            });
+            return _userRepository.GetUpdateQuery(id)
+               .Set(user => user.Email, email)
+               .Set(user => user.FirstName, firstName)
+               .Set(user => user.LastName, lastName)
+               .UpdateAsync();
         }
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
@@ -97,10 +95,7 @@ namespace Api.Core.Services.Document
                 LastName = model.LastName,
                 Email = model.Email,
                 IsEmailVerified = true,
-                OAuth = new User.OAuthSettings
-                {
-                    Google = true
-                }
+                OAuthGoogle = true
             };
 
             await _userRepository.InsertAsync(newUser);
@@ -108,17 +103,38 @@ namespace Api.Core.Services.Document
             return newUser;
         }
 
-        public async Task EnableGoogleAuthAsync(string id)
+        public Task EnableGoogleAuthAsync(long id)
         {
-            await _userRepository.UpdateOneAsync(id, u => u.OAuth.Google, true);
+            return _userRepository.GetUpdateQuery(id)
+               .Set(user => user.OAuthGoogle, true)
+               .UpdateAsync();
         }
 
-        public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)
+        public async Task<bool> IsEmailInUseAsync(long? userIdToExclude, string email)
         {
-            var user = await _userRepository
-                .FindOneAsync(new UserFilter {UserIdToExclude = userIdToExclude, Email = email});
+            var usersQuery = _userRepository.GetQuery().Where(x => x.Email.ToUpper() == email.ToUpper());
+            if (userIdToExclude.HasValue)
+            {
+                usersQuery = usersQuery.Where(x => x.Id != userIdToExclude);
+            }
 
-            return user != null;
+            return !await usersQuery.AnyAsync();
+        }
+
+        public async Task<long?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
+        {
+            return (await _userRepository.GetQuery()
+                 .Where(x => x.ResetPasswordToken == resetPasswordToken)
+                 .Select(x => new { x.Id })
+                 .FirstOrDefaultAsync()).Id;
+        }
+
+        public async Task<long?> FindUserIDBySignUpTokenAsync(string signUpToken)
+        {
+            return (await _userRepository.GetQuery()
+                 .Where(x => x.SignupToken == signUpToken)
+                 .Select(x => new { x.Id })
+                 .FirstOrDefaultAsync()).Id;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Common.DAL.Documents.User;
+using Common.DAL.Documents;
 using SignalR.Models;
 
 namespace SignalR.Mapping

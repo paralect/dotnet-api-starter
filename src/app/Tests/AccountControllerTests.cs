@@ -8,9 +8,7 @@ using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using AutoMapper;
 using Common;
-using Common.DAL.Documents.Token;
-using Common.DAL.Documents.User;
-using Common.DAL.Repositories;
+using Common.DAL.Documents;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
@@ -66,7 +64,7 @@ namespace Tests
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
                 .ReturnsAsync(new User());
 
-            
+
             var controller = CreateInstance();
 
             // Act
@@ -124,9 +122,9 @@ namespace Tests
             // Arrange
             var token = "sample";
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.SignUpToken == token)))
-                .ReturnsAsync((User)null);
-            
+            _userService.Setup(service => service.FindUserIDBySignUpTokenAsync(token))
+                .ReturnsAsync((long?)null);
+
             var controller = CreateInstance();
 
             // Act
@@ -141,11 +139,11 @@ namespace Tests
         {
             // Arrange
             var token = "sample";
-            var userId = "user id sample";
+            var userId = 10; // "user id sample";
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.SignUpToken == token)))
-                .ReturnsAsync(new User { Id = userId });
-            
+            _userService.Setup(service => service.FindUserIDBySignUpTokenAsync(token))
+                .ReturnsAsync(userId);
+
             var controller = CreateInstance();
 
             // Act
@@ -233,7 +231,7 @@ namespace Tests
         public async Task SignInShouldReturnOkObjectResult()
         {
             // Arrange
-            var userId = "user id";
+            var userId = 10;// "user id";
             var password = "sample";
             var user = new User
             {
@@ -288,7 +286,7 @@ namespace Tests
             // Arrange
             var user = new User
             {
-                Id = "user id",
+                Id = 10,// "user id",
                 Email = "test@test.com"
             };
             var model = new ForgotPasswordModel
@@ -322,8 +320,8 @@ namespace Tests
                 Token = "test token"
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
-                .ReturnsAsync((User)null);
+            _userService.Setup(service => service.FindUserIDByResetPasswordTokenAsync(model.Token))
+                .ReturnsAsync((long?)null);
 
             var controller = CreateInstance();
 
@@ -343,13 +341,10 @@ namespace Tests
                 Token = "test token",
                 Password = "new password"
             };
-            var user = new User
-            {
-                Id = "user id"
-            };
+            var userId = 10;
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
-                .ReturnsAsync(user);
+            _userService.Setup(service => service.FindUserIDByResetPasswordTokenAsync(model.Token))
+                .ReturnsAsync(userId);
 
             var controller = CreateInstance();
 
@@ -357,7 +352,7 @@ namespace Tests
             var result = await controller.ResetPasswordAsync(model);
 
             // Assert
-            _userService.Verify(service => service.UpdatePasswordAsync(user.Id, model.Password));
+            _userService.Verify(service => service.UpdatePasswordAsync(userId, model.Password));
             Assert.IsType<OkResult>(result);
         }
 
@@ -400,7 +395,7 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindAsync(refreshToken))
+            _tokenService.Setup(service => service.FindAsync(refreshToken, Common.Enums.TokenTypeEnum.Refresh))
                 .ReturnsAsync((Token)null);
 
             var controller = CreateInstance();
@@ -417,7 +412,7 @@ namespace Tests
         public async Task RefreshTokenShouldSetToken()
         {
             // Arrange
-            var userId = "user id";
+            var userId = 10;// "user id";
             var refreshToken = "refresh token";
             var contextMock = new Mock<HttpContext>();
             contextMock.Setup(context => context.Request.Cookies[Constants.CookieNames.RefreshToken])
@@ -425,7 +420,7 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindAsync(refreshToken))
+            _tokenService.Setup(service => service.FindAsync(refreshToken, Common.Enums.TokenTypeEnum.Refresh))
                 .ReturnsAsync(new Token { UserId = userId, ExpireAt = DateTime.UtcNow.AddYears(1) });
 
             var controller = CreateInstance();
@@ -444,9 +439,9 @@ namespace Tests
         {
             // Arrange
             var contextMock = new Mock<HttpContext>();
-            var currentUserId = "user id";
+            var currentUserId = 10;// "user id";
 
-            contextMock.Setup(context => context.User.Identity.Name).Returns(currentUserId);
+            contextMock.Setup(context => context.User.Identity.Name).Returns(currentUserId.ToString());
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
             var controller = CreateInstance();
@@ -482,7 +477,7 @@ namespace Tests
         public async Task SignInGoogleWithCodeShouldReturnNotFoundWhenPayloadIsNull()
         {
             // Arrange
-            var model = new SignInGoogleModel {Code = "test code"};
+            var model = new SignInGoogleModel { Code = "test code" };
             _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
                 .ReturnsAsync((GooglePayloadModel)null);
 
@@ -523,7 +518,7 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.CreateUserAccountAsync(
-                It.Is<CreateUserGoogleModel>(m => m.Email == payload.Email &&  m.FirstName == payload.GivenName && m.LastName == payload.FamilyName)),
+                It.Is<CreateUserGoogleModel>(m => m.Email == payload.Email && m.FirstName == payload.GivenName && m.LastName == payload.FamilyName)),
                 Times.Once
             );
         }
@@ -543,12 +538,9 @@ namespace Tests
             };
             var user = new User
             {
-                Id = "test id",
+                Id = 10, // "test id",
                 Email = payload.Email,
-                OAuth = new User.OAuthSettings
-                {
-                    Google = isEnabled
-                }
+                OAuthGoogle = isEnabled
             };
 
             _userService.Setup(service => service.FindByEmailAsync(payload.Email))
@@ -583,12 +575,9 @@ namespace Tests
             };
             var user = new User
             {
-                Id = "test id",
+                Id = 10, //"test id",
                 Email = payload.Email,
-                OAuth = new User.OAuthSettings
-                {
-                    Google = false
-                }
+                OAuthGoogle = false
             };
 
             _userService.Setup(service => service.FindByEmailAsync(payload.Email))
@@ -615,7 +604,7 @@ namespace Tests
                 .Returns(_appSettings);
 
             return new AccountController(
-                _emailService.Object, 
+                _emailService.Object,
                 _userService.Object,
                 _tokenService.Object,
                 _authService.Object,

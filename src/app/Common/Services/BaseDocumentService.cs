@@ -1,30 +1,24 @@
 ﻿using System.Threading.Tasks;
-using Common.DAL;
 using Common.DAL.Documents;
 using Common.DAL.Interfaces;
 using Common.Services.Interfaces;
+using LinqToDB;
 
 namespace Common.Services
 {
-    public class BaseDocumentService<TDocument, TFilter> : IDocumentService<TDocument, TFilter>
-        where TDocument : BaseDocument
-        where TFilter : BaseFilter, new()
+    public class BaseDocumentService<TDocument> : IDocumentService<TDocument>
+        where TDocument : BaseEntity
     {
-        private readonly IRepository<TDocument, TFilter> _repository;
+        private readonly IRepository<TDocument> _repository;
 
-        public BaseDocumentService(IRepository<TDocument, TFilter> repository)
+        public BaseDocumentService(IRepository<TDocument> repository)
         {
             _repository = repository;
         }
 
-        public async Task<TDocument> FindByIdAsync(string id)
+        public Task<TDocument?> FindByIdAsync(long id)
         {
-            return await FindOneAsync(new TFilter {Id = id});
-        }
-
-        public async Task<TDocument> FindOneAsync(TFilter filter)
-        {
-            return await _repository.FindOneAsync(filter);
+            return _repository.GetQuery().FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

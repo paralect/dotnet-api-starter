@@ -1,5 +1,5 @@
 using System;
-using Common.DAL.Documents.Token;
+using Common.DAL.Documents;
 
 namespace Common.Utils
 {

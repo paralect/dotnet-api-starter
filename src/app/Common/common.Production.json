@@ -3,9 +3,8 @@
     "AccessTokenExpiresInHours": 1,
     "RefreshTokenExpiresInHours": 10
   },
-  "MongoConnection": {
-    "ConnectionString": "mongodb://mongo:27017",
-    "Database": "api-development"
+  "PostgresConnection": {
+    "ConnectionString": "Server=localhost;Port=5432;Database=api-development;User Id=postgres;Password=POst#135);Pooling=true;"
   },
   "App": {
     "WebUrl": "http://localhost:3002",
