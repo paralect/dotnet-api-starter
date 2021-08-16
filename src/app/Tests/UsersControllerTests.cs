@@ -3,7 +3,7 @@ using Api.Controllers;
 using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
 using AutoMapper;
-using Common.DAL.Documents;
+using Common.DB.Postgres.DAL.Documents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

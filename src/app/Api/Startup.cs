@@ -1,17 +1,16 @@
-﻿using Api.Core.Services.Document;
-using Api.Core.Services.Infrastructure;
-using Api.Core.Services.Interfaces.Document;
+﻿using Api.Core.Services.Infrastructure;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Mapping;
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
-using Common.Middleware;
+using Common;
+//using Common.DB.Mongo.DAL;
+//using Common.DB.Mongo.DAL.Interfaces;
+//using Common.DB.Mongo.Settings;
+//using Common.DB.Postgres.Settings;
 using Common.Services;
-using Common.Services.Interfaces;
-using Common.Settings;
+using Common.Services.EmailService;
+using Common.Services.UserService;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.Configuration;
@@ -23,6 +22,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using ValidationAttribute = Api.Security.ValidationAttribute;
+using MongoDbSettings = Common.DB.Mongo.Settings.MongoDbSettings;
+using PostgresDbSettings = Common.DB.Postgres.Settings.PostgresDbSettings;
 
 namespace Api
 {
@@ -33,15 +34,15 @@ namespace Api
         public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             var builder = new ConfigurationBuilder()
-                .AddConfiguration(configuration)
-                .AddJsonFile($"common.{env.EnvironmentName}.json");
+                .AddConfiguration(configuration);
 
             _configuration = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            ConfigureDb(services);
+            ConfigurePostgresDb(services);
+            ConfigureMongoDb(services);
             ConfigureSettings(services);
             ConfigureDI(services);
 
@@ -113,7 +114,9 @@ namespace Api
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("PostgresConnection").Bind(options); });
+            services.Configure<MongoDbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<PostgresDbSettings>(options => { _configuration.GetSection("PostgresConnection").Bind(options); });
+
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
@@ -121,26 +124,24 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
-            services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IEmailService, EmailService>();
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IGoogleService, GoogleService>();
 
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ITokenRepository, TokenRepository>();
+            services.AddTransient<IAuthService, AuthService>();
 
-            //services.AddTransient<IDbContext, DbContext>();
+
+
+
         }
 
-        private void ConfigureDb(IServiceCollection services)
+        private void ConfigurePostgresDb(IServiceCollection services)
         {
-            var dbSettings = new DbSettings();
+            var dbSettings = new PostgresDbSettings();
             _configuration.GetSection("PostgresConnection").Bind(dbSettings);
 
-            services.InitializeDb(dbSettings);
+            Common.DB.Postgres.DAL.PostgresDbInitializer.InitializeDb(services, dbSettings);
 
-            services.AddLinqToDbContext<IDbContext, DbContext>((provider, options) =>
+            services.AddLinqToDbContext<Common.DB.Postgres.DAL.Interfaces.IPostgresDbContext, Common.DB.Postgres.DAL.PostgresDbContext>((provider, options) =>
             {
                 options
                 //will configure the AppDataConnection to use
@@ -152,6 +153,28 @@ namespace Api
                 //an ILoggerFactory configured in the provider
                 .UseDefaultLogging(provider);
             }, ServiceLifetime.Transient);
+
+            services.AddTransient<Common.DB.Postgres.DAL.Interfaces.IUserRepository, Common.DB.Postgres.DAL.Repositories.UserRepository>();
+            services.AddTransient<Common.DB.Postgres.DAL.Interfaces.ITokenRepository, Common.DB.Postgres.DAL.Repositories.TokenRepository>();
+
+            services.AddTransient<IUserService, Common.DB.Postgres.Services.UserService>();
+            services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
+        }
+
+        private void ConfigureMongoDb(IServiceCollection services)
+        {
+            var dbSettings = new MongoDbSettings();
+            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+
+            Common.DB.Mongo.DAL.MongoDbInitializer.InitializeDb(services, dbSettings);
+
+            services.AddTransient<Common.DB.Mongo.DAL.Interfaces.IMongoDbContext, Common.DB.Mongo.DAL.MongoDbContext>();
+
+            services.AddTransient<Common.DB.Mongo.DAL.Interfaces.IUserRepository, Common.DB.Mongo.DAL.Repositories.UserRepository>();
+            services.AddTransient<Common.DB.Mongo.DAL.Interfaces.ITokenRepository, Common.DB.Mongo.DAL.Repositories.TokenRepository>();
+
+            //services.AddTransient<IUserService, Common.DB.Mongo.Services.UserService>();
+            //services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
         }
     }
 }

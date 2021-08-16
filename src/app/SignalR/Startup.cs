@@ -1,10 +1,10 @@
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
-using Common.Middleware;
-using Common.Services;
-using Common.Services.Interfaces;
-using Common.Settings;
+using Common.DB.Postgres.DAL;
+using Common.DB.Postgres.DAL.Interfaces;
+using Common.DB.Postgres.DAL.Repositories;
+using Common.DB.Postgres.Middleware;
+using Common.DB.Postgres.Services;
+using Common.DB.Postgres.Services.Interfaces;
+using Common.DB.Postgres.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

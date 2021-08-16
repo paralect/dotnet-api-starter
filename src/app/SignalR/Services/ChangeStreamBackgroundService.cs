@@ -1,7 +1,7 @@
 ﻿//using System.Threading;
 //using System.Threading.Tasks;
-//using Common.DAL.Documents;
-//using Common.DAL.Interfaces;
+//using Common.DB.Postgres.DAL.Documents;
+//using Common.DB.Postgres.DAL.Interfaces;
 //using Microsoft.Extensions.Hosting;
 //using MongoDB.Driver;
 //using SignalR.Hubs;

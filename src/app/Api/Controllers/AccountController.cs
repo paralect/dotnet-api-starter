@@ -1,23 +1,20 @@
-﻿using System.Threading.Tasks;
-using Api.Core.Services.Document.Models;
-using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Document;
+﻿using System;
+using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
-using Microsoft.AspNetCore.Mvc;
 using Api.Models.User;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Api.Security;
 using AutoMapper;
 using Common;
-using Common.DAL.Repositories;
-using Common.Services.Interfaces;
-using Common.Settings;
+using Common.Enums;
+using Common.Services;
+using Common.Services.EmailService;
+using Common.Services.UserService;
 using Common.Utils;
-using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
-using System;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Api.Controllers
 {
@@ -124,7 +121,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("forgotPassword")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] Api.Models.Account.ForgotPasswordModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null)
@@ -139,7 +136,7 @@ namespace Api.Controllers
                 await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
-            _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new Common.Services.EmailService.ForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
@@ -187,7 +184,7 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _tokenService.FindAsync(refreshToken, Common.Enums.TokenTypeEnum.Refresh);
+            var token = await _tokenService.FindAsync(refreshToken, TokenTypeEnum.Refresh);
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
@@ -211,10 +208,10 @@ namespace Api.Controllers
 
             #region Inline
 
-            long? getCurrentUserId()
+            Guid? getCurrentUserId()
             {
                 var userId = User?.Identity?.Name;
-                return string.IsNullOrEmpty(userId) ? null : Convert.ToInt64(userId);
+                return string.IsNullOrEmpty(userId) ? null : Guid.Parse(userId);
             }
 
             #endregion

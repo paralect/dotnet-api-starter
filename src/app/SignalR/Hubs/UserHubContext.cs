@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
-using Common.DAL.Documents;
+using Common.DB.Postgres.DAL.Documents;
 using Microsoft.AspNetCore.SignalR;
 using SignalR.Models;
 

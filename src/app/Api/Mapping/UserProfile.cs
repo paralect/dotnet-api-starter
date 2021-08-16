@@ -1,6 +1,6 @@
 ﻿using Api.Models.User;
 using AutoMapper;
-using Common.DAL.Documents;
+using Common.DB.Postgres.DAL.Documents;
 
 namespace Api.Mapping
 {

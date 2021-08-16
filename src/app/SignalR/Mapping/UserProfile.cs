@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Common.DAL.Documents;
+using Common.DB.Postgres.DAL.Documents;
 using SignalR.Models;
 
 namespace SignalR.Mapping

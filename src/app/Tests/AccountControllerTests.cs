@@ -7,11 +7,11 @@ using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using AutoMapper;
-using Common;
-using Common.DAL.Documents;
-using Common.Services.Interfaces;
-using Common.Settings;
-using Common.Utils;
+using Common.DB.Postgres;
+using Common.DB.Postgres.DAL.Documents;
+using Common.DB.Postgres.Services.Interfaces;
+using Common.DB.Postgres.Settings;
+using Common.DB.Postgres.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -395,7 +395,7 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindAsync(refreshToken, Common.Enums.TokenTypeEnum.Refresh))
+            _tokenService.Setup(service => service.FindAsync(refreshToken, Common.DB.Postgres.Enums.TokenTypeEnum.Refresh))
                 .ReturnsAsync((Token)null);
 
             var controller = CreateInstance();
@@ -420,7 +420,7 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindAsync(refreshToken, Common.Enums.TokenTypeEnum.Refresh))
+            _tokenService.Setup(service => service.FindAsync(refreshToken, Common.DB.Postgres.Enums.TokenTypeEnum.Refresh))
                 .ReturnsAsync(new Token { UserId = userId, ExpireAt = DateTime.UtcNow.AddYears(1) });
 
             var controller = CreateInstance();

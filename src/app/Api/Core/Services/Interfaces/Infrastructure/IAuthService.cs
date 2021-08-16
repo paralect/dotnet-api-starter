@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Api.Core.Services.Interfaces.Infrastructure
 {
     public interface IAuthService
     {
-        Task SetTokensAsync(long userId);
-        Task UnsetTokensAsync(long userId);
+        Task SetTokensAsync(Guid userId);
+        Task UnsetTokensAsync(Guid userId);
     }
 }

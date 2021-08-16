@@ -7,9 +7,9 @@ namespace Api.Controllers
     [Authorize]
     public abstract class BaseAuthorizedController : BaseController
     {
-        protected long GetCurrentUserId()
+        protected Guid GetCurrentUserId()
         {
-            return Convert.ToInt64(User.Identity.Name);
+            return Guid.Parse(User.Identity.Name);
         }
 
         protected BadRequestResult BadRequest(string field, string errorMessage)

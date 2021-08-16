@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Common.DAL.Documents;
+using Common.DB.Postgres.DAL.Documents;
 
 namespace SignalR.Hubs
 {

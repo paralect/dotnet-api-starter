@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Linq;
+﻿using System.Linq;
 using Common.Utils;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Api.Core.Utils
 {

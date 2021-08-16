@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common;
 using Common.Enums;
-using Common.Services.Interfaces;
-using Common.Settings;
+using Common.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -28,7 +27,7 @@ namespace Api.Core.Services.Infrastructure
             _httpContext = httpContextAccessor.HttpContext;
         }
 
-        public async Task SetTokensAsync(long userId)
+        public async Task SetTokensAsync(Guid userId)
         {
             var tokens = await _tokenService.CreateAuthTokensAsync(userId);
             var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
@@ -51,7 +50,7 @@ namespace Api.Core.Services.Infrastructure
             });
         }
 
-        public async Task UnsetTokensAsync(long userId)
+        public async Task UnsetTokensAsync(Guid userId)
         {
             await _tokenService.DeleteUserTokensAsync(userId);
 

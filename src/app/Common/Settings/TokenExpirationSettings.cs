@@ -1,4 +1,4 @@
-﻿namespace Common.Settings
+﻿namespace Common
 {
     public class TokenExpirationSettings
     {

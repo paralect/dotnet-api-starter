@@ -1,13 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
-using Api.Security;
 using AutoMapper;
+using Common.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-     
+
     public class UsersController : BaseAuthorizedController
     {
         private readonly IUserService _userService;
@@ -29,7 +28,7 @@ namespace Api.Controllers
         }
 
         [HttpPut("current")]
-        public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
+        public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
         {
             var userId = GetCurrentUserId();
             //if (string.IsNullOrEmpty(userId))
