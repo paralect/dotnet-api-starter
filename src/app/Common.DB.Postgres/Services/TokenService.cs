@@ -24,7 +24,7 @@ namespace Common.DB.Postgres.Services
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task<IEnumerable<IToken>> CreateAuthTokensAsync(Guid userId)
+        public async Task<IEnumerable<IToken>> CreateAuthTokensAsync(string userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
@@ -57,12 +57,12 @@ namespace Common.DB.Postgres.Services
             return await _tokenRepository.GetQuery().FirstOrDefaultAsync(x => x.Type == type && x.Value == tokenValue);
         }
 
-        public async Task DeleteUserTokensAsync(Guid userId)
+        public async Task DeleteUserTokensAsync(string userId)
         {
             await _tokenRepository.DeleteAsync(userId);
         }
 
-        async Task<IToken?> IDocumentService<IToken>.FindByIdAsync(Guid id)
+        async Task<IToken?> IDocumentService<IToken>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

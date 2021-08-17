@@ -18,7 +18,7 @@ namespace Common.DB.Mongo.Services
             _repository = repository;
         }
 
-        public async Task<TDocument?> FindByIdAsync(Guid id)
+        public async Task<TDocument?> FindByIdAsync(string id)
         {
             return await FindOneAsync(new TFilter {Id = id});
         }

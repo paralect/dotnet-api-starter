@@ -8,8 +8,8 @@ namespace Common.Services
 {
     public interface ITokenService : IDocumentService<IToken>
     {
-        Task<IEnumerable<IToken>> CreateAuthTokensAsync(Guid userId);
+        Task<IEnumerable<IToken>> CreateAuthTokensAsync(string userId);
         Task<IToken?> FindAsync(string tokenValue, TokenTypeEnum type);
-        Task DeleteUserTokensAsync(Guid userId);
+        Task DeleteUserTokensAsync(string userId);
     }
 }

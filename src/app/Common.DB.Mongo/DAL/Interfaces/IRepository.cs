@@ -16,11 +16,11 @@ namespace Common.DB.Mongo.DAL.Interfaces
 
         Task<TDocument> FindOneAsync(TFilter filter);
 
-        Task UpdateOneAsync<TField>(Guid id, Expression<Func<TDocument, TField>> fieldSelector, TField value);
-        Task UpdateOneAsync(Guid id, IUpdateOperator<TDocument> update);
-        Task UpdateOneAsync(Guid id, IEnumerable<IUpdateOperator<TDocument>> updates);
+        Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value);
+        Task UpdateOneAsync(string id, IUpdateOperator<TDocument> update);
+        Task UpdateOneAsync(string id, IEnumerable<IUpdateOperator<TDocument>> updates);
 
-        Task ReplaceOneAsync(Guid id, Action<TDocument> updater);
+        Task ReplaceOneAsync(string id, Action<TDocument> updater);
         Task ReplaceOneAsync(TDocument document, Action<TDocument> updater);
         Task ReplaceOneAsync(TDocument document);
 

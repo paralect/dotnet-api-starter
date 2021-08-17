@@ -9,6 +9,6 @@ namespace Common.DB.Mongo.DAL.Documents.Token
         public TokenTypeEnum Type { get; set; }
         public string Value { get; set; }
         public DateTime ExpireAt { get; set; }
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
     }
 }

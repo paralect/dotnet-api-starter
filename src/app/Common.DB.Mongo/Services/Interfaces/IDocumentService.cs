@@ -9,7 +9,7 @@ namespace Common.DB.Mongo.Services.Interfaces
         where TDocument : BaseMongoDocument
         where TFilter : BaseFilter
     {
-        Task<TDocument?> FindByIdAsync(Guid id);
+        Task<TDocument?> FindByIdAsync(string id);
         Task<TDocument?> FindOneAsync(TFilter filter);
     }
 }

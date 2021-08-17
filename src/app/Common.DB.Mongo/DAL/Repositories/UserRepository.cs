@@ -32,9 +32,9 @@ namespace Common.DB.Mongo.DAL.Repositories
                 yield return builder.Eq(u => u.ResetPasswordToken, filter.ResetPasswordToken);
             }
 
-            if (filter.UserIdToExclude.HasValue)
+            if (filter.UserIdToExclude.HasValue())
             {
-                yield return builder.Not(builder.Eq(u => u.Id, filter.UserIdToExclude.Value));
+                yield return builder.Not(builder.Eq(u => u.Id, filter.UserIdToExclude));
             }
         }
     }
@@ -44,6 +44,6 @@ namespace Common.DB.Mongo.DAL.Repositories
         public string Email { get; set; }
         public string SignUpToken { get; set; }
         public string ResetPasswordToken { get; set; }
-        public Guid? UserIdToExclude { get; set; }
+        public string? UserIdToExclude { get; set; }
     }
 }

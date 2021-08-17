@@ -5,7 +5,7 @@ namespace Api.Core.Services.Interfaces.Infrastructure
 {
     public interface IAuthService
     {
-        Task SetTokensAsync(Guid userId);
-        Task UnsetTokensAsync(Guid userId);
+        Task SetTokensAsync(string userId);
+        Task UnsetTokensAsync(string userId);
     }
 }

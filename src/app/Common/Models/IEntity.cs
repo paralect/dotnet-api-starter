@@ -4,6 +4,6 @@ namespace Common.Models
 {
     public interface IEntity
     {
-        public Guid Id { get; }
+        public string Id { get; }
     }
 }

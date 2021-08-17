@@ -31,22 +31,22 @@ namespace Common.DB.Mongo.Services
             return await FindOneAsync(new UserFilter { Email = email });
         }
 
-        public async Task MarkEmailAsVerifiedAsync(Guid id)
+        public async Task MarkEmailAsVerifiedAsync(string id)
         {
             await _userRepository.UpdateOneAsync(id, u => u.IsEmailVerified, true);
         }
 
-        public async Task UpdateLastRequestAsync(Guid id)
+        public async Task UpdateLastRequestAsync(string id)
         {
             await _userRepository.UpdateOneAsync(id, u => u.LastRequest, DateTime.UtcNow);
         }
 
-        public async Task UpdateResetPasswordTokenAsync(Guid id, string token)
+        public async Task UpdateResetPasswordTokenAsync(string id, string token)
         {
             await _userRepository.UpdateOneAsync(id, u => u.ResetPasswordToken, token);
         }
 
-        public async Task UpdatePasswordAsync(Guid id, string newPassword)
+        public async Task UpdatePasswordAsync(string id, string newPassword)
         {
             await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
             {
@@ -55,7 +55,7 @@ namespace Common.DB.Mongo.Services
             });
         }
 
-        public async Task UpdateInfoAsync(Guid id, string email, string firstName, string lastName)
+        public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
             await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
             {
@@ -106,12 +106,12 @@ namespace Common.DB.Mongo.Services
             return newUser;
         }
 
-        public async Task EnableGoogleAuthAsync(Guid id)
+        public async Task EnableGoogleAuthAsync(string id)
         {
             await _userRepository.UpdateOneAsync(id, u => u.OAuthGoogle, true);
         }
 
-        public async Task<bool> IsEmailInUseAsync(Guid? userIdToExclude, string email)
+        public async Task<bool> IsEmailInUseAsync(string? userIdToExclude, string email)
         {
             var user = await _userRepository
                 .FindOneAsync(new UserFilter { UserIdToExclude = userIdToExclude, Email = email });
@@ -119,17 +119,17 @@ namespace Common.DB.Mongo.Services
             return user != null;
         }
 
-        public async Task<Guid?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
+        public async Task<string?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
         {
             return (await FindOneAsync(new UserFilter { ResetPasswordToken = resetPasswordToken }))?.Id;
         }
 
-        public async Task<Guid?> FindUserIDBySignUpTokenAsync(string signUpToken)
+        public async Task<string?> FindUserIDBySignUpTokenAsync(string signUpToken)
         {
             return (await FindOneAsync(new UserFilter { SignUpToken = signUpToken }))?.Id;
         }
 
-        async Task<IUser?> IDocumentService<IUser>.FindByIdAsync(Guid id)
+        async Task<IUser?> IDocumentService<IUser>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

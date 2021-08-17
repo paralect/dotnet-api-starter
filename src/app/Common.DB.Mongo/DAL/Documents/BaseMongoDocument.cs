@@ -8,14 +8,14 @@ namespace Common.DB.Mongo.DAL.Documents
     {
         public BaseMongoDocument()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
         }
 
         public BaseMongoDocument(Guid id)
         {
-            Id = id;
+            Id = id.ToString();
         }
         [BsonId]
-        public Guid Id { get; private set; }
+        public string Id { get; private set; }
     }
 }

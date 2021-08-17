@@ -11,15 +11,15 @@ namespace Common.Services.UserService
 
         Task<IUser?> FindByEmailAsync(string email);
 
-        Task UpdateLastRequestAsync(Guid id);
-        Task UpdateResetPasswordTokenAsync(Guid id, string token);
-        Task UpdatePasswordAsync(Guid id, string newPassword);
-        Task UpdateInfoAsync(Guid id, string email, string firstName, string lastName);
-        Task MarkEmailAsVerifiedAsync(Guid id);
-        Task EnableGoogleAuthAsync(Guid id);
-        Task<Guid?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken);
-        Task<Guid?> FindUserIDBySignUpTokenAsync(string signUpToken);
+        Task UpdateLastRequestAsync(string id);
+        Task UpdateResetPasswordTokenAsync(string id, string token);
+        Task UpdatePasswordAsync(string id, string newPassword);
+        Task UpdateInfoAsync(string id, string email, string firstName, string lastName);
+        Task MarkEmailAsVerifiedAsync(string id);
+        Task EnableGoogleAuthAsync(string id);
+        Task<string?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken);
+        Task<string?> FindUserIDBySignUpTokenAsync(string signUpToken);
 
-        Task<bool> IsEmailInUseAsync(Guid? userIdToExclude, string email);
+        Task<bool> IsEmailInUseAsync(string? userIdToExclude, string email);
     }
 }

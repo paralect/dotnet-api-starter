@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="DAL\Migrations\2021081301_Init\2021081301_Init_Up.sql" />
+		<None Remove="DAL\Migrations\2021081301_Init\2021081301_Init_Up.psql" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -31,7 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="DAL\Migrations\2021081301_Init\2021081301_Init_Up.sql">
+	  <Content Include="DAL\Migrations\2021081301_Init\2021081301_Init_Up.psql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>

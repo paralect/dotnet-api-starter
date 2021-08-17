@@ -7,6 +7,6 @@ namespace Common.Services
     public interface IDocumentService<TDocument>
         where TDocument : IEntity
     {
-        Task<TDocument?> FindByIdAsync(Guid id);
+        Task<TDocument?> FindByIdAsync(string id);
     }
 }

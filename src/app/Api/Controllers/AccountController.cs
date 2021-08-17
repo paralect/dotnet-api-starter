@@ -84,15 +84,15 @@ namespace Api.Controllers
             }
 
             var userId = await _userService.FindUserIDBySignUpTokenAsync(token);
-            if (!userId.HasValue)
+            if (!userId.HasValue())
             {
                 return BadRequest("Token", "Token is invalid.");
             }
 
             await Task.WhenAll(
-                _userService.MarkEmailAsVerifiedAsync(userId.Value),
-                _userService.UpdateLastRequestAsync(userId.Value),
-                _authService.SetTokensAsync(userId.Value)
+                _userService.MarkEmailAsVerifiedAsync(userId),
+                _userService.UpdateLastRequestAsync(userId),
+                _authService.SetTokensAsync(userId)
             );
 
             return Redirect(_appSettings.WebUrl);
@@ -150,12 +150,12 @@ namespace Api.Controllers
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
             var userId = await _userService.FindUserIDByResetPasswordTokenAsync(model.Token);
-            if (!userId.HasValue)
+            if (!userId.HasValue())
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
             }
 
-            await _userService.UpdatePasswordAsync(userId.Value, model.Password);
+            await _userService.UpdatePasswordAsync(userId, model.Password);
 
             return Ok();
         }
@@ -199,19 +199,18 @@ namespace Api.Controllers
         public async Task<IActionResult> LogoutAsync()
         {
             var currentUserId = getCurrentUserId();
-            if (currentUserId.HasValue)
+            if (currentUserId.HasValue())
             {
-                await _authService.UnsetTokensAsync(currentUserId.Value);
+                await _authService.UnsetTokensAsync(currentUserId);
             }
 
             return Ok();
 
             #region Inline
 
-            Guid? getCurrentUserId()
+            string? getCurrentUserId()
             {
-                var userId = User?.Identity?.Name;
-                return string.IsNullOrEmpty(userId) ? null : Guid.Parse(userId);
+                return User?.Identity?.Name;
             }
 
             #endregion

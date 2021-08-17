@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common.DB.Mongo.DAL.Documents;
 using Common.DB.Mongo.DAL.Interfaces;
 using Common.DB.Mongo.DAL.UpdateDocumentOperators;
+using Common.Utils;
 using MongoDB.Driver;
 
 namespace Common.DB.Mongo.DAL
@@ -42,17 +43,17 @@ namespace Common.DB.Mongo.DAL
             return result.SingleOrDefault();
         }
 
-        public async Task UpdateOneAsync<TField>(Guid id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
+        public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
         {
             await UpdateOneAsync(id, new SetOperator<TDocument, TField>(fieldSelector, value));
         }
 
-        public async Task UpdateOneAsync(Guid id, IUpdateOperator<TDocument> update)
+        public async Task UpdateOneAsync(string id, IUpdateOperator<TDocument> update)
         {
             await UpdateOneAsync(id, new[] { update });
         }
 
-        public async Task UpdateOneAsync(Guid id, IEnumerable<IUpdateOperator<TDocument>> updates)
+        public async Task UpdateOneAsync(string id, IEnumerable<IUpdateOperator<TDocument>> updates)
         {
             var filterDefinition = GetFilterById(id);
             var updateDefinition = Builders<TDocument>.Update.Combine(updates.Select(update => update.ToUpdateDefinition()));
@@ -71,7 +72,7 @@ namespace Common.DB.Mongo.DAL
             await ReplaceOneAsync(document);
         }
 
-        public async Task ReplaceOneAsync(Guid id, Action<TDocument> updater)
+        public async Task ReplaceOneAsync(string id, Action<TDocument> updater)
         {
             var document = await FindOneAsync(new TFilter { Id = id });
             await ReplaceOneAsync(document, updater);
@@ -90,9 +91,9 @@ namespace Common.DB.Mongo.DAL
         private FilterDefinition<TDocument> BuildFilterQuery(TFilter filter)
         {
             var filterQueries = GetFilterQueries(filter).ToList();
-            if (filter.Id.HasValue)
+            if (filter.Id.HasValue())
             {
-                filterQueries.Add(GetFilterById(filter.Id.Value));
+                filterQueries.Add(GetFilterById(filter.Id));
             }
 
             if (!filterQueries.Any() && !filter.IsEmptyFilterAllowed)
@@ -105,7 +106,7 @@ namespace Common.DB.Mongo.DAL
                 : FilterDefinition<TDocument>.Empty;
         }
 
-        private static FilterDefinition<TDocument> GetFilterById(Guid id)
+        private static FilterDefinition<TDocument> GetFilterById(string id)
         {
             return Builders<TDocument>.Filter.Eq(d => d.Id, id);
         }

@@ -23,7 +23,7 @@ namespace Common.DB.Mongo.DAL.Repositories
                 yield return builder.Eq(u => u.Value, filter.Value);
             }
 
-            if (filter.UserId.HasValue)
+            if (filter.UserId.HasValue())
             {
                 yield return builder.Eq(u => u.UserId, filter.UserId);
             }
@@ -34,6 +34,6 @@ namespace Common.DB.Mongo.DAL.Repositories
     {
         public string Value { get; set; }
         public TokenTypeEnum Type { get; set; }
-        public Guid? UserId { get; set; }
+        public string? UserId { get; set; }
     }
 }

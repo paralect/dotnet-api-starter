@@ -157,8 +157,8 @@ namespace Api
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.IUserRepository, Common.DB.Postgres.DAL.Repositories.UserRepository>();
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.ITokenRepository, Common.DB.Postgres.DAL.Repositories.TokenRepository>();
 
-            services.AddTransient<IUserService, Common.DB.Postgres.Services.UserService>();
-            services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
+            //services.AddTransient<IUserService, Common.DB.Postgres.Services.UserService>();
+            //services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
         }
 
         private void ConfigureMongoDb(IServiceCollection services)
@@ -173,8 +173,8 @@ namespace Api
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.IUserRepository, Common.DB.Mongo.DAL.Repositories.UserRepository>();
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.ITokenRepository, Common.DB.Mongo.DAL.Repositories.TokenRepository>();
 
-            //services.AddTransient<IUserService, Common.DB.Mongo.Services.UserService>();
-            //services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
+            services.AddTransient<IUserService, Common.DB.Mongo.Services.UserService>();
+            services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
         }
     }
 }

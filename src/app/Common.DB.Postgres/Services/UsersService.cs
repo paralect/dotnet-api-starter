@@ -31,22 +31,22 @@ namespace Common.DB.Postgres.Services
             return await _userRepository.GetQuery().FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public Task MarkEmailAsVerifiedAsync(Guid id)
+        public Task MarkEmailAsVerifiedAsync(string id)
         {
             return _userRepository.GetUpdateQuery(id).Set(x => x.IsEmailVerified, true).UpdateAsync();
         }
 
-        public Task UpdateLastRequestAsync(Guid id)
+        public Task UpdateLastRequestAsync(string id)
         {
             return _userRepository.GetUpdateQuery(id).Set(u => u.LastRequest, DateTime.UtcNow).UpdateAsync();
         }
 
-        public Task UpdateResetPasswordTokenAsync(Guid id, string token)
+        public Task UpdateResetPasswordTokenAsync(string id, string token)
         {
             return _userRepository.GetUpdateQuery(id).Set(u => u.ResetPasswordToken, token).UpdateAsync();
         }
 
-        public Task UpdatePasswordAsync(Guid id, string newPassword)
+        public Task UpdatePasswordAsync(string id, string newPassword)
         {
             return _userRepository.GetUpdateQuery(id)
                 .Set(user => user.PasswordHash, newPassword.GetHash())
@@ -54,7 +54,7 @@ namespace Common.DB.Postgres.Services
                 .UpdateAsync();
         }
 
-        public Task UpdateInfoAsync(Guid id, string email, string firstName, string lastName)
+        public Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
             return _userRepository.GetUpdateQuery(id)
                .Set(user => user.Email, email)
@@ -104,17 +104,17 @@ namespace Common.DB.Postgres.Services
             return newUser;
         }
 
-        public Task EnableGoogleAuthAsync(Guid id)
+        public Task EnableGoogleAuthAsync(string id)
         {
             return _userRepository.GetUpdateQuery(id)
                .Set(user => user.OAuthGoogle, true)
                .UpdateAsync();
         }
 
-        public async Task<bool> IsEmailInUseAsync(Guid? userIdToExclude, string email)
+        public async Task<bool> IsEmailInUseAsync(string? userIdToExclude, string email)
         {
             var usersQuery = _userRepository.GetQuery().Where(x => x.Email.ToUpper() == email.ToUpper());
-            if (userIdToExclude.HasValue)
+            if (userIdToExclude.HasValue())
             {
                 usersQuery = usersQuery.Where(x => x.Id != userIdToExclude);
             }
@@ -122,7 +122,7 @@ namespace Common.DB.Postgres.Services
             return !await usersQuery.AnyAsync();
         }
 
-        public async Task<Guid?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
+        public async Task<string?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
         {
             return (await _userRepository.GetQuery()
                  .Where(x => x.ResetPasswordToken == resetPasswordToken)
@@ -130,7 +130,7 @@ namespace Common.DB.Postgres.Services
                  .FirstOrDefaultAsync())?.Id;
         }
 
-        public async Task<Guid?> FindUserIDBySignUpTokenAsync(string signUpToken)
+        public async Task<string?> FindUserIDBySignUpTokenAsync(string signUpToken)
         {
             return (await _userRepository.GetQuery()
                  .Where(x => x.SignupToken == signUpToken)
@@ -138,7 +138,7 @@ namespace Common.DB.Postgres.Services
                  .FirstOrDefaultAsync())?.Id;
         }
 
-        async Task<IUser?> IDocumentService<IUser>.FindByIdAsync(Guid id)
+        async Task<IUser?> IDocumentService<IUser>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

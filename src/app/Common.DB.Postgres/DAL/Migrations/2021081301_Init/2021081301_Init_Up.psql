@@ -1,6 +1,6 @@
 ﻿CREATE TABLE public."Users"
 (
-    "Id" uuid NOT NULL,
+    "Id" character varying(36) NOT NULL,
     "FirstName" text,
     "LastName" text,
     "PasswordHash" text,
@@ -18,11 +18,11 @@ ALTER TABLE public."Users"
 
 CREATE TABLE public."Tokens"
 (
-    "Id" uuid NOT NULL,
+    "Id" character varying(36) NOT NULL,
     "Type" int NOT NULL,
     "Value" text,
     "ExpireAt" timestamp without time zone NOT NULL,
-    "UserId" uuid,
+    "UserId" character varying(36),
     PRIMARY KEY ("Id")
 );
 

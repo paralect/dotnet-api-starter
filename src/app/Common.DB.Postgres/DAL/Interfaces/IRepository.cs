@@ -12,9 +12,9 @@ namespace Common.DB.Postgres.DAL.Interfaces
         where TEntity : BasePostgresEntity
     {
         IQueryable<TEntity> GetQuery();
-        IUpdatable<TEntity> GetUpdateQuery(Guid entityID);
+        IUpdatable<TEntity> GetUpdateQuery(string entityID);
         Task<BulkCopyRowsCopied> InsertRangeAsync(IEnumerable<TEntity> entities);
-        Task<int> DeleteAsync(Guid entityID);
+        Task<int> DeleteAsync(string entityID);
         Task<int> InsertAsync(TEntity entity);
     }
 }

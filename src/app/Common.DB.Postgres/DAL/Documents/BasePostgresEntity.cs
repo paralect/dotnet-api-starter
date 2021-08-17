@@ -8,15 +8,15 @@ namespace Common.DB.Postgres.DAL.Documents
     {
         public BasePostgresEntity()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
         }
 
         public BasePostgresEntity(Guid id)
         {
-            Id = id;
+            Id = id.ToString();
         }
 
         [Column(Name = "Id"), PrimaryKey]
-        public Guid Id { get; private set; }
+        public string Id { get; private set; }
     }
 }

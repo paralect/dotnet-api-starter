@@ -24,7 +24,7 @@ namespace Common.DB.Mongo.Services
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task<IEnumerable<IToken>> CreateAuthTokensAsync(Guid userId)
+        public async Task<IEnumerable<IToken>> CreateAuthTokensAsync(string userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Common.Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Common.Constants.TokenSecurityLength);
@@ -57,12 +57,12 @@ namespace Common.DB.Mongo.Services
             return await FindOneAsync(new TokenFilter { Value = tokenValue, Type = type });
         }
 
-        public async Task DeleteUserTokensAsync(Guid userId)
+        public async Task DeleteUserTokensAsync(string userId)
         {
             await _tokenRepository.DeleteManyAsync(new TokenFilter { UserId = userId });
         }
 
-        async Task<IToken?> IDocumentService<IToken>.FindByIdAsync(Guid id)
+        async Task<IToken?> IDocumentService<IToken>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }
