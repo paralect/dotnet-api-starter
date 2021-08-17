@@ -7,6 +7,10 @@ namespace Common.DB.Postgres.DAL.Documents
     [Table(Name = "Users")]
     public class User : BasePostgresEntity, IUser
     {
+        public User() : base() { }
+
+        public User(Guid id) : base(id) { }
+
         [Column, Nullable] public string? FirstName { get; set; }
         [Column, Nullable] public string? LastName { get; set; }
         [Column, Nullable] public string? PasswordHash { get; set; }

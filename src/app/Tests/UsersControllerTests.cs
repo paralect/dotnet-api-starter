@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
 using AutoMapper;
-using Common.DB.Postgres.DAL.Documents;
+using Common.Models;
+using Common.Services.UserService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -26,11 +27,11 @@ namespace Tests
         public async Task GetCurrentShouldReturnOkObjectResult()
         {
             // Arrange
-            var currentUserId = 10;// "test user id";
+            var currentUserId = Guid.NewGuid().ToString();
             var controller = CreateInstance(currentUserId);
 
             _userService.Setup(service => service.FindByIdAsync(currentUserId))
-                .ReturnsAsync(new User());
+                .ReturnsAsync(Mock.Of<IUser>());
 
             // Act
             var result = await controller.GetCurrentAsync();
@@ -56,7 +57,7 @@ namespace Tests
         public async Task UpdateCurrentShouldReturnBadRequestWhenEmailIsInUse()
         {
             // Arrange
-            var currentUserId = 10;// "test id";
+            var currentUserId = Guid.NewGuid().ToString();
             var controller = CreateInstance(currentUserId);
             var model = new UpdateCurrentModel
             {
@@ -77,7 +78,7 @@ namespace Tests
         public async Task UpdateCurrentShouldUpdateInfoAndReturnOkObjectResult()
         {
             // Arrange
-            var currentUserId = 10;// "test id";
+            var currentUserId = Guid.NewGuid().ToString();
             var controller = CreateInstance(currentUserId);
             var model = new UpdateCurrentModel
             {
@@ -92,7 +93,7 @@ namespace Tests
             _userService.Setup(service => service.UpdateInfoAsync(currentUserId, model.Email, model.FirstName, model.LastName));
 
             _userService.Setup(service => service.FindByIdAsync(currentUserId))
-                .ReturnsAsync(new User());
+                .ReturnsAsync(Mock.Of<IUser>());
 
             // Act
             var result = await controller.UpdateCurrentAsync(model);
@@ -102,7 +103,7 @@ namespace Tests
             Assert.IsType<OkObjectResult>(result);
         }
 
-        private UsersController CreateInstance(long? currentUserId = null)
+        private UsersController CreateInstance(string? currentUserId = null)
         {
             var instance = new UsersController(_userService.Object, _mapper.Object);
 

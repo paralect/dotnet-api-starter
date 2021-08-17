@@ -31,10 +31,10 @@ namespace Api.Controllers
         public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
         {
             var userId = GetCurrentUserId();
-            //if (string.IsNullOrEmpty(userId))
-            //{
-            //    return BadRequest("UserId", "User not found.");
-            //}
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("UserId", "User not found.");
+            }
 
             var isEmailInUse = await _userService.IsEmailInUseAsync(userId, model.Email);
             if (isEmailInUse)

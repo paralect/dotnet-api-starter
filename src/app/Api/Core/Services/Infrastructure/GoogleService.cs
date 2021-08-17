@@ -30,7 +30,7 @@ namespace Api.Core.Services.Infrastructure
             return url;
         }
 
-        public async Task<GooglePayloadModel> ExchangeCodeForTokenAsync(string code)
+        public async Task<GooglePayloadModel?> ExchangeCodeForTokenAsync(string code)
         {
             var tokenResponse = await CreateFlow()
                 .ExchangeCodeForTokenAsync(null, code, _googleSettings.RedirectUrl, CancellationToken.None);
