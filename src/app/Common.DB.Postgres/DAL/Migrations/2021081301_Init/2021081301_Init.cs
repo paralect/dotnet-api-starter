@@ -8,7 +8,7 @@ namespace Common.DB.Postgres.DAL.Migrations
     {
         public override void Up()
         {
-            Execute.Script(AppDomain.CurrentDomain.BaseDirectory + @"DAL\Migrations\2021081301_Init\2021081301_Init_Up.psql");
+            Execute.Script(AppDomain.CurrentDomain.BaseDirectory + @"DAL/Migrations/2021081301_Init/2021081301_Init_Up.psql");
         }
 
         public override void Down()

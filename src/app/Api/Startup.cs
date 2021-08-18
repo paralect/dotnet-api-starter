@@ -30,7 +30,8 @@ namespace Api
         public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             var builder = new ConfigurationBuilder()
-                .AddConfiguration(configuration);
+                .AddConfiguration(configuration)
+                .AddJsonFile($"common.{env.EnvironmentName}.json");
 
             _configuration = builder.Build();
         }
@@ -153,6 +154,7 @@ namespace Api
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.IUserRepository, Common.DB.Postgres.DAL.Repositories.UserRepository>();
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.ITokenRepository, Common.DB.Postgres.DAL.Repositories.TokenRepository>();
 
+            // uncomment to use PostgreSQL DB for authorization 
             //services.AddTransient<IUserService, Common.DB.Postgres.Services.UserService>();
             //services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
         }
@@ -169,6 +171,7 @@ namespace Api
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.IUserRepository, Common.DB.Mongo.DAL.Repositories.UserRepository>();
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.ITokenRepository, Common.DB.Mongo.DAL.Repositories.TokenRepository>();
 
+            // comment if you use PostgreSQL DB for authorization
             services.AddTransient<IUserService, Common.DB.Mongo.Services.UserService>();
             services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
         }
