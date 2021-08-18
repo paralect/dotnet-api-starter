@@ -1,16 +1,12 @@
 ﻿using Api.Core.Services.Infrastructure;
 using Api.Core.Services.Interfaces.Infrastructure;
-using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Mapping;
-using Common;
-//using Common.DB.Mongo.DAL;
-//using Common.DB.Mongo.DAL.Interfaces;
-//using Common.DB.Mongo.Settings;
-//using Common.DB.Postgres.Settings;
+using Common.Middleware;
 using Common.Services;
 using Common.Services.EmailService;
 using Common.Services.UserService;
+using Common.Settings;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.Configuration;
@@ -21,9 +17,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using ValidationAttribute = Api.Security.ValidationAttribute;
 using MongoDbSettings = Common.DB.Mongo.Settings.MongoDbSettings;
 using PostgresDbSettings = Common.DB.Postgres.Settings.PostgresDbSettings;
+using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
 {

@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Common.DB.Postgres.DAL.Documents;
+using Common.Models;
 
 namespace SignalR.Hubs
 {
     public interface IUserHubContext
     {
-        Task SendUpdateAsync(User user);
+        Task SendUpdateAsync(IUser user);
     }
 }

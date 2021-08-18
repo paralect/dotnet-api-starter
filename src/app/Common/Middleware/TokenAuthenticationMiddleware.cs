@@ -1,14 +1,13 @@
 ﻿using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Common;
 using Common.Enums;
 using Common.Services;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
-namespace Api
+namespace Common.Middleware
 {
     public class TokenAuthenticationMiddleware
     {

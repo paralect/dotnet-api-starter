@@ -6,6 +6,7 @@ using Common.DB.Postgres.DAL.Interfaces;
 using Common.Enums;
 using Common.Models;
 using Common.Services;
+using Common.Settings;
 using Common.Utils;
 using LinqToDB;
 using Microsoft.Extensions.Options;

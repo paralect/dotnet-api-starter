@@ -1,4 +1,4 @@
-﻿namespace Api.Core.Settings
+﻿namespace Common.Settings
 {
     public class GoogleSettings
     {

@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace Common.Settings
 {
     public class AppSettings
     {

@@ -11,6 +11,7 @@ using Common.Models;
 using Common.Services;
 using Common.Services.EmailService;
 using Common.Services.UserService;
+using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Common.DB.Postgres.DAL.Documents;
+using Common.Models;
 using SignalR.Models;
 
 namespace SignalR.Mapping
@@ -8,7 +8,7 @@ namespace SignalR.Mapping
     {
         public UserProfile()
         {
-            CreateMap<User, UserViewModel>();
+            CreateMap<IUser, UserViewModel>();
         }
     }
 }
