@@ -3,6 +3,7 @@ using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
+using Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -28,8 +29,9 @@ namespace Api.Controllers
             return Ok(viewModel);
         }
 
+        [Authorize(UserRoleEnum.User)]
         [HttpPut("current")]
-        public async Task<IActionResult> UpdateCurrentAsync([FromBody]UpdateCurrentModel model)
+        public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
         {
             var userId = CurrentUserId;
             if (string.IsNullOrEmpty(userId))

@@ -21,6 +21,9 @@
         "bsonType": "string",
         "pattern": "^.+@.+\\..+$"
       },
+      "role": {
+        "bsonType": "string"
+      },
       "passwordHash": {
         "bsonType": "string"
       },

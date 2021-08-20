@@ -32,7 +32,7 @@ namespace Api.Core.Services.Document
 
         public async Task MarkEmailAsVerifiedAsync(string id)
         {
-            await _userRepository.UpdateOneAsync(id, u => u.IsEmailVerified,  true);
+            await _userRepository.UpdateOneAsync(id, u => u.IsEmailVerified, true);
         }
 
         public async Task UpdateLastRequestAsync(string id)
@@ -75,7 +75,8 @@ namespace Api.Core.Services.Document
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signUpToken
+                SignupToken = signUpToken,
+                Role = Common.Enums.UserRoleEnum.User
             };
 
             await _userRepository.InsertAsync(newUser);
@@ -116,7 +117,7 @@ namespace Api.Core.Services.Document
         public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)
         {
             var user = await _userRepository
-                .FindOneAsync(new UserFilter {UserIdToExclude = userIdToExclude, Email = email});
+                .FindOneAsync(new UserFilter { UserIdToExclude = userIdToExclude, Email = email });
 
             return user != null;
         }

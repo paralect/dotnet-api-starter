@@ -1,7 +1,10 @@
-﻿using System.Security.Principal;
+﻿using System;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Enums;
 using Common.Services.Interfaces;
+using Common.Services.Interfaces.ITokenService;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -33,10 +36,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var token = await _tokenService.FindAsync(accessToken);
-                if (token != null && !token.IsExpired())
+                var userToken = _tokenService.GetUserToken(accessToken);
+                if (userToken != null && !userToken.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(token.UserId), new string[] { });
+                    var principal = new Principal(new GenericIdentity(userToken.UserId), new string[] { Enum.GetName(typeof(UserRoleEnum), userToken.UserRole) });
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

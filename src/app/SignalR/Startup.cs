@@ -4,6 +4,7 @@ using Common.DAL.Repositories;
 using Common.Middleware;
 using Common.Services;
 using Common.Services.Interfaces;
+using Common.Services.Interfaces.ITokenService;
 using Common.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
