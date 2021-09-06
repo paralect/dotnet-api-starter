@@ -95,12 +95,12 @@ namespace Common.DAL
                     if (indexes != null)
                     {
                         var createOneMethodInfo = indexes.GetType().GetMethod(
-                            "CreateOne", 
-                            new [] { typeof(IndexKeysDefinition<>).MakeGenericType(description.DocumentType), typeof(CreateIndexOptions), typeof(CancellationToken) });
-                        
+                            "CreateOne",
+                            new[] { typeof(IndexKeysDefinition<>).MakeGenericType(description.DocumentType), typeof(CreateIndexOptions), typeof(CancellationToken) });
+
                         foreach (var indexDescription in description.IndexDescriptions)
                         {
-                            createOneMethodInfo?.Invoke(indexes, new []{ indexDescription.IndexKeysDefinition, indexDescription.Options, default(CancellationToken) });
+                            createOneMethodInfo?.Invoke(indexes, new[] { indexDescription.IndexKeysDefinition, indexDescription.Options, default(CancellationToken) });
                         }
                     }
                 }

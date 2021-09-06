@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DAL.Documents;
 using Common.DAL.UpdateDocumentOperators;
+using MongoDB.Driver.Linq;
 
 namespace Common.DAL.Interfaces
 {
-    public interface IRepository<TDocument, in TFilter> 
+    public interface IRepository<TDocument, in TFilter>
         where TDocument : BaseDocument
         where TFilter : BaseFilter
     {
@@ -25,5 +27,6 @@ namespace Common.DAL.Interfaces
         Task ReplaceOneAsync(TDocument document);
 
         Task DeleteManyAsync(TFilter filter);
+        IMongoQueryable<TDocument> GetQueryable();
     }
 }

@@ -8,10 +8,11 @@ using Common.DAL.Interfaces;
 using Common.DAL.UpdateDocumentOperators;
 using Common.Utils;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Common.DAL
 {
-    public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument, TFilter> 
+    public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument, TFilter>
         where TDocument : BaseDocument
         where TFilter : BaseFilter, new()
     {
@@ -55,6 +56,11 @@ namespace Common.DAL
             return result.SingleOrDefault();
         }
 
+        public IMongoQueryable<TDocument> GetQueryable()
+        {
+            return Collection.AsQueryable();
+        }
+
         public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
         {
             await UpdateOneAsync(id, new SetOperator<TDocument, TField>(fieldSelector, value));
@@ -83,7 +89,7 @@ namespace Common.DAL
             updater(document);
             await ReplaceOneAsync(document);
         }
-        
+
         public async Task ReplaceOneAsync(string id, Action<TDocument> updater)
         {
             var document = await FindOneAsync(new TFilter { Id = id });
