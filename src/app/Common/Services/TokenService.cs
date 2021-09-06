@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.DAL.Documents.Token;
@@ -7,10 +6,11 @@ using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
 using Common.Enums;
 using Common.Services.Interfaces;
+using Common.Services.Interfaces.Models;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.Extensions.Options;
-using Common.Services.Interfaces.ITokenService;
+using MongoDB.Driver.Linq;
 
 namespace Common.Services
 {
@@ -61,17 +61,17 @@ namespace Common.Services
             return await FindOneAsync(new TokenFilter { Value = tokenValue });
         }
 
-        public UserToken GetUserToken(string accessToken)
+        public Task<UserTokenModel> GetUserTokenAsync(string accessToken)
         {
             return (from token in _tokenRepository.GetQueryable()
                     join user in _userRepository.GetQueryable() on token.UserId equals user.Id
                     where token.Type == TokenTypeEnum.Access && token.Value == accessToken
-                    select new UserToken
+                    select new UserTokenModel
                     {
                         UserId = token.UserId,
                         ExpireAt = token.ExpireAt,
                         UserRole = user.Role
-                    }).FirstOrDefault();
+                    }).FirstOrDefaultAsync();
         }
 
         public async Task DeleteUserTokensAsync(string userId)

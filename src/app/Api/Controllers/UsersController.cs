@@ -29,7 +29,6 @@ namespace Api.Controllers
             return Ok(viewModel);
         }
 
-        [Authorize(UserRoleEnum.User)]
         [HttpPut("current")]
         public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
         {

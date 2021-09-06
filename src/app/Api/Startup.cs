@@ -10,7 +10,7 @@ using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
 using Common.Middleware;
 using Common.Services;
-using Common.Services.Interfaces.ITokenService;
+using Common.Services.Interfaces;
 using Common.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

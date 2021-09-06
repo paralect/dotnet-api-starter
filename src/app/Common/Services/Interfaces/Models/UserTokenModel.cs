@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Common.Enums;
 using Common.Utils;
 
-namespace Common.Services.Interfaces.ITokenService
+namespace Common.Services.Interfaces.Models
 {
-    public class UserToken : IExpirable
+    public class UserTokenModel : IExpirable
     {
         public string UserId { get; set; }
         public DateTime ExpireAt { get; set; }

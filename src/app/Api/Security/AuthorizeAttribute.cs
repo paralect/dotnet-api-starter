@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Common.Enums;
-using Common.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -12,12 +11,10 @@ namespace Api.Security
     {
         private readonly string[] _roles;
 
-
         public AuthorizeAttribute(params UserRoleEnum[] allowedRoles)
         {
             _roles = allowedRoles.Select(x => Enum.GetName(typeof(UserRoleEnum), x)).ToArray();
         }
-
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {

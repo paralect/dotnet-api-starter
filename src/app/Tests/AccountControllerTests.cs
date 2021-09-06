@@ -11,7 +11,7 @@ using Common;
 using Common.DAL.Documents.Token;
 using Common.DAL.Documents.User;
 using Common.DAL.Repositories;
-using Common.Services.Interfaces.ITokenService;
+using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;

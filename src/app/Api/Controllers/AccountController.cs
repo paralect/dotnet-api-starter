@@ -9,7 +9,7 @@ using Api.Security;
 using AutoMapper;
 using Common;
 using Common.DAL.Repositories;
-using Common.Services.Interfaces.ITokenService;
+using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
