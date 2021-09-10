@@ -35,10 +35,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var userToken = await _tokenService.FindAsync(accessToken, TokenTypeEnum.Access);
+                var userToken = await _tokenService.GetUserTokenAsync(accessToken);
                 if (userToken != null && !userToken.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(userToken.UserId), Array.Empty<string>());
+                    var principal = new Principal(new GenericIdentity(userToken.UserId), new string[] { Enum.GetName(typeof(UserRoleEnum), userToken.UserRole) });
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

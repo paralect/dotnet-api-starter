@@ -6,7 +6,7 @@
     "PasswordHash" text,
     "Email" text,
     "IsEmailVerified" boolean NOT NULL,
-    "RoleId" smallint NOT NULL;
+    "Role" smallint NOT NULL,
     "SignupToken" text,
     "LastRequest" timestamp without time zone NOT NULL,
     "OAuthGoogle" boolean NOT NULL,

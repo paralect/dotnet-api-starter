@@ -119,7 +119,7 @@ namespace Common.DB.Postgres.Services
                 usersQuery = usersQuery.Where(x => x.Id != userIdToExclude);
             }
 
-            return !await usersQuery.AnyAsync();
+            return await usersQuery.AnyAsync();
         }
 
         public async Task<string> FindUserIdByResetPasswordTokenAsync(string resetPasswordToken)
