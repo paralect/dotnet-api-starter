@@ -88,7 +88,7 @@ namespace Tests
             };
 
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
-                .ReturnsAsync((IUser?)null);
+                .ReturnsAsync((IUser)null);
 
             _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserModel>()))
                 .ReturnsAsync(Mock.Of<IUser>());
@@ -123,8 +123,8 @@ namespace Tests
             // Arrange
             var token = "sample";
 
-            _userService.Setup(service => service.FindUserIDBySignUpTokenAsync(token))
-                .ReturnsAsync((string?)null);
+            _userService.Setup(service => service.FindUserIdBySignUpTokenAsync(token))
+                .ReturnsAsync((string)null);
 
             var controller = CreateInstance();
 
@@ -142,7 +142,7 @@ namespace Tests
             var token = "sample";
             var userId = Guid.NewGuid().ToString();
 
-            _userService.Setup(service => service.FindUserIDBySignUpTokenAsync(token))
+            _userService.Setup(service => service.FindUserIdBySignUpTokenAsync(token))
                 .ReturnsAsync(userId);
 
             var controller = CreateInstance();
@@ -167,7 +167,7 @@ namespace Tests
             };
 
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
-                .ReturnsAsync((IUser?)null);
+                .ReturnsAsync((IUser)null);
 
             var controller = CreateInstance();
 
@@ -274,7 +274,7 @@ namespace Tests
             };
 
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
-                .ReturnsAsync((IUser?)null);
+                .ReturnsAsync((IUser)null);
 
             var controller = CreateInstance();
 
@@ -327,8 +327,8 @@ namespace Tests
                 Token = "test token"
             };
 
-            _userService.Setup(service => service.FindUserIDByResetPasswordTokenAsync(model.Token))
-                .ReturnsAsync((string?)null);
+            _userService.Setup(service => service.FindUserIdByResetPasswordTokenAsync(model.Token))
+                .ReturnsAsync((string)null);
 
             var controller = CreateInstance();
 
@@ -350,7 +350,7 @@ namespace Tests
             };
             var userId = Guid.NewGuid().ToString();
 
-            _userService.Setup(service => service.FindUserIDByResetPasswordTokenAsync(model.Token))
+            _userService.Setup(service => service.FindUserIdByResetPasswordTokenAsync(model.Token))
                 .ReturnsAsync(userId);
 
             var controller = CreateInstance();
@@ -402,7 +402,7 @@ namespace Tests
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
             _tokenService.Setup(service => service.FindAsync(refreshToken, TokenTypeEnum.Refresh))
-                .ReturnsAsync((IToken?)null);
+                .ReturnsAsync((IToken)null);
 
             var controller = CreateInstance();
             controller.ControllerContext = controllerContext;
@@ -489,7 +489,7 @@ namespace Tests
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };
             _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
-                .ReturnsAsync((GooglePayloadModel?)null);
+                .ReturnsAsync((GooglePayloadModel)null);
 
             var controller = CreateInstance();
 
@@ -513,7 +513,7 @@ namespace Tests
             };
 
             _userService.Setup(service => service.FindByEmailAsync(payload.Email))
-                .ReturnsAsync((IUser?)null);
+                .ReturnsAsync((IUser)null);
 
             _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserGoogleModel>()))
                 .ReturnsAsync(Mock.Of<IUser>());

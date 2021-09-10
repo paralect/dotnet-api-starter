@@ -17,7 +17,7 @@ namespace Common.DB.Postgres.Services
             _repository = repository;
         }
 
-        public Task<TDocument?> FindByIdAsync(string id)
+        public Task<TDocument> FindByIdAsync(string id)
         {
             return _repository.GetQuery().FirstOrDefaultAsync(x => x.Id == id);
         }

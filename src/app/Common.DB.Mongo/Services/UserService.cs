@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Common.DB.Mongo.DAL.Documents.User;
 using Common.DB.Mongo.DAL.Interfaces;
@@ -10,7 +9,6 @@ using Common.Services;
 using Common.Services.EmailService;
 using Common.Services.UserService;
 using Common.Utils;
-using LinqToDB;
 
 namespace Common.DB.Mongo.Services
 {
@@ -26,7 +24,7 @@ namespace Common.DB.Mongo.Services
             _emailService = emailService;
         }
 
-        public async Task<IUser?> FindByEmailAsync(string email)
+        public async Task<IUser> FindByEmailAsync(string email)
         {
             return await FindOneAsync(new UserFilter { Email = email });
         }
@@ -111,7 +109,7 @@ namespace Common.DB.Mongo.Services
             await _userRepository.UpdateOneAsync(id, u => u.OAuthGoogle, true);
         }
 
-        public async Task<bool> IsEmailInUseAsync(string? userIdToExclude, string email)
+        public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)
         {
             var user = await _userRepository
                 .FindOneAsync(new UserFilter { UserIdToExclude = userIdToExclude, Email = email });
@@ -119,17 +117,17 @@ namespace Common.DB.Mongo.Services
             return user != null;
         }
 
-        public async Task<string?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
+        public async Task<string> FindUserIdByResetPasswordTokenAsync(string resetPasswordToken)
         {
             return (await FindOneAsync(new UserFilter { ResetPasswordToken = resetPasswordToken }))?.Id;
         }
 
-        public async Task<string?> FindUserIDBySignUpTokenAsync(string signUpToken)
+        public async Task<string> FindUserIdBySignUpTokenAsync(string signUpToken)
         {
             return (await FindOneAsync(new UserFilter { SignUpToken = signUpToken }))?.Id;
         }
 
-        async Task<IUser?> IDocumentService<IUser>.FindByIdAsync(string id)
+        async Task<IUser> IDocumentService<IUser>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

@@ -44,6 +44,6 @@ namespace Common.DB.Mongo.DAL.Repositories
         public string Email { get; set; }
         public string SignUpToken { get; set; }
         public string ResetPasswordToken { get; set; }
-        public string? UserIdToExclude { get; set; }
+        public string UserIdToExclude { get; set; }
     }
 }

@@ -53,9 +53,9 @@ namespace Common.DB.Postgres.Services
             return tokens;
         }
 
-        public async Task<IToken?> FindAsync(string tokenValue, TokenTypeEnum type)
+        public async Task<IToken> FindAsync(string tokenValue, TokenTypeEnum type)
         {
-            return await _tokenRepository.GetQuery().FirstOrDefaultAsync(x => x.Type == type && x.Value == tokenValue);
+            return await _tokenRepository.GetQuery().FirstOrDefaultAsync(x => x.Value == tokenValue && x.Type == type);
         }
 
         public async Task DeleteUserTokensAsync(string userId)
@@ -63,7 +63,7 @@ namespace Common.DB.Postgres.Services
             await _tokenRepository.DeleteAsync(userId);
         }
 
-        async Task<IToken?> IDocumentService<IToken>.FindByIdAsync(string id)
+        async Task<IToken> IDocumentService<IToken>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

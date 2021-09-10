@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Common.Models;
 
 namespace Common.Services
@@ -7,6 +6,6 @@ namespace Common.Services
     public interface IDocumentService<TDocument>
         where TDocument : IEntity
     {
-        Task<TDocument?> FindByIdAsync(string id);
+        Task<TDocument> FindByIdAsync(string id);
     }
 }

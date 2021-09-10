@@ -34,6 +34,6 @@ namespace Common.DB.Mongo.DAL.Repositories
     {
         public string Value { get; set; }
         public TokenTypeEnum Type { get; set; }
-        public string? UserId { get; set; }
+        public string UserId { get; set; }
     }
 }

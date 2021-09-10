@@ -6,7 +6,6 @@
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
 		<LangVersion>default</LangVersion>
-		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>

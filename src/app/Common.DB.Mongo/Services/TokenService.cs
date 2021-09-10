@@ -53,7 +53,7 @@ namespace Common.DB.Mongo.Services
             return tokens;
         }
 
-        public async Task<IToken?> FindAsync(string tokenValue, TokenTypeEnum type)
+        public async Task<IToken> FindAsync(string tokenValue, TokenTypeEnum type)
         {
             return await FindOneAsync(new TokenFilter { Value = tokenValue, Type = type });
         }
@@ -63,7 +63,7 @@ namespace Common.DB.Mongo.Services
             await _tokenRepository.DeleteManyAsync(new TokenFilter { UserId = userId });
         }
 
-        async Task<IToken?> IDocumentService<IToken>.FindByIdAsync(string id)
+        async Task<IToken> IDocumentService<IToken>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

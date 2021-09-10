@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Enums;
@@ -37,7 +38,7 @@ namespace Common.Middleware
                 var token = await _tokenService.FindAsync(accessToken, TokenTypeEnum.Access);
                 if (token != null && !token.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(token.UserId.ToString()), new string[] { });
+                    var principal = new Principal(new GenericIdentity(token.UserId), Array.Empty<string>());
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

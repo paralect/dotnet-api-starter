@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-
     public class UsersController : BaseAuthorizedController
     {
         private readonly IUserService _userService;
@@ -21,7 +20,7 @@ namespace Api.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _userService.FindByIdAsync(GetCurrentUserId());
+            var user = await _userService.FindByIdAsync(CurrentUserId);
             var viewModel = _mapper.Map<UserViewModel>(user);
 
             return Ok(viewModel);
@@ -30,7 +29,7 @@ namespace Api.Controllers
         [HttpPut("current")]
         public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
         {
-            var userId = GetCurrentUserId();
+            var userId = CurrentUserId;
             if (string.IsNullOrEmpty(userId))
             {
                 return BadRequest("UserId", "User not found.");

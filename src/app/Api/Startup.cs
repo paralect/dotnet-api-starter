@@ -125,10 +125,6 @@ namespace Api
             services.AddTransient<IGoogleService, GoogleService>();
 
             services.AddTransient<IAuthService, AuthService>();
-
-
-
-
         }
 
         private void ConfigurePostgresDb(IServiceCollection services)

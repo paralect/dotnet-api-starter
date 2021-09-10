@@ -26,10 +26,10 @@ namespace Common.DB.Postgres.DAL.Repositories
             return context.GetTable<TEntity>();
         }
 
-        public IUpdatable<TEntity> GetUpdateQuery(string entityID)
+        public IUpdatable<TEntity> GetUpdateQuery(string entityId)
         {
             return context.GetTable<TEntity>()
-                .Where(x => x.Id == entityID)
+                .Where(x => x.Id == entityId)
                 .AsUpdatable();
         }
 
@@ -38,9 +38,9 @@ namespace Common.DB.Postgres.DAL.Repositories
             return context.GetTable<TEntity>().BulkCopyAsync(entities);
         }
 
-        public Task<int> DeleteAsync(string entityID)
+        public Task<int> DeleteAsync(string entityId)
         {
-            return context.GetTable<TEntity>().Where(x => x.Id == entityID).DeleteAsync();
+            return context.GetTable<TEntity>().Where(x => x.Id == entityId).DeleteAsync();
         }
 
         public Task<int> InsertAsync(TEntity entity)

@@ -83,7 +83,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var userId = await _userService.FindUserIDBySignUpTokenAsync(token);
+            var userId = await _userService.FindUserIdBySignUpTokenAsync(token);
             if (!userId.HasValue())
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -149,7 +149,7 @@ namespace Api.Controllers
         [HttpPost("resetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var userId = await _userService.FindUserIDByResetPasswordTokenAsync(model.Token);
+            var userId = await _userService.FindUserIdByResetPasswordTokenAsync(model.Token);
             if (!userId.HasValue())
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -176,8 +176,6 @@ namespace Api.Controllers
             return Ok();
         }
 
-
-
         [Authorize]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshTokenAsync()
@@ -198,22 +196,13 @@ namespace Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            var currentUserId = getCurrentUserId();
+            var currentUserId = User?.Identity?.Name;
             if (currentUserId.HasValue())
             {
                 await _authService.UnsetTokensAsync(currentUserId);
             }
 
             return Ok();
-
-            #region Inline
-
-            string? getCurrentUserId()
-            {
-                return User?.Identity?.Name;
-            }
-
-            #endregion
         }
 
         [HttpGet("signin/google/auth")]

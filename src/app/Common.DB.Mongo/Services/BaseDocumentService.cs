@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Common.DB.Mongo.DAL;
 using Common.DB.Mongo.DAL.Documents;
 using Common.DB.Mongo.DAL.Interfaces;
@@ -18,12 +17,12 @@ namespace Common.DB.Mongo.Services
             _repository = repository;
         }
 
-        public async Task<TDocument?> FindByIdAsync(string id)
+        public async Task<TDocument> FindByIdAsync(string id)
         {
             return await FindOneAsync(new TFilter {Id = id});
         }
 
-        public async Task<TDocument?> FindOneAsync(TFilter filter)
+        public async Task<TDocument> FindOneAsync(TFilter filter)
         {
             return await _repository.FindOneAsync(filter);
         }

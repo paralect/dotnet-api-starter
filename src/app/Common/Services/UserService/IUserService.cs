@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Common.Models;
 
 namespace Common.Services.UserService
@@ -9,7 +8,7 @@ namespace Common.Services.UserService
         Task<IUser> CreateUserAccountAsync(CreateUserModel model);
         Task<IUser> CreateUserAccountAsync(CreateUserGoogleModel model);
 
-        Task<IUser?> FindByEmailAsync(string email);
+        Task<IUser> FindByEmailAsync(string email);
 
         Task UpdateLastRequestAsync(string id);
         Task UpdateResetPasswordTokenAsync(string id, string token);
@@ -17,9 +16,9 @@ namespace Common.Services.UserService
         Task UpdateInfoAsync(string id, string email, string firstName, string lastName);
         Task MarkEmailAsVerifiedAsync(string id);
         Task EnableGoogleAuthAsync(string id);
-        Task<string?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken);
-        Task<string?> FindUserIDBySignUpTokenAsync(string signUpToken);
+        Task<string> FindUserIdByResetPasswordTokenAsync(string resetPasswordToken);
+        Task<string> FindUserIdBySignUpTokenAsync(string signUpToken);
 
-        Task<bool> IsEmailInUseAsync(string? userIdToExclude, string email);
+        Task<bool> IsEmailInUseAsync(string userIdToExclude, string email);
     }
 }

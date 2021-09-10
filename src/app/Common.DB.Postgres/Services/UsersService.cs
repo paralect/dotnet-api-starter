@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Common.DB.Postgres.DAL.Documents;
 using Common.DB.Postgres.DAL.Interfaces;
@@ -26,7 +24,7 @@ namespace Common.DB.Postgres.Services
             _emailService = emailService;
         }
 
-        public async Task<IUser?> FindByEmailAsync(string email)
+        public async Task<IUser> FindByEmailAsync(string email)
         {
             return await _userRepository.GetQuery().FirstOrDefaultAsync(x => x.Email == email);
         }
@@ -111,7 +109,7 @@ namespace Common.DB.Postgres.Services
                .UpdateAsync();
         }
 
-        public async Task<bool> IsEmailInUseAsync(string? userIdToExclude, string email)
+        public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)
         {
             var usersQuery = _userRepository.GetQuery().Where(x => x.Email.ToUpper() == email.ToUpper());
             if (userIdToExclude.HasValue())
@@ -122,7 +120,7 @@ namespace Common.DB.Postgres.Services
             return !await usersQuery.AnyAsync();
         }
 
-        public async Task<string?> FindUserIDByResetPasswordTokenAsync(string resetPasswordToken)
+        public async Task<string> FindUserIdByResetPasswordTokenAsync(string resetPasswordToken)
         {
             return (await _userRepository.GetQuery()
                  .Where(x => x.ResetPasswordToken == resetPasswordToken)
@@ -130,7 +128,7 @@ namespace Common.DB.Postgres.Services
                  .FirstOrDefaultAsync())?.Id;
         }
 
-        public async Task<string?> FindUserIDBySignUpTokenAsync(string signUpToken)
+        public async Task<string> FindUserIdBySignUpTokenAsync(string signUpToken)
         {
             return (await _userRepository.GetQuery()
                  .Where(x => x.SignupToken == signUpToken)
@@ -138,7 +136,7 @@ namespace Common.DB.Postgres.Services
                  .FirstOrDefaultAsync())?.Id;
         }
 
-        async Task<IUser?> IDocumentService<IUser>.FindByIdAsync(string id)
+        async Task<IUser> IDocumentService<IUser>.FindByIdAsync(string id)
         {
             return await FindByIdAsync(id);
         }

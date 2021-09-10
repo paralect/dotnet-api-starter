@@ -103,7 +103,7 @@ namespace Tests
             Assert.IsType<OkObjectResult>(result);
         }
 
-        private UsersController CreateInstance(string? currentUserId = null)
+        private UsersController CreateInstance(string currentUserId = null)
         {
             var instance = new UsersController(_userService.Object, _mapper.Object);
 
