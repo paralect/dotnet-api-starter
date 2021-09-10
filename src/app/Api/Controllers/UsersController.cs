@@ -1,12 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Api.Models.User;
+using Api.Security;
 using AutoMapper;
 using Common.Services.UserService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    public class UsersController : BaseAuthorizedController
+    [Authorize]
+    public class UsersController : BaseController
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;

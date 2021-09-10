@@ -196,7 +196,7 @@ namespace Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            var currentUserId = User?.Identity?.Name;
+            var currentUserId = CurrentUserId;
             if (currentUserId.HasValue())
             {
                 await _authService.UnsetTokensAsync(currentUserId);
