@@ -4,6 +4,7 @@ using Common.DB.Mongo.DAL.Documents.User;
 using Common.DB.Mongo.DAL.Interfaces;
 using Common.DB.Mongo.DAL.Repositories;
 using Common.DB.Mongo.DAL.UpdateDocumentOperators;
+using Common.Enums;
 using Common.Models;
 using Common.Services;
 using Common.Services.EmailService;
@@ -74,7 +75,8 @@ namespace Common.DB.Mongo.Services
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signUpToken
+                SignupToken = signUpToken,
+                Role = UserRoleEnum.User
             };
 
             await _userRepository.InsertAsync(newUser);

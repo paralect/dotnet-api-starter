@@ -8,6 +8,7 @@ using Common.DB.Mongo.DAL.Interfaces;
 using Common.DB.Mongo.DAL.UpdateDocumentOperators;
 using Common.Utils;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Common.DB.Mongo.DAL
 {
@@ -41,6 +42,11 @@ namespace Common.DB.Mongo.DAL
         {
             var result = await Collection.FindAsync(BuildFilterQuery(filter));
             return result.SingleOrDefault();
+        }
+
+        public IMongoQueryable<TDocument> GetQueryable()
+        {
+            return Collection.AsQueryable();
         }
 
         public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DB.Mongo.DAL.Documents;
 using Common.DB.Mongo.DAL.UpdateDocumentOperators;
+using MongoDB.Driver.Linq;
 
 namespace Common.DB.Mongo.DAL.Interfaces
 {
@@ -25,5 +26,7 @@ namespace Common.DB.Mongo.DAL.Interfaces
         Task ReplaceOneAsync(TDocument document);
 
         Task DeleteManyAsync(TFilter filter);
+
+        IMongoQueryable<TDocument> GetQueryable();
     }
 }

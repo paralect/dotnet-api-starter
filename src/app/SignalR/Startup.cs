@@ -1,5 +1,5 @@
 using Common.Middleware;
-using Common.Services;
+using Common.Services.TokenService;
 using Common.Settings;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;

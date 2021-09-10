@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common;
 using Common.Enums;
-using Common.Services;
+using Common.Services.TokenService;
 using Common.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;

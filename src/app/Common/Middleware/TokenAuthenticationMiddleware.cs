@@ -3,7 +3,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Enums;
-using Common.Services;
+using Common.Services.TokenService;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,10 +35,10 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var token = await _tokenService.FindAsync(accessToken, TokenTypeEnum.Access);
-                if (token != null && !token.IsExpired())
+                var userToken = await _tokenService.FindAsync(accessToken, TokenTypeEnum.Access);
+                if (userToken != null && !userToken.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(token.UserId), Array.Empty<string>());
+                    var principal = new Principal(new GenericIdentity(userToken.UserId), Array.Empty<string>());
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

@@ -1,5 +1,4 @@
-﻿using Common.DB.Postgres.DAL.Documents;
-using LinqToDB;
+﻿using LinqToDB;
 
 namespace Common.DB.Postgres.DAL.Interfaces
 {

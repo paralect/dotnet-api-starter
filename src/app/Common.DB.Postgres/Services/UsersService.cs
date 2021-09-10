@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.DB.Postgres.DAL.Documents;
 using Common.DB.Postgres.DAL.Interfaces;
+using Common.Enums;
 using Common.Models;
 using Common.Services;
 using Common.Services.EmailService;
@@ -72,7 +73,8 @@ namespace Common.DB.Postgres.Services
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signUpToken
+                SignupToken = signUpToken,
+                Role = UserRoleEnum.User
             };
 
             await _userRepository.InsertAsync(newUser);
