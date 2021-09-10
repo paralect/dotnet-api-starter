@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.DB.Postgres.DAL.Documents;
 using Common.DB.Postgres.DAL.Interfaces;
@@ -29,12 +28,12 @@ namespace Common.DB.Postgres.Services
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task<IEnumerable<IToken>> CreateAuthTokensAsync(string userId)
+        public async Task<IToken[]> CreateAuthTokensAsync(string userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
 
-            var tokens = new List<Token>
+            var tokens = new Token[]
             {
                 new()
                 {

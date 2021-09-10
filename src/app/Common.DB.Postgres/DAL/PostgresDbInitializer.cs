@@ -13,10 +13,8 @@ namespace Common.DB.Postgres.DAL
 
             // Put the database update into a scope to ensure
             // that all resources will be disposed.
-            using (var scope = serviceProvider.CreateScope())
-            {
-                UpdateDatabase(scope.ServiceProvider);
-            }
+            using var scope = serviceProvider.CreateScope();
+            UpdateDatabase(scope.ServiceProvider);
         }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace Common.DB.Postgres.DAL
                     // Set the connection string
                     .WithGlobalConnectionString(dbSettings.ConnectionString)
                     // Define the assembly containing the migrations
-                    .ScanIn(typeof(Common.DB.Postgres.DAL.Migrations.Init).Assembly).For.Migrations())
+                    .ScanIn(typeof(Migrations.Init).Assembly).For.Migrations())
                 // Enable logging to console in the FluentMigrator way
                 .AddLogging(lb => lb.AddFluentMigratorConsole())
                 // Build the service provider

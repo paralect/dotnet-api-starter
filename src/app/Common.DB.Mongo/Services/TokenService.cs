@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.DB.Mongo.DAL.Documents.Token;
 using Common.DB.Mongo.DAL.Interfaces;
@@ -29,12 +28,12 @@ namespace Common.DB.Mongo.Services
             _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task<IEnumerable<IToken>> CreateAuthTokensAsync(string userId)
+        public async Task<IToken[]> CreateAuthTokensAsync(string userId)
         {
             var accessTokenValue = SecurityUtils.GenerateSecureToken(Common.Constants.TokenSecurityLength);
             var refreshTokenValue = SecurityUtils.GenerateSecureToken(Common.Constants.TokenSecurityLength);
 
-            var tokens = new List<Token>
+            var tokens = new Token[]
             {
                 new()
                 {
