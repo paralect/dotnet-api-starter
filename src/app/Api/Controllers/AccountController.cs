@@ -78,11 +78,6 @@ namespace Api.Controllers
         [HttpGet("verifyEmail/{token}")]
         public async Task<IActionResult> VerifyEmailAsync(string token)
         {
-            if (token == null)
-            {
-                return BadRequest("Token", "Token is required.");
-            }
-
             var userId = await _userService.FindUserIdBySignUpTokenAsync(token);
             if (!userId.HasValue())
             {
