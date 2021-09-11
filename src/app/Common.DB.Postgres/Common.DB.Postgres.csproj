@@ -17,15 +17,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
-		<PackageReference Include="FluentMigrator.Runner" Version="3.2.17" />
+		<PackageReference Include="FluentMigrator.Runner" Version="3.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
-		<PackageReference Include="linq2db" Version="3.4.2" />
-		<PackageReference Include="linq2db.AspNet" Version="3.4.2" />
-		<PackageReference Include="FluentMigrator" Version="3.2.17" />
-		<PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.2.17" />
+		<PackageReference Include="linq2db" Version="3.4.4" />
+		<PackageReference Include="linq2db.AspNet" Version="3.4.4" />
+		<PackageReference Include="FluentMigrator" Version="3.3.0" />
+		<PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.3.0" />
 		<PackageReference Include="Npgsql" Version="5.0.7" />
 	</ItemGroup>
 
