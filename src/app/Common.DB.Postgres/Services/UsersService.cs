@@ -27,7 +27,7 @@ namespace Common.DB.Postgres.Services
 
         public async Task<IUser> FindByEmailAsync(string email)
         {
-            return await _userRepository.GetQuery().FirstOrDefaultAsync(x => x.Email == email);
+            return await _userRepository.GetQuery().FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower());
         }
 
         public Task MarkEmailAsVerifiedAsync(string id)
@@ -113,7 +113,7 @@ namespace Common.DB.Postgres.Services
 
         public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)
         {
-            var usersQuery = _userRepository.GetQuery().Where(x => x.Email.ToUpper() == email.ToUpper());
+            var usersQuery = _userRepository.GetQuery().Where(x => x.Email.ToLower() == email.ToLower());
             if (userIdToExclude.HasValue())
             {
                 usersQuery = usersQuery.Where(x => x.Id != userIdToExclude);
