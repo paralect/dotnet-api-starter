@@ -19,7 +19,8 @@
   },
   "App": {
     "WebUrl": "http://localhost:3002",
-    "LandingUrl": "http://localhost:3000"
+    "LandingUrl": "http://localhost:3000",
+    "AuthorizationDatabase": 1 // 1 - Mongo, 2 - Postgres
   },
   "AllowedHosts": "*"
 }

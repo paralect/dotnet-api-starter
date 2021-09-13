@@ -38,8 +38,12 @@ namespace Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            ConfigurePostgresDb(services);
-            ConfigureMongoDb(services);
+            var appSettings = new AppSettings();
+            _configuration.GetSection("App").Bind(appSettings);
+
+            ConfigurePostgresDb(services, appSettings);
+            ConfigureMongoDb(services, appSettings);
+
             ConfigureSettings(services);
             ConfigureDI(services);
 
@@ -127,7 +131,7 @@ namespace Api
             services.AddTransient<IAuthService, AuthService>();
         }
 
-        private void ConfigurePostgresDb(IServiceCollection services)
+        private void ConfigurePostgresDb(IServiceCollection services, AppSettings appSettings)
         {
             var dbSettings = new PostgresDbSettings();
             _configuration.GetSection("PostgresConnection").Bind(dbSettings);
@@ -150,12 +154,14 @@ namespace Api
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.IUserRepository, Common.DB.Postgres.DAL.Repositories.UserRepository>();
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.ITokenRepository, Common.DB.Postgres.DAL.Repositories.TokenRepository>();
 
-            // uncomment to use PostgreSQL DB for authorization 
-            //services.AddTransient<IUserService, Common.DB.Postgres.Services.UserService>();
-            //services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
+            if (appSettings.AuthorizationDatabase == AuthorizationDatabaseEnum.Postgres)
+            {
+                services.AddTransient<IUserService, Common.DB.Postgres.Services.UserService>();
+                services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
+            }
         }
 
-        private void ConfigureMongoDb(IServiceCollection services)
+        private void ConfigureMongoDb(IServiceCollection services, AppSettings appSettings)
         {
             var dbSettings = new MongoDbSettings();
             _configuration.GetSection("MongoConnection").Bind(dbSettings);
@@ -167,9 +173,11 @@ namespace Api
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.IUserRepository, Common.DB.Mongo.DAL.Repositories.UserRepository>();
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.ITokenRepository, Common.DB.Mongo.DAL.Repositories.TokenRepository>();
 
-            // comment if you use PostgreSQL DB for authorization
-            services.AddTransient<IUserService, Common.DB.Mongo.Services.UserService>();
-            services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
+            if (appSettings.AuthorizationDatabase == AuthorizationDatabaseEnum.Mongo)
+            {
+                services.AddTransient<IUserService, Common.DB.Mongo.Services.UserService>();
+                services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
+            }
         }
     }
 }

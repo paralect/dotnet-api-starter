@@ -33,8 +33,11 @@ namespace SignalR
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            ConfigurePostgresDb(services);
-            ConfigureMongoDb(services);
+            var appSettings = new AppSettings();
+            _configuration.GetSection("App").Bind(appSettings);
+
+            ConfigurePostgresDb(services, appSettings);
+            ConfigureMongoDb(services, appSettings);
             ConfigureSettings(services);
             ConfigureDI(services);
             ConfigureCors(services);
@@ -72,7 +75,7 @@ namespace SignalR
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 
-        private void ConfigurePostgresDb(IServiceCollection services)
+        private void ConfigurePostgresDb(IServiceCollection services, AppSettings appSettings)
         {
             var dbSettings = new PostgresDbSettings();
             _configuration.GetSection("PostgresConnection").Bind(dbSettings);
@@ -92,10 +95,13 @@ namespace SignalR
 
             services.AddTransient<Common.DB.Postgres.DAL.Interfaces.ITokenRepository, Common.DB.Postgres.DAL.Repositories.TokenRepository>();
 
-            //services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
+            if (appSettings.AuthorizationDatabase == AuthorizationDatabaseEnum.Postgres)
+            {
+                services.AddTransient<ITokenService, Common.DB.Postgres.Services.TokenService>();
+            }
         }
 
-        private void ConfigureMongoDb(IServiceCollection services)
+        private void ConfigureMongoDb(IServiceCollection services, AppSettings appSettings)
         {
             var dbSettings = new MongoDbSettings();
             _configuration.GetSection("MongoConnection").Bind(dbSettings);
@@ -106,8 +112,11 @@ namespace SignalR
 
             services.AddTransient<Common.DB.Mongo.DAL.Interfaces.ITokenRepository, Common.DB.Mongo.DAL.Repositories.TokenRepository>();
 
-            services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
-            services.AddHostedService<ChangeStreamBackgroundService>();
+            if (appSettings.AuthorizationDatabase == AuthorizationDatabaseEnum.Mongo)
+            {
+                services.AddTransient<ITokenService, Common.DB.Mongo.Services.TokenService>();
+                services.AddHostedService<ChangeStreamBackgroundService>();
+            }
         }
 
         private void ConfigureDI(IServiceCollection services)

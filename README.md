@@ -34,7 +34,7 @@ Our initial idea is to reuse everything except REST api. Things we use for Node.
 
 ## How to set it up
 
-In order to make Paralct.Ship work with this API server on Windows some changes in files are needed to be made.
+In order to make Paralect.Ship work with this API server on Windows some changes in files are needed to be made.
 
 1. docker-compose.yml:
 	- Add named volume "mongodata" (This will allow to save data even if container is removed)
@@ -48,3 +48,9 @@ In order to make Paralct.Ship work with this API server on Windows some changes 
 
 
 To run API service inside docker container api/src/docker-compose.yml file is used. To run the rest of services top level docker-compose.yml file is used. So to run Ship you'll have to run "docker-compose up" twice.
+
+## Databases
+
+The app works with PostgreSQL and MongoDB databases. Linq2db is used as ORM for PostgresSQL. Connection strings are contained in common.(Production/Development).json files. 
+
+Only one database can be used as the database for authorization. It depends on the App.AuthorizationDatabase parameter in common.(Production/Development).json files (1 - Mongo, 2 - Postgres). Depending on this parameter, the IUserService and ITokenService services will rely on a particular database.
