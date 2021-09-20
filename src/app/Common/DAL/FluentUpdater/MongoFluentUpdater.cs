@@ -11,7 +11,7 @@ namespace Common.DAL.FluentUpdater
 {
     public class MongoFluentUpdater<TDocument> : IUpdateOperator<TDocument> where TDocument : BaseDocument
     {
-        private readonly Dictionary<string, UpdateDefinition<TDocument>> _updates;
+        private readonly List<UpdateDefinition<TDocument>> _updates;
 
         public MongoFluentUpdater()
         {
@@ -20,59 +20,49 @@ namespace Common.DAL.FluentUpdater
 
         public MongoFluentUpdater<TDocument> Set<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.Set(field, value);
+            _updates.Add(Builders<TDocument>.Update.Set(field, value));
             return this;
         }
 
         public MongoFluentUpdater<TDocument> Push<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem item)
         {
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.Push(field, item);
+            _updates.Add(Builders<TDocument>.Update.Push(field, item));
             return this;
         }
 
         public MongoFluentUpdater<TDocument> PushMany<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
         {
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.PushEach(field, values);
+            _updates.Add(Builders<TDocument>.Update.PushEach(field, values));
             return this;
         }
 
         public MongoFluentUpdater<TDocument> Pull<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem item)
         {
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.Pull(field, item);
+            _updates.Add(Builders<TDocument>.Update.Pull(field, item));
             return this;
         }
 
         public MongoFluentUpdater<TDocument> PullMany<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> value)
         {
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.PullAll(field, value);
+            _updates.Add(Builders<TDocument>.Update.PullAll(field, value));
             return this;
         }
 
         public MongoFluentUpdater<TDocument> PullWhere<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TItem, bool>> condition)
         {
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.PullFilter(field, condition);
+            _updates.Add(Builders<TDocument>.Update.PullFilter(field, condition));
             return this;
         }
 
         public MongoFluentUpdater<TDocument> Increment<TItem>(Expression<Func<TDocument, TItem>> field, TItem incrementByValue)
         {
-            if (!IncrementOperatorValidator.IsValidFieldType(typeof(TItem)))
-            {
-                throw new ArgumentException("Only numeric types are allowed");
-            }
-
-            if (incrementByValue == null)
-            {
-                throw new ArgumentNullException(nameof(incrementByValue), "Incrementing by null is not allowed");
-            }
-
-            _updates[field.GetMemberFullName()] = Builders<TDocument>.Update.Inc(field, incrementByValue);
+            _updates.Add(Builders<TDocument>.Update.Inc(field, incrementByValue));
             return this;
         }
 
         public UpdateDefinition<TDocument> ToUpdateDefinition()
         {
-            return Builders<TDocument>.Update.Combine(_updates.Values);
+            return Builders<TDocument>.Update.Combine(_updates);
         }
     }
 }
