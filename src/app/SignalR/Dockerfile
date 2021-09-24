@@ -8,6 +8,8 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["app/SignalR/SignalR.csproj", "app/SignalR/"]
 COPY ["app/Common/Common.csproj", "app/Common/"]
+COPY ["app/Common.DB.Mongo/Common.DB.Mongo.csproj", "app/Common.DB.Mongo/"]
+COPY ["app/Common.DB.Postgres/Common.DB.Postgres.csproj", "app/Common.DB.Postgres/"]
 RUN dotnet restore "app/SignalR/SignalR.csproj"
 COPY . .
 WORKDIR "/src/app/SignalR"

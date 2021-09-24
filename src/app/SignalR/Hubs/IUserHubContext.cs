@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Common.DAL.Documents.User;
+using Common.Models;
 
 namespace SignalR.Hubs
 {
     public interface IUserHubContext
     {
-        Task SendUpdateAsync(User user);
+        Task SendUpdateAsync(IUser user);
     }
 }

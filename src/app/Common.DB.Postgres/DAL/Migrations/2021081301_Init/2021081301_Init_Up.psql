@@ -1,0 +1,31 @@
+﻿CREATE TABLE public."Users"
+(
+    "Id" character varying(36) NOT NULL,
+    "FirstName" text,
+    "LastName" text,
+    "PasswordHash" text,
+    "Email" text,
+    "IsEmailVerified" boolean NOT NULL,
+    "Role" smallint NOT NULL,
+    "SignupToken" text,
+    "LastRequest" timestamp without time zone NOT NULL,
+    "OAuthGoogle" boolean NOT NULL,
+    "ResetPasswordToken" text,
+    PRIMARY KEY ("Id")
+);
+
+ALTER TABLE public."Users"
+    OWNER to postgres;
+
+CREATE TABLE public."Tokens"
+(
+    "Id" character varying(36) NOT NULL,
+    "Type" int NOT NULL,
+    "Value" text,
+    "ExpireAt" timestamp without time zone NOT NULL,
+    "UserId" character varying(36),
+    PRIMARY KEY ("Id")
+);
+
+ALTER TABLE public."Tokens"
+    OWNER to postgres;

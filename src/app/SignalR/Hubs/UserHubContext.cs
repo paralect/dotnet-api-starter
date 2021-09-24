@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
-using Common.DAL.Documents.User;
+using Common.Models;
 using Microsoft.AspNetCore.SignalR;
 using SignalR.Models;
 
@@ -17,7 +17,7 @@ namespace SignalR.Hubs
             _mapper = mapper;
         }
 
-        public async Task SendUpdateAsync(User user)
+        public async Task SendUpdateAsync(IUser user)
         {
             var groupName = $"user-{user.Id}";
             await _hubContext.Clients.Group(groupName).SendAsync("user:updated", _mapper.Map<UserViewModel>(user));

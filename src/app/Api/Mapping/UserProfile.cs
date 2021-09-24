@@ -1,6 +1,5 @@
 ﻿using Api.Models.User;
 using AutoMapper;
-using Common.DAL.Documents.User;
 
 namespace Api.Mapping
 {
@@ -8,7 +7,8 @@ namespace Api.Mapping
     {
         public UserProfile()
         {
-            CreateMap<User, UserViewModel>();
+            CreateMap<Common.DB.Postgres.DAL.Documents.User, UserViewModel>();
+            CreateMap<Common.DB.Mongo.DAL.Documents.User.User, UserViewModel>();
         }
     }
 }

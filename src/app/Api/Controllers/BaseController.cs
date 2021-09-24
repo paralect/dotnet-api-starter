@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
@@ -6,7 +7,7 @@ namespace Api.Controllers
     [Route("[controller]")]
     public abstract class BaseController : ControllerBase
     {
-        protected string CurrentUserId => User?.Identity?.Name;
+        protected string CurrentUserId => User.Identity.Name;
 
         protected BadRequestResult BadRequest(string field, string errorMessage)
         {
