@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using Common.DAL.Documents.Token;
 using Common.DAL.Documents.User;
@@ -40,16 +39,12 @@ namespace Common.DAL
             services.AddSingleton<IMongoClient>(client);
 
             var db = client.GetDatabase(dbSettings.Database);
-
-            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var schemasPath = Path.Combine(assemblyLocation, "DAL", "Schemas");
             var collectionDescriptions = new List<CollectionDescription>
             {
                 new()
                 {
                     Name = Constants.DbDocuments.Users,
                     DocumentType = typeof(User),
-                    SchemaPath = Path.Combine(schemasPath, "UserSchema.json"),
                     IndexDescriptions = new []
                     {
                         new IndexDescription
@@ -62,8 +57,7 @@ namespace Common.DAL
                 new()
                 {
                     Name = Constants.DbDocuments.Tokens,
-                    DocumentType = typeof(Token),
-                    SchemaPath = Path.Combine(schemasPath, "TokenSchema.json")
+                    DocumentType = typeof(Token)
                 }
             };
 
