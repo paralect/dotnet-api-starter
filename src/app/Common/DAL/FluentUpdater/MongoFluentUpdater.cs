@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Common.DAL.Documents;
 using Common.DAL.UpdateDocumentOperators;
-using Common.Utils;
 using MongoDB.Driver;
 
 namespace Common.DAL.FluentUpdater
@@ -16,6 +14,12 @@ namespace Common.DAL.FluentUpdater
         public MongoFluentUpdater()
         {
             _updates = new();
+        }
+
+        public MongoFluentUpdater<TDocument> Apply(IUpdateOperator<TDocument> updateOperator)
+        {
+            _updates.Add(updateOperator.ToUpdateDefinition());
+            return this;
         }
 
         public MongoFluentUpdater<TDocument> Set<TField>(Expression<Func<TDocument, TField>> field, TField value)

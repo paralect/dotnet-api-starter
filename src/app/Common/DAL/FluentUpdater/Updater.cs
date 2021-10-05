@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Common.DAL.Documents;
+using Common.DAL.UpdateDocumentOperators;
 
 namespace Common.DAL.FluentUpdater
 {
@@ -10,6 +11,11 @@ namespace Common.DAL.FluentUpdater
         public static MongoFluentUpdater<TDocument> Set<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
             return new MongoFluentUpdater<TDocument>().Set(field, value);
+        }
+        
+        public static MongoFluentUpdater<TDocument> Apply(IUpdateOperator<TDocument> updateOperator)
+        {
+            return new MongoFluentUpdater<TDocument>().Apply(updateOperator);
         }
 
         public static MongoFluentUpdater<TDocument> Push<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
