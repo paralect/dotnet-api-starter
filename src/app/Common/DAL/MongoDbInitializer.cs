@@ -68,13 +68,7 @@ namespace Common.DAL
                 {
                     var createCollectionOptionsType = typeof(CreateCollectionOptions<>).MakeGenericType(description.DocumentType);
                     dynamic createCollectionOptions = Activator.CreateInstance(createCollectionOptionsType);
-
-                    if (description.SchemaPath.HasValue())
-                    {
-                        var schema = File.ReadAllText(description.SchemaPath);
-                        createCollectionOptions.Validator = BsonDocument.Parse(schema);
-                    }
-
+                    
                     db.CreateCollection(description.Name, createCollectionOptions);
                 }
 
@@ -116,7 +110,6 @@ namespace Common.DAL
     {
         public string Name { get; set; }
         public Type DocumentType { get; set; }
-        public string SchemaPath { get; set; }
         public IList<IndexDescription> IndexDescriptions { get; set; }
     }
 
