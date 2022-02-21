@@ -1,0 +1,36 @@
+﻿using System;
+using System.Linq;
+using Common.Enums;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace Api.Security
+{
+    public class AuthorizeAttribute : Attribute, IAuthorizationFilter
+    {
+        private readonly string[] _roles;
+
+        public AuthorizeAttribute(params UserRoleEnum[] allowedRoles)
+        {
+            _roles = allowedRoles.Select(x => Enum.GetName(typeof(UserRoleEnum), x)).ToArray();
+        }
+
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            if (!(context.HttpContext.User.Identity?.IsAuthenticated ?? false))
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+
+            var user = context.HttpContext.User;
+            if (_roles.Length > 0 && !_roles.Any(x => user.IsInRole(x)))
+            {
+                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+                return;
+            }
+        }
+    }
+}
