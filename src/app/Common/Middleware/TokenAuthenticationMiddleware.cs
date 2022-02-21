@@ -3,7 +3,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Enums;
-using Common.Services.TokenService;
+using Common.Services.Interfaces;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

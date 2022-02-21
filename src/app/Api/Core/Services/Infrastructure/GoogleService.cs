@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Infrastructure;
-using Common.Settings;
+using Api.Core.Settings;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;

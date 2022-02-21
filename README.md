@@ -34,7 +34,7 @@ Our initial idea is to reuse everything except REST api. Things we use for Node.
 
 ## How to set it up
 
-In order to make Paralect.Ship work with this API server on Windows some changes in files are needed to be made.
+In order to make Paralct.Ship work with this API server on Windows some changes in files are needed to be made.
 
 1. docker-compose.yml:
 	- Add named volume "mongodata" (This will allow to save data even if container is removed)
@@ -48,16 +48,3 @@ In order to make Paralect.Ship work with this API server on Windows some changes
 
 
 To run API service inside docker container api/src/docker-compose.yml file is used. To run the rest of services top level docker-compose.yml file is used. So to run Ship you'll have to run "docker-compose up" twice.
-
-## Databases
-
-The app works with PostgreSQL and MongoDB databases. Linq2db is used as ORM for PostgresSQL. Connection strings are contained in common.(Production/Development).json files. 
-
-Only one database can be used as the database for authorization. It depends on the App.AuthorizationDatabase parameter in common.(Production/Development).json files (1 - Mongo, 2 - Postgres). Depending on this parameter, the IUserService and ITokenService services will rely on a particular database.
-
-There is FluentMigrator to alter the PostgreSQL database:
-1. Create a migration file in Common.DB.Postgres.DAL.Migrations. 
-  - The migration attribute needs a version - it is convenient to use today's date + the order number for the day like YYYYMMDDXX
-  - It is convenient to generate migration scripts using pgAdmin. The UI editor always has the SQL tab with a change script. Make changes and copy the generated script to a migration file. It is also possible to use FluentMigrator methods instead of SQL.
-  - FluentMigrator also allows to inject services and repositories of the solution so it is possible to use the bussiness logic to create a recalculation migration or to do something using C# instead of SQL
-  - A migration can update the database or make a rollback using methods Up() and Down() (inherit FluentMigrator.Migration) or be forward-only with just the Up() method (inherit FluentMigrator.ForwardOnlyMigration).
