@@ -1,5 +1,5 @@
 using System;
-using Common.Models;
+using Common.DAL.Documents.Token;
 
 namespace Common.Utils
 {
@@ -9,5 +9,10 @@ namespace Common.Utils
         {
             return token.ExpireAt <= DateTime.UtcNow;
         }
+    }
+
+    public interface IExpirable
+    {
+        public DateTime ExpireAt { get; set; }
     }
 }

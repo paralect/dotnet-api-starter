@@ -1,26 +1,14 @@
-﻿{
-  "Google": {
-    "ClientId": "clientId",
-    "ClientSecret": "clientSecret",
-    "RedirectUrl": "redirectUrl"
-  },
+{
   "TokenExpiration": {
     "AccessTokenExpiresInHours": 1,
     "RefreshTokenExpiresInHours": 10
   },
   "MongoConnection": {
-    // "ConnectionString": "mongodb://localhost:27017", // for local instance
-    "ConnectionString": "mongodb://root:rootPassword@mongo:27017", // for docker-compose
+    "ConnectionString": "mongodb://mongo:27017",
     "Database": "api-development"
-  },
-  "PostgresConnection": {
-    // "ConnectionString": "Server=localhost;Port=5432;Database=api-development;User Id=postgres;Password=pwd;Pooling=true;" // for local instance
-    "ConnectionString": "Host=postgres;Database=api-development;Username=postgres;Password=rootPassword" // for docker-compose
   },
   "App": {
     "WebUrl": "http://localhost:3002",
-    "LandingUrl": "http://localhost:3000",
-    "AuthorizationDatabase": 1 // 1 - Mongo, 2 - Postgres
-  },
-  "AllowedHosts": "*"
+    "LandingUrl": "http://localhost:3000"
+  }
 }

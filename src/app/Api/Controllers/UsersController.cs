@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
-using Common.Services.UserService;
+using Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers

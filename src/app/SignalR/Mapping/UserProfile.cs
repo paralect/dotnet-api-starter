@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Common.Models;
+using Common.DAL.Documents.User;
 using SignalR.Models;
 
 namespace SignalR.Mapping
@@ -8,7 +8,7 @@ namespace SignalR.Mapping
     {
         public UserProfile()
         {
-            CreateMap<IUser, UserViewModel>();
+            CreateMap<User, UserViewModel>();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Common.Enums
 {
-    public enum UserRoleEnum : byte
+    public enum UserRoleEnum
     {
         Admin = 1,
         Supervisor = 2,
