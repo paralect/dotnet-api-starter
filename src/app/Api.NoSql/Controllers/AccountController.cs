@@ -52,7 +52,7 @@ namespace Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("signup")]
+        [HttpPost("sign-up")]
         public async Task<IActionResult> SignUpAsync([FromBody]SignUpModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
@@ -102,7 +102,7 @@ namespace Api.Controllers
             return Redirect(_appSettings.WebUrl);
         }
 
-        [HttpPost("signin")]
+        [HttpPost("sign-in")]
         public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
@@ -197,8 +197,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("logout")]
-        public async Task<IActionResult> LogoutAsync()
+        [HttpPost("sign-out")]
+        public async Task<IActionResult> SignoutAsync()
         {
             if (CurrentUserId.HasValue())
             {

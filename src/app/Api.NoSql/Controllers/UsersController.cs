@@ -1,23 +1,35 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Domain;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
-using Common.Enums;
+using Common.DAL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public UsersController(IUserService userService, IMapper mapper)
+        public UsersController(IUserService userService, IMapper mapper, IUserRepository userRepository)
         {
             _userService = userService;
             _mapper = mapper;
+            _userRepository = userRepository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+            var users = await _userRepository.GetQueryable().ToCursorAsync();
+            var viewModel = _mapper.Map<IList<UserViewModel>>(users);
+
+            return Ok(viewModel);
         }
 
         [HttpGet("current")]
