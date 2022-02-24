@@ -453,7 +453,7 @@ namespace Tests
             controller.ControllerContext = controllerContext;
 
             // Act
-            var result = await controller.LogoutAsync();
+            var result = await controller.SignOutAsync();
 
             // Assert
             _authService.Verify(service => service.UnsetTokensAsync(currentUserId), Times.Once);
