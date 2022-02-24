@@ -1,10 +1,9 @@
 using Common.DAL;
 using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
 using Common.Middleware;
-using Common.Services;
 using Common.Services.Interfaces;
 using Common.Settings;
+using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -62,8 +61,15 @@ namespace SignalR
 
         private void ConfigureDi(IServiceCollection services)
         {
-            services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<ITokenRepository, TokenRepository>();
+            services.AddTransientByConvention(
+                typeof(IRepository<,>),
+                t => t.Name.EndsWith("Repository")
+            ); // register repositories
+
+            services.AddTransientByConvention(
+                typeof(ITokenService),
+                t => t.Name.EndsWith("Service")
+            ); // register services
 
             services.AddTransient<IDbContext, DbContext>();
             services.AddTransient<IIdGenerator, IdGenerator>();

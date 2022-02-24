@@ -1,4 +1,6 @@
-﻿using Api.Core.Services.Document;
+﻿using System;
+using System.Collections.Generic;
+using Api.Core.Services.Document;
 using Api.Core.Services.Infrastructure;
 using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
@@ -12,6 +14,7 @@ using Common.Middleware;
 using Common.Services;
 using Common.Services.Interfaces;
 using Common.Settings;
+using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -119,14 +122,15 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
-            services.AddTransient<IAuthService, AuthService>();
-            services.AddTransient<IEmailService, EmailService>();
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<IGoogleService, GoogleService>();
+            services.AddTransientByConvention(
+                typeof(IRepository<,>),
+                t => t.Name.EndsWith("Repository")
+            ); // register repositories
 
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ITokenRepository, TokenRepository>();
+            services.AddTransientByConvention(
+                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
+                t => t.Name.EndsWith("Service")
+            ); // register services
 
             services.AddTransient<IDbContext, DbContext>();
 

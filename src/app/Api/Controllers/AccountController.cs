@@ -124,7 +124,7 @@ namespace Api.Controllers
             return Ok(_mapper.Map<UserViewModel>(user));
         }
 
-        [HttpPost("forgotPassword")]
+        [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
@@ -150,7 +150,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("resetPassword")]
+        [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
             var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
