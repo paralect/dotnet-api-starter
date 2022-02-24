@@ -17,6 +17,12 @@ namespace Common.DAL.Interfaces
         Task InsertManyAsync(IEnumerable<TDocument> documents);
 
         Task<TDocument> FindOneAsync(TFilter filter);
+        Task<Page<TDocument>> FindPageAsync(
+            TFilter filter,
+            IList<(string, SortDirection)> sortFields,
+            int page,
+            int pageSize
+        );
 
         Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value);
         Task UpdateOneAsync(string id, IUpdateOperator<TDocument> update);

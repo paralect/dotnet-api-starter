@@ -1,5 +1,7 @@
-﻿using Api.Models.User;
+﻿using Api.Models;
+using Api.Models.User;
 using AutoMapper;
+using Common.DAL;
 using Common.DAL.Documents.User;
 
 namespace Api.Mapping
@@ -9,6 +11,7 @@ namespace Api.Mapping
         public UserProfile()
         {
             CreateMap<User, UserViewModel>();
+            CreateMap<Page<User>, PageModel<UserViewModel>>();
         }
     }
 }
