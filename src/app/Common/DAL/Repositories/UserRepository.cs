@@ -35,6 +35,17 @@ namespace Common.DAL.Repositories
             {
                 yield return builder.Not(builder.Eq(u => u.Id, filter.UserIdToExclude));
             }
+
+            if (filter.SearchValue.HasValue())
+            {
+                var regex = filter.SearchValue.ToRegex(StringComparisonMode.Contains);
+
+                yield return builder.Or(
+                    builder.Regex(u => u.FirstName, regex),
+                    builder.Regex(u => u.LastName, regex),
+                    builder.Regex(u => u.Email, regex)
+                );
+            }
         }
     }
 
@@ -44,5 +55,6 @@ namespace Common.DAL.Repositories
         public string SignUpToken { get; set; }
         public string ResetPasswordToken { get; set; }
         public string UserIdToExclude { get; set; }
+        public string SearchValue { get; set; }
     }
 }

@@ -20,11 +20,12 @@ namespace Common.DAL.Documents.User
         public bool IsEmailVerified { get; set; }
         [BsonIgnoreIfNull]
         public string SignupToken { get; set; }
+        [BsonIgnoreIfNull]
+        public string ResetPasswordToken { get; set; }
         [BsonElement("oauth")]
         public OAuthSettings OAuth { get; set; }
         public DateTime LastRequest { get; set; }
-        [BsonIgnoreIfNull]
-        public string ResetPasswordToken { get; set; }
+
 
         public class OAuthSettings
         {

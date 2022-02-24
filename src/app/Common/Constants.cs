@@ -1,4 +1,6 @@
-﻿namespace Common
+﻿using MongoDB.Driver;
+
+namespace Common
 {
     public static class Constants
     {
@@ -15,5 +17,7 @@
             public const string AccessToken = "access_token";
             public const string RefreshToken = "refresh_token";
         }
+
+        public static readonly Collation DefaultCollation = new Collation("en", strength: CollationStrength.Primary);
     }
 }

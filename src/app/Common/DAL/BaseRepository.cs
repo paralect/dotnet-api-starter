@@ -16,9 +16,9 @@ namespace Common.DAL
         where TDocument : BaseDocument
         where TFilter : BaseFilter, new()
     {
-        protected readonly IDbContext DbContext;
-        protected readonly IIdGenerator IdGenerator;
-        protected readonly IMongoCollection<TDocument> Collection;
+        protected readonly IDbContext dbContext;
+        protected readonly IIdGenerator idGenerator;
+        protected readonly IMongoCollection<TDocument> collection;
 
         protected BaseRepository(
             IDbContext dbContext,
@@ -26,16 +26,17 @@ namespace Common.DAL
             Func<IDbContext, IMongoCollection<TDocument>> collectionProvider
         )
         {
-            DbContext = dbContext;
-            IdGenerator = idGenerator;
-            Collection = collectionProvider(DbContext);
+            this.dbContext = dbContext;
+            this.idGenerator = idGenerator;
+            collection = collectionProvider(this.dbContext);
         }
 
         public async Task InsertAsync(TDocument document)
         {
             AddId(document);
+            AddCreatedOn(document);
 
-            await Collection.InsertOneAsync(document);
+            await collection.InsertOneAsync(document);
         }
 
         public async Task InsertManyAsync(IEnumerable<TDocument> documents)
@@ -43,22 +44,35 @@ namespace Common.DAL
             var documentsToInsert = documents.Select(d =>
             {
                 AddId(d);
+                AddCreatedOn(d);
 
                 return d;
             }).ToList();
 
-            await Collection.InsertManyAsync(documentsToInsert);
+            await collection.InsertManyAsync(documentsToInsert);
         }
 
         public async Task<TDocument> FindOneAsync(TFilter filter)
         {
-            var result = await Collection.FindAsync(BuildFilterQuery(filter));
+            var result = await collection.FindAsync(BuildFilterQuery(filter));
             return result.SingleOrDefault();
+        }
+
+        public async Task<Page<TDocument>> FindPageAsync(
+            TFilter filter,
+            IList<(string, SortDirection)> sortFields,
+            int page,
+            int pageSize)
+        {
+            var filterQuery = BuildFilterQuery(filter);
+            var sortQuery = BuildSortQuery(sortFields);
+
+            return await collection.AggregateByPage(filterQuery, sortQuery, page, pageSize);
         }
 
         public IMongoQueryable<TDocument> GetQueryable()
         {
-            return Collection.AsQueryable();
+            return collection.AsQueryable();
         }
 
         public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
@@ -76,12 +90,12 @@ namespace Common.DAL
             var filterDefinition = GetFilterById(id);
             var updateDefinition = Builders<TDocument>.Update.Combine(updates.Select(update => update.ToUpdateDefinition()));
 
-            await Collection.UpdateOneAsync(filterDefinition, updateDefinition);
+            await collection.UpdateOneAsync(filterDefinition, updateDefinition);
         }
 
         public async Task ReplaceOneAsync(TDocument document)
         {
-            await Collection.ReplaceOneAsync(GetFilterById(document.Id), document);
+            await collection.ReplaceOneAsync(GetFilterById(document.Id), document);
         }
 
         public async Task ReplaceOneAsync(TDocument document, Action<TDocument> updater)
@@ -98,7 +112,7 @@ namespace Common.DAL
 
         public async Task DeleteManyAsync(TFilter filter)
         {
-            await Collection.DeleteManyAsync(BuildFilterQuery(filter));
+            await collection.DeleteManyAsync(BuildFilterQuery(filter));
         }
 
         protected virtual IEnumerable<FilterDefinition<TDocument>> GetFilterQueries(TFilter filter)
@@ -114,14 +128,29 @@ namespace Common.DAL
                 filterQueries.Add(GetFilterById(filter.Id));
             }
 
-            if (!filterQueries.Any() && !filter.IsEmptyFilterAllowed)
-            {
-                throw new ApplicationException("Empty filter is not allowed");
-            }
-
             return filterQueries.Any()
                 ? Builders<TDocument>.Filter.And(filterQueries)
                 : FilterDefinition<TDocument>.Empty;
+        }
+
+        private SortDefinition<TDocument> BuildSortQuery(IList<(string Key, SortDirection Value)> sortFields = null)
+        {
+            if (sortFields != null && sortFields.Any())
+            {
+                var builder = Builders<TDocument>.Sort;
+
+                var sortDefinitions = new List<SortDefinition<TDocument>>();
+                foreach (var field in sortFields)
+                {
+                    sortDefinitions.Add(field.Value == SortDirection.Ascending
+                        ? builder.Ascending(field.Key)
+                        : builder.Descending(field.Key));
+                }
+
+                return builder.Combine(sortDefinitions);
+            }
+
+            return null;
         }
 
         private static FilterDefinition<TDocument> GetFilterById(string id)
@@ -133,8 +162,13 @@ namespace Common.DAL
         {
             if (document.Id.HasNoValue())
             {
-                document.Id = IdGenerator.Generate();
+                document.Id = idGenerator.Generate();
             }
+        }
+
+        private void AddCreatedOn(TDocument document)
+        {
+            document.CreatedOn = DateTime.UtcNow;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using System;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Common.DAL.Documents
 {
@@ -6,5 +7,6 @@ namespace Common.DAL.Documents
     {
         [BsonId]
         public string Id { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }
