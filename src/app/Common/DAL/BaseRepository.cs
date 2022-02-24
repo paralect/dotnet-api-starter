@@ -135,22 +135,26 @@ namespace Common.DAL
 
         private SortDefinition<TDocument> BuildSortQuery(IList<(string Key, SortDirection Value)> sortFields = null)
         {
-            if (sortFields != null && sortFields.Any())
+            var defaultSortFields = new List<(string, SortDirection)>
             {
-                var builder = Builders<TDocument>.Sort;
+                (nameof(BaseDocument.CreatedOn).ToCamelCase(), SortDirection.Descending)
+            };
 
-                var sortDefinitions = new List<SortDefinition<TDocument>>();
-                foreach (var field in sortFields)
-                {
-                    sortDefinitions.Add(field.Value == SortDirection.Ascending
-                        ? builder.Ascending(field.Key)
-                        : builder.Descending(field.Key));
-                }
+            var sortFieldsToApply = sortFields != null && sortFields.Any()
+                ? sortFields
+                : defaultSortFields;
 
-                return builder.Combine(sortDefinitions);
+            var builder = Builders<TDocument>.Sort;
+
+            var sortDefinitions = new List<SortDefinition<TDocument>>();
+            foreach (var field in sortFieldsToApply)
+            {
+                sortDefinitions.Add(field.Value == SortDirection.Ascending
+                    ? builder.Ascending(field.Key)
+                    : builder.Descending(field.Key));
             }
 
-            return null;
+            return builder.Combine(sortDefinitions);
         }
 
         private static FilterDefinition<TDocument> GetFilterById(string id)
