@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Utils;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
@@ -6,7 +7,16 @@ namespace Api.Controllers
     [Route("[controller]")]
     public abstract class BaseController : ControllerBase
     {
-        protected string CurrentUserId => User?.Identity?.Name;
+        protected long? CurrentUserId
+        {
+            get
+            {
+                var currentUserId = User?.Identity?.Name;
+                return currentUserId.HasValue()
+                    ? long.Parse(currentUserId)
+                    : (long?)null;
+            }
+        }
 
         protected BadRequestResult BadRequest(string field, string errorMessage)
         {

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common;
+using Common.DALSql;
+using Common.DALSql.Entities;
+using Common.DALSql.Filters;
 using Common.Enums;
-using Common.Services.Interfaces;
 using Common.Settings;
+using Common.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -13,24 +17,84 @@ namespace Api.Core.Services.Infrastructure
 {
     public class AuthService : IAuthService
     {
-        private readonly ITokenService _tokenService;
+        private readonly ShipDbContext _dbContext;
+
         private readonly AppSettings _appSettings;
         private readonly HttpContext _httpContext;
+        private readonly TokenExpirationSettings _tokenExpirationSettings;
 
         public AuthService(
-            ITokenService tokenService,
+            ShipDbContext dbContext,
             IOptions<AppSettings> appSettings,
-            IHttpContextAccessor httpContextAccessor
-            )
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<TokenExpirationSettings> tokenExpirationSettings)
         {
-            _tokenService = tokenService;
+            _dbContext = dbContext;
             _appSettings = appSettings.Value;
             _httpContext = httpContextAccessor.HttpContext;
+            _tokenExpirationSettings = tokenExpirationSettings.Value;
         }
 
-        public async Task SetTokensAsync(string userId)
+        public void SetTokens(long userId)
         {
-            var tokens = await _tokenService.CreateAuthTokensAsync(userId);
+            var tokens = GenerateTokens(userId);
+
+            _dbContext.Tokens.AddRange(tokens);
+
+            SetCookies(tokens);
+        }
+
+        public void SetTokens(User user)
+        {
+            var tokens = GenerateTokens(user.Id);
+
+            var newTokens = user.Tokens.Concat(tokens);
+            user.Tokens = newTokens.ToList();
+
+            SetCookies(tokens);
+        }
+
+        public async Task UnsetTokensAsync(long userId)
+        {
+            var tokens = await _dbContext.Tokens.FindByFilterAsync(new TokenFilter
+            {
+                UserId = userId
+            });
+
+            _dbContext.Tokens.RemoveRange(tokens);
+
+            _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
+            _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);
+        }
+
+        private IList<Token> GenerateTokens(long userId)
+        {
+            var accessTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+            var refreshTokenValue = SecurityUtils.GenerateSecureToken(Constants.TokenSecurityLength);
+
+            var tokens = new List<Token>
+            {
+                new Token
+                {
+                    Type = TokenTypeEnum.Access,
+                    ExpireAt = DateTime.UtcNow + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
+                    UserId = userId,
+                    Value = accessTokenValue
+                },
+                new Token
+                {
+                    Type = TokenTypeEnum.Refresh,
+                    ExpireAt = DateTime.UtcNow + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
+                    UserId = userId,
+                    Value = refreshTokenValue
+                }
+            };
+
+            return tokens;
+        }
+
+        private void SetCookies(ICollection<Token> tokens)
+        {
             var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
             var refreshToken = tokens.Single(t => t.Type == TokenTypeEnum.Refresh);
 
@@ -49,14 +113,6 @@ namespace Api.Core.Services.Infrastructure
                 Expires = refreshToken.ExpireAt,
                 Domain = domain
             });
-        }
-
-        public async Task UnsetTokensAsync(string userId)
-        {
-            await _tokenService.DeleteUserTokensAsync(userId);
-
-            _httpContext.Response.Cookies.Delete(Constants.CookieNames.AccessToken);
-            _httpContext.Response.Cookies.Delete(Constants.CookieNames.RefreshToken);
         }
     }
 }

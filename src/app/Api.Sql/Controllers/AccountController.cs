@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Services.Document.Models;
+using Api.Core.Services.Domain.Models;
 using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Document;
+using Api.Core.Services.Interfaces.Domain;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
 using Common;
-using Common.DAL.Repositories;
-using Common.Services.Interfaces;
+using Common.DALSql;
+using Common.DALSql.Filters;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -22,9 +22,12 @@ namespace Api.Controllers
 {
     public class AccountController : BaseController
     {
+        private readonly ShipDbContext _dbContext;
+
         private readonly IEmailService _emailService;
+
         private readonly IUserService _userService;
-        private readonly ITokenService _tokenService;
+
         private readonly IAuthService _authService;
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
@@ -32,19 +35,20 @@ namespace Api.Controllers
         private readonly IMapper _mapper;
 
         public AccountController(
+            ShipDbContext dbContext,
             IEmailService emailService,
-            IUserService userService,
-            ITokenService tokenService,
-            IAuthService authService,
+            IUserService userSqlService,
+            IAuthService authSqlService,
             IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings,
             IGoogleService googleService,
             IMapper mapper)
         {
+            _dbContext = dbContext;
+
             _emailService = emailService;
-            _userService = userService;
-            _tokenService = tokenService;
-            _authService = authService;
+            _userService = userSqlService;
+            _authService = authSqlService;
 
             _environment = environment;
             _googleService = googleService;
@@ -52,16 +56,42 @@ namespace Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("sign-up")]
-        public async Task<IActionResult> SignUpAsync([FromBody]SignUpModel model)
+        [HttpPost("sign-in")]
+        public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                Email = model.Email
+            });
+
+            if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
+            {
+                return BadRequest("Credentials", "Incorrect email or password.");
+            }
+
+            if (user.IsEmailVerified == false)
+            {
+                return BadRequest(nameof(model.Email), "Please verify your email to sign in.");
+            }
+
+            await _userService.SignInAsync(user.Id);
+
+            return Ok(_mapper.Map<UserViewModel>(user));
+        }
+
+        [HttpPost("sign-up")]
+        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
+        {
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                Email = model.Email
+            });
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
-            
-            user = await _userService.CreateUserAccountAsync(new CreateUserModel
+
+            var newUser = _userService.CreateUserAccount(new CreateUserModel
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
@@ -71,74 +101,48 @@ namespace Api.Controllers
 
             if (_environment.IsDevelopment())
             {
-                return Ok(new { _signupToken = user.SignupToken });
+                return Ok(new { signupToken = newUser.SignupToken });
             }
 
             return Ok();
         }
 
-        [HttpGet("verifyEmail/{token}")]
-        public async Task<IActionResult> VerifyEmailAsync(string token)
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmailAsync([FromQuery] string token)
         {
             if (token == null)
             {
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _userService.FindOneAsync(new UserFilter {SignUpToken = token});
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                SignupToken = token
+            });
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
             }
 
-            var userId = user.Id;
-
-            await Task.WhenAll(
-                _userService.MarkEmailAsVerifiedAsync(userId),
-                _userService.UpdateLastRequestAsync(userId),
-                _authService.SetTokensAsync(userId)
-            );
+            await _userService.VerifyEmailAsync(user.Id);
 
             return Redirect(_appSettings.WebUrl);
         }
 
-        [HttpPost("sign-in")]
-        public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
-        {
-            var user = await _userService.FindByEmailAsync(model.Email);
-            if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
-            {
-                return BadRequest("Credentials", "Incorrect email or password.");
-            }
-
-            if (user.IsEmailVerified == false)
-            {
-                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
-            }
-
-            await Task.WhenAll(
-                _userService.UpdateLastRequestAsync(user.Id),
-                _authService.SetTokensAsync(user.Id)
-            );
-
-            return Ok(_mapper.Map<UserViewModel>(user));
-        }
-
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                Email = model.Email
+            });
             if (user == null)
             {
-                return BadRequest(nameof(model.Email), $"Couldn't find account associated with ${model.Email}. Please try again.");
+                return BadRequest(nameof(model.Email),
+                    $"Couldn't find account associated with ${model.Email}. Please try again.");
             }
 
-            var resetPasswordToken = user.ResetPasswordToken;
-            if (resetPasswordToken.HasNoValue())
-            {
-                resetPasswordToken = SecurityUtils.GenerateSecureToken();
-                await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
-            }
+            var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
 
             _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
             {
@@ -150,10 +154,13 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                ResetPasswordToken = model.Token
+            });
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -165,9 +172,13 @@ namespace Api.Controllers
         }
 
         [HttpPost("resend")]
-        public async Task<IActionResult> ResendVerificationAsync([FromBody]ResendVerificationModel model)
+        public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                Email = model.Email,
+                AsNoTracking = true
+            });
             if (user != null)
             {
                 _emailService.SendSignUpWelcome(new SignUpWelcomeModel
@@ -186,13 +197,17 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _tokenService.FindAsync(refreshToken);
+            var token = await _dbContext.Tokens.FindOneByFilterAsync(new TokenFilter
+            {
+                Value = refreshToken,
+                AsNoTracking = true
+            });
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
             }
 
-            await _authService.SetTokensAsync(token.UserId);
+            _authService.SetTokens(token.UserId);
 
             return Ok();
         }
@@ -200,9 +215,9 @@ namespace Api.Controllers
         [HttpPost("sign-out")]
         public async Task<IActionResult> SignOutAsync()
         {
-            if (CurrentUserId.HasValue())
+            if (CurrentUserId != null)
             {
-                await _authService.UnsetTokensAsync(CurrentUserId);
+                await _authService.UnsetTokensAsync(CurrentUserId.Value);
             }
 
             return Ok();
@@ -217,7 +232,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("signin/google")]
-        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery]SignInGoogleModel model)
+        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery] SignInGoogleModel model)
         {
             var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
             if (payload == null)
@@ -225,25 +240,7 @@ namespace Api.Controllers
                 return NotFound();
             }
 
-            var user = await _userService.FindByEmailAsync(payload.Email);
-            if (user == null)
-            {
-                user = await _userService.CreateUserAccountAsync(new CreateUserGoogleModel
-                {
-                    Email = payload.Email,
-                    FirstName = payload.GivenName,
-                    LastName = payload.FamilyName
-                });
-            }
-            else if (!user.OAuth.Google)
-            {
-                await _userService.EnableGoogleAuthAsync(user.Id);
-            }
-
-            await Task.WhenAll(
-                _userService.UpdateLastRequestAsync(user.Id),
-                _authService.SetTokensAsync(user.Id)
-            );
+            await _userService.SignInGoogleWithCodeAsync(payload);
 
             return Redirect(_appSettings.WebUrl);
         }

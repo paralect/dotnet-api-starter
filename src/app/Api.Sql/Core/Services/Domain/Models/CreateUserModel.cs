@@ -1,4 +1,4 @@
-﻿namespace Api.Core.Services.Document.Models
+﻿namespace Api.Core.Services.Domain.Models
 {
     public class CreateUserModel
     {

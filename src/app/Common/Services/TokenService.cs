@@ -38,14 +38,14 @@ namespace Common.Services
                 new()
                 {
                     Type = TokenTypeEnum.Access,
-                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
+                    ExpireAt = DateTime.UtcNow + TimeSpan.FromHours(_tokenExpirationSettings.AccessTokenExpiresInHours),
                     UserId = userId,
                     Value = accessTokenValue
                 },
                 new()
                 {
                     Type = TokenTypeEnum.Refresh,
-                    ExpireAt = DateTime.Now + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
+                    ExpireAt = DateTime.UtcNow + TimeSpan.FromHours(_tokenExpirationSettings.RefreshTokenExpiresInHours),
                     UserId = userId,
                     Value = refreshTokenValue
                 }

@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
+using Common.DALSql.Entities;
 
 namespace Api.Core.Services.Interfaces.Infrastructure
 {
     public interface IAuthService
     {
-        Task SetTokensAsync(string userId);
-        Task UnsetTokensAsync(string userId);
+        void SetTokens(long userId);
+        void SetTokens(User user);
+        Task UnsetTokensAsync(long userId);
     }
 }

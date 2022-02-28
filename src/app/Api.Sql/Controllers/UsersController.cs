@@ -1,57 +1,38 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Api.Core.Services.Interfaces.Document;
-using Api.Models;
+﻿using System.Threading.Tasks;
+using Api.Core.Services.Interfaces.Domain;
 using Api.Models.User;
-using Api.Security;
 using AutoMapper;
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
+using Common.DALSql;
+using Common.DALSql.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Authorize]
+    [Security.Authorize]
     public class UsersController : BaseController
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IUserService _userService;
+        private readonly IUserService _userSqlService;
         private readonly IMapper _mapper;
+        private readonly ShipDbContext _dbContext;
 
-        public UsersController(IUserRepository userRepository, IUserService userService, IMapper mapper)
+        public UsersController(
+            IUserService userSqlService,
+            IMapper mapper,
+            ShipDbContext dbContext)
         {
-            _userRepository = userRepository;
-            _userService = userService;
+            _userSqlService = userSqlService;
             _mapper = mapper;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAsync([FromQuery] PageFilterModel model)
-        {
-            // This mapping exists only to handle sort values mismatch (-1 and 1 instead of 0 and 1).
-            // For a new project it'd be better to update the client to send the same values.
-            var sort = model.Sort != null
-                ? model.Sort
-                    .Select(x => (x.Key, x.Value == 1 ? SortDirection.Ascending : SortDirection.Descending))
-                    .ToList()
-                : null;
-
-            var page = await _userRepository.FindPageAsync(
-                new UserFilter { SearchValue = model.SearchValue },
-                sort,
-                model.Page,
-                model.PerPage
-            );
-            var pageModel = _mapper.Map<PageModel<UserViewModel>>(page);
-
-            return Ok(pageModel);
+            _dbContext = dbContext;
         }
 
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _userService.FindByIdAsync(CurrentUserId);
+            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
+            {
+                Id = CurrentUserId!.Value,
+                AsNoTracking = true
+            });
             var viewModel = _mapper.Map<UserViewModel>(user);
 
             return Ok(viewModel);
@@ -60,21 +41,22 @@ namespace Api.Controllers
         [HttpPut("current")]
         public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
         {
-            var userId = CurrentUserId;
-            if (string.IsNullOrEmpty(userId))
+            if (CurrentUserId == null)
             {
                 return BadRequest("UserId", "User not found.");
             }
 
-            var isEmailInUse = await _userService.IsEmailInUseAsync(userId, model.Email);
+            var userId = CurrentUserId.Value;
+
+            var isEmailInUse = await _userSqlService.IsEmailInUseAsync(userId, model.Email);
             if (isEmailInUse)
             {
                 return BadRequest(nameof(model.Email), "This email is already in use.");
             }
 
-            await _userService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
+            await _userSqlService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
 
-            var user = await _userService.FindByIdAsync(userId);
+            var user = await _dbContext.Users.FindAsync(userId);
             return Ok(new
             {
                 userId,

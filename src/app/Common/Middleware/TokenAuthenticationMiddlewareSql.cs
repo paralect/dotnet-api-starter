@@ -1,26 +1,23 @@
-﻿using System;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Enums;
-using Common.Services.Interfaces;
+using Common.DALSql;
+using Common.DALSql.Filters;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Middleware
 {
-    public class TokenAuthenticationMiddleware
+    public class TokenAuthenticationMiddlewareSql
     {
         private readonly RequestDelegate _next;
-        private readonly ITokenService _tokenService;
 
-        public TokenAuthenticationMiddleware(RequestDelegate next, ITokenService tokenService)
+        public TokenAuthenticationMiddlewareSql(RequestDelegate next)
         {
             _next = next;
-            _tokenService = tokenService;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, ShipDbContext dbContext)
         {
             var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
             if (accessToken.HasNoValue())
@@ -34,10 +31,14 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var userToken = await _tokenService.GetUserTokenAsync(accessToken);
-                if (userToken != null && !userToken.IsExpired())
+                var token = await dbContext.Tokens.FindOneByFilterAsync(new TokenFilter
                 {
-                    var principal = new Principal(new GenericIdentity(userToken.UserId), new string[] { Enum.GetName(typeof(UserRoleEnum), userToken.UserRole) });
+                    Value = accessToken,
+                    AsNoTracking = true
+                });
+                if (token != null && !token.IsExpired())
+                {
+                    var principal = new Principal(new GenericIdentity(token.UserId.ToString()), new string[] { });
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

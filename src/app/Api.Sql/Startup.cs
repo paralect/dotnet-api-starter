@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Api.Core.Services.Document;
-using Api.Core.Services.Infrastructure;
-using Api.Core.Services.Interfaces.Document;
-using Api.Core.Services.Interfaces.Infrastructure;
+﻿using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Mapping;
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
+using Common.DALSql;
 using Common.Middleware;
-using Common.Services;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using IIdGenerator = Common.DAL.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
@@ -103,7 +93,13 @@ namespace Api
 
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseTokenAuthentication();
+            app.UseTokenAuthenticationSql();
+
+            // The middleware makes requests to DB, if there are any changes on EF DbContext.
+            // It's still possible to update DB manually from controllers/services -
+            // in this case the middleware does nothing
+            app.UseDbContextSaveChanges();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -114,7 +110,7 @@ namespace Api
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("DBSql").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
@@ -123,24 +119,15 @@ namespace Api
         private void ConfigureDI(IServiceCollection services)
         {
             services.AddTransientByConvention(
-                typeof(IRepository<,>),
-                t => t.Name.EndsWith("Repository")
-            ); // register repositories
-
-            services.AddTransientByConvention(
-                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
+                typeof(IAuthService),
                 t => t.Name.EndsWith("Service")
             ); // register services
-
-            services.AddTransient<IDbContext, DbContext>();
-
-            services.AddTransient<IIdGenerator, IdGenerator>();
         }
 
         private void ConfigureDb(IServiceCollection services)
         {
-            var dbSettings = new DbSettings();
-            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+            var dbSettings = new DbSettingsSql();
+            _configuration.GetSection("DBSql").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }
