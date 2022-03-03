@@ -27,11 +27,9 @@ namespace Common.DAL
                     Collation = Constants.DefaultCollation
                 }).ToListAsync();
 
-            var totalPages = (int)Math.Ceiling((decimal)count / pageSize);
-
             var page = new Page<TDocument>
             {
-                TotalPages = totalPages,
+                TotalPages = (int)Math.Ceiling((float)count / pageSize),
                 Count = count,
                 Items = data
             };

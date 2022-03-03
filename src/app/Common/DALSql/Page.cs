@@ -6,6 +6,6 @@ namespace Common.DALSql
     {
         public int TotalPages { get; set; }
         public long Count { get; set; }
-        public ICollection<TModel> Items { get; set; }
+        public IEnumerable<TModel> Items { get; set; }
     }
 }

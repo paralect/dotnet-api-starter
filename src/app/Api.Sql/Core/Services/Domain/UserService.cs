@@ -39,7 +39,8 @@ namespace Api.Core.Services.Domain
                 PasswordHash = model.Password.GetHash(),
                 Email = model.Email,
                 IsEmailVerified = false,
-                SignupToken = signUpToken
+                SignupToken = signUpToken,
+                CreatedOn = DateTime.UtcNow // TODO do in repository
             };
 
             _dbContext.Users.Add(user);

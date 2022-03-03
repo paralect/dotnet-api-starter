@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Common.Enums;
 using Common.Utils;
 
@@ -7,6 +8,7 @@ namespace Common.DALSql.Entities
     public class Token : BaseEntity, IExpirable
     {
         public TokenTypeEnum Type { get; set; }
+        [Required]
         public string Value { get; set; }
         public DateTime ExpireAt { get; set; }
         public long UserId { get; set; }

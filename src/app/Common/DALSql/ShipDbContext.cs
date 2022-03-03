@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DALSql.Entities;
 using Common.DALSql.Filters;
+using Common.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Common.DALSql
@@ -37,6 +39,44 @@ namespace Common.DALSql
             return await ConstructQuery(table, filter).FirstOrDefaultAsync();
         }
 
+        public static async Task<Page<TResultModel>> FindPageAsync<TEntity, TFilter, TResultModel>(
+            this DbSet<TEntity> table,
+            TFilter filter,
+            IList<SortField> sort,
+            int pageNumber,
+            int pageSize,
+            Expression<Func<TEntity, TResultModel>> map)
+            where TEntity : BaseEntity
+            where TFilter : BaseFilter<TEntity>
+        {
+            var query = ConstructQuery(table, filter);
+            var count = await query.CountAsync();
+
+            var skip = (pageNumber - 1) * pageSize;
+            if (skip >= count)
+            {
+                return new Page<TResultModel>
+                {
+                    Count = count,
+                    Items = Enumerable.Empty<TResultModel>()
+                };
+            }
+
+            var result = await query
+                .Order(sort)
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(map)
+                .ToListAsync();
+
+            return new Page<TResultModel>
+            {
+                TotalPages = (int)Math.Ceiling((float)count / pageSize),
+                Count = count,
+                Items = result
+            };
+        }
+
         private static IQueryable<TEntity> ConstructQuery<TEntity>(DbSet<TEntity> table, BaseFilter<TEntity> filter)
             where TEntity : BaseEntity
         {
@@ -63,40 +103,6 @@ namespace Common.DALSql
                 {
                     query = query.Include(includeProperty);
                 }
-            }
-
-            if (filter.OrderingProperties.Any())
-            {
-                query = Queryable.OrderBy(query, (dynamic)filter.OrderingProperties[0]);
-                if (filter.OrderingProperties.Count > 1)
-                {
-                    foreach (var orderingProperty in filter.OrderingProperties.Skip(1))
-                    {
-                        query = Queryable.ThenBy((IOrderedQueryable<TEntity>)query, (dynamic)orderingProperty);
-                    }
-                }
-            }
-
-            if (filter.OrderingByDescendingProperties.Any())
-            {
-                query = Queryable.OrderByDescending(query, (dynamic)filter.OrderingByDescendingProperties[0]);
-                if (filter.OrderingByDescendingProperties.Count > 1)
-                {
-                    foreach (var orderingProperty in filter.OrderingByDescendingProperties.Skip(1))
-                    {
-                        query = Queryable.ThenByDescending((IOrderedQueryable<TEntity>)query, (dynamic)orderingProperty);
-                    }
-                }
-            }
-
-            if (filter.SkipCount > 0)
-            {
-                query = query.Skip(filter.SkipCount);
-            }
-
-            if (filter.TakeCount > 0)
-            {
-                query = query.Take(filter.TakeCount);
             }
 
             return query;

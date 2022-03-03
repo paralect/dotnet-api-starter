@@ -12,6 +12,7 @@ namespace Common.DALSql.Filters
         public string SignupToken { get; set; }
         public string ResetPasswordToken { get; set; }
         public long? IdToExclude { get; set; }
+        public string SearchValue { get; set; }
 
         public override IEnumerable<Expression<Func<User, bool>>> GetPredicates()
         {
@@ -33,6 +34,13 @@ namespace Common.DALSql.Filters
             if (IdToExclude.HasValue)
             {
                 yield return entity => entity.Id != IdToExclude;
+            }
+
+            if (SearchValue.HasValue())
+            {
+                yield return entity => entity.FirstName.Contains(SearchValue)
+                                    || entity.LastName.Contains(SearchValue)
+                                    || entity.Email.Contains(SearchValue);
             }
         }
     }

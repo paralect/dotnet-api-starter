@@ -37,8 +37,8 @@ namespace Api.Controllers
         public AccountController(
             ShipDbContext dbContext,
             IEmailService emailService,
-            IUserService userSqlService,
-            IAuthService authSqlService,
+            IUserService userService,
+            IAuthService authService,
             IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings,
             IGoogleService googleService,
@@ -47,8 +47,8 @@ namespace Api.Controllers
             _dbContext = dbContext;
 
             _emailService = emailService;
-            _userService = userSqlService;
-            _authService = authSqlService;
+            _userService = userService;
+            _authService = authService;
 
             _environment = environment;
             _googleService = googleService;

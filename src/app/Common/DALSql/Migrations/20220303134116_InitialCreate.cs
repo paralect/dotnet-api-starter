@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace Common.DALSql.Migrations
 {
     public partial class InitialCreate : Migration
@@ -14,15 +16,17 @@ namespace Common.DALSql.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FirstName = table.Column<string>(type: "text", nullable: true),
-                    LastName = table.Column<string>(type: "text", nullable: true),
-                    PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    Email = table.Column<string>(type: "text", nullable: true),
+                    FirstName = table.Column<string>(type: "text", nullable: false),
+                    LastName = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
                     IsEmailVerified = table.Column<bool>(type: "boolean", nullable: false),
-                    SignupToken = table.Column<string>(type: "text", nullable: true),
-                    LastRequest = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    SignupToken = table.Column<string>(type: "text", nullable: false),
+                    LastRequest = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ResetPasswordToken = table.Column<string>(type: "text", nullable: true),
-                    OAuthGoogle = table.Column<bool>(type: "boolean", nullable: false)
+                    OAuthGoogle = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,9 +40,10 @@ namespace Common.DALSql.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    Value = table.Column<string>(type: "text", nullable: true),
-                    ExpireAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false)
+                    Value = table.Column<string>(type: "text", nullable: false),
+                    ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
