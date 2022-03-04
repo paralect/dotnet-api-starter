@@ -14,14 +14,8 @@ namespace Common.DALSql.Filters
         }
 
         public long? Id { get; set; }
-        public List<Expression<Func<TEntity, object>>> IncludeProperties { get; private set; }
+        public List<Expression<Func<TEntity, object>>> IncludeProperties { get; set; }
         public bool AsNoTracking { get; set; }
-
-        public BaseFilter<TEntity> Include(params Expression<Func<TEntity, object>>[] includeProperties)
-        {
-            IncludeProperties = includeProperties.ToList();
-            return this;
-        }
 
         public abstract IEnumerable<Expression<Func<TEntity, bool>>> GetPredicates();
     }

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
+using Api.Services.Document;
 using AutoMapper;
 using Common.DAL.Documents.User;
 using Common.DAL.Interfaces;
@@ -107,7 +107,7 @@ namespace Tests
 
         private UsersController CreateInstance(string currentUserId = null)
         {
-            var instance = new UsersController(_userRepository.Object, _userService.Object, _mapper.Object);
+            var instance = new UsersController(_userService.Object, _mapper.Object);
 
             var httpContext = new Mock<HttpContext>();
             httpContext.Setup(context => context.User.Identity.Name).Returns(currentUserId);

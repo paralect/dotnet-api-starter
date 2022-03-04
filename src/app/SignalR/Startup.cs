@@ -1,7 +1,6 @@
 using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.Middleware;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -66,17 +65,12 @@ namespace SignalR
                 t => t.Name.EndsWith("Repository")
             ); // register repositories
 
-            services.AddTransientByConvention(
-                typeof(ITokenService),
-                t => t.Name.EndsWith("Service")
-            ); // register services
-
             services.AddTransient<IDbContext, DbContext>();
             services.AddTransient<IIdGenerator, IdGenerator>();
 
             services.AddTransient<IUserHubContext, UserHubContext>();
 
-            services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }
@@ -84,7 +78,7 @@ namespace SignalR
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+            _configuration.GetSection("DB").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }

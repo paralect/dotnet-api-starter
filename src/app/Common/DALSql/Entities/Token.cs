@@ -7,7 +7,7 @@ namespace Common.DALSql.Entities
 {
     public class Token : BaseEntity, IExpirable
     {
-        public TokenTypeEnum Type { get; set; }
+        public TokenType Type { get; set; }
         [Required]
         public string Value { get; set; }
         public DateTime ExpireAt { get; set; }

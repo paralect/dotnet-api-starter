@@ -1,15 +1,13 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Services.Domain.Models;
-using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Domain;
-using Api.Core.Services.Interfaces.Infrastructure;
+using Api.Services.Domain.Models;
+using Api.Services.Infrastructure.Models;
+using Api.Services.Domain;
+using Api.Services.Infrastructure;
 using Api.Models.Account;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
 using Common;
-using Common.DALSql;
-using Common.DALSql.Filters;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -22,12 +20,9 @@ namespace Api.Controllers
 {
     public class AccountController : BaseController
     {
-        private readonly ShipDbContext _dbContext;
-
         private readonly IEmailService _emailService;
-
         private readonly IUserService _userService;
-
+        private readonly ITokenService _tokenService;
         private readonly IAuthService _authService;
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
@@ -35,7 +30,6 @@ namespace Api.Controllers
         private readonly IMapper _mapper;
 
         public AccountController(
-            ShipDbContext dbContext,
             IEmailService emailService,
             IUserService userService,
             IAuthService authService,
@@ -44,8 +38,6 @@ namespace Api.Controllers
             IGoogleService googleService,
             IMapper mapper)
         {
-            _dbContext = dbContext;
-
             _emailService = emailService;
             _userService = userService;
             _authService = authService;
@@ -59,11 +51,7 @@ namespace Api.Controllers
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                Email = model.Email
-            });
-
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
                 return BadRequest("Credentials", "Incorrect email or password.");
@@ -82,16 +70,13 @@ namespace Api.Controllers
         [HttpPost("sign-up")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                Email = model.Email
-            });
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            var newUser = _userService.CreateUserAccount(new CreateUserModel
+            var newUser = await _userService.CreateUserAccountAsync(new CreateUserModel
             {
                 Email = model.Email,
                 FirstName = model.FirstName,
@@ -115,10 +100,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                SignupToken = token
-            });
+            var user = await _userService.FindBySignupTokenAsync(token);
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -132,10 +114,7 @@ namespace Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                Email = model.Email
-            });
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 return BadRequest(nameof(model.Email),
@@ -144,7 +123,7 @@ namespace Api.Controllers
 
             var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
 
-            _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new Services.Infrastructure.Models.ForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
@@ -157,10 +136,7 @@ namespace Api.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                ResetPasswordToken = model.Token
-            });
+            var user = await _userService.FindByResetPasswordTokenAsync(model.Token);
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -174,11 +150,7 @@ namespace Api.Controllers
         [HttpPost("resend")]
         public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                Email = model.Email,
-                AsNoTracking = true
-            });
+            var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
                 _emailService.SendSignUpWelcome(new SignUpWelcomeModel
@@ -197,17 +169,13 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _dbContext.Tokens.FindOneByFilterAsync(new TokenFilter
-            {
-                Value = refreshToken,
-                AsNoTracking = true
-            });
+            var token = await _tokenService.FindByValueAsync(refreshToken);
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
             }
 
-            _authService.SetTokens(token.UserId);
+            await _authService.SetTokensAsync(token.UserId);
 
             return Ok();
         }

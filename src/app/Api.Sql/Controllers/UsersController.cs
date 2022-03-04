@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Core.Services.Interfaces.Domain;
 using Api.Models;
 using Api.Models.User;
+using Api.Services.Domain;
 using AutoMapper;
 using Common.DALSql;
 using Common.DALSql.Entities;
@@ -18,16 +18,13 @@ namespace Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
-        private readonly ShipDbContext _dbContext;
 
         public UsersController(
             IUserService userService,
-            IMapper mapper,
-            ShipDbContext dbContext)
+            IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
-            _dbContext = dbContext;
         }
 
         [HttpGet]
@@ -59,7 +56,7 @@ namespace Api.Controllers
                 Email = u.Email
             };
 
-            var page = await _dbContext.Users.FindPageAsync(filter, sort, model.Page, model.PerPage, map);
+            var page = await _userService.FindPageAsync(filter, sort, model.Page, model.PerPage, map);
 
             return Ok(page);
         }
@@ -67,11 +64,7 @@ namespace Api.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _dbContext.Users.FindOneByFilterAsync(new UserFilter
-            {
-                Id = CurrentUserId!.Value,
-                AsNoTracking = true
-            });
+            var user = await _userService.FindByIdAsync(CurrentUserId!.Value);
             var viewModel = _mapper.Map<UserViewModel>(user);
 
             return Ok(viewModel);
@@ -95,7 +88,7 @@ namespace Api.Controllers
 
             await _userService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
 
-            var user = await _dbContext.Users.FindAsync(userId);
+            var user = await _userService.FindByIdAsync(userId);
             return Ok(new
             {
                 userId,

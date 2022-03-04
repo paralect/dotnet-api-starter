@@ -16,7 +16,7 @@ namespace Common.DAL.Documents.User
         [BsonIgnoreIfNull]
         public string PasswordHash { get; set; }
         public string Email { get; set; }
-        public UserRoleEnum Role { get; set; }
+        public UserRole Role { get; set; }
         public bool IsEmailVerified { get; set; }
         [BsonIgnoreIfNull]
         public string SignupToken { get; set; }

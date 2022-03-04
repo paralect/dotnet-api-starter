@@ -1,15 +1,14 @@
 ﻿using System.Threading.Tasks;
-using Api.Core.Services.Document.Models;
-using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Document;
-using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using Api.Models.User;
 using Api.Security;
+using Api.Services.Document;
+using Api.Services.Document.Models;
+using Api.Services.Infrastructure;
+using Api.Services.Infrastructure.Models;
 using AutoMapper;
 using Common;
 using Common.DAL.Repositories;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -26,9 +25,10 @@ namespace Api.Controllers
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
         private readonly IAuthService _authService;
+        private readonly IGoogleService _googleService;
+
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
-        private readonly IGoogleService _googleService;
         private readonly IMapper _mapper;
 
         public AccountController(
@@ -36,18 +36,18 @@ namespace Api.Controllers
             IUserService userService,
             ITokenService tokenService,
             IAuthService authService,
+            IGoogleService googleService,
             IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings,
-            IGoogleService googleService,
             IMapper mapper)
         {
             _emailService = emailService;
             _userService = userService;
             _tokenService = tokenService;
             _authService = authService;
+            _googleService = googleService;
 
             _environment = environment;
-            _googleService = googleService;
             _appSettings = appSettings.Value;
             _mapper = mapper;
         }
@@ -96,7 +96,7 @@ namespace Api.Controllers
             await Task.WhenAll(
                 _userService.MarkEmailAsVerifiedAsync(userId),
                 _userService.UpdateLastRequestAsync(userId),
-                _authService.SetTokensAsync(userId)
+                _authService.SetTokensAsync(userId, user.Role)
             );
 
             return Redirect(_appSettings.WebUrl);
@@ -118,7 +118,7 @@ namespace Api.Controllers
 
             await Task.WhenAll(
                 _userService.UpdateLastRequestAsync(user.Id),
-                _authService.SetTokensAsync(user.Id)
+                _authService.SetTokensAsync(user.Id, user.Role)
             );
 
             return Ok(_mapper.Map<UserViewModel>(user));
@@ -140,7 +140,7 @@ namespace Api.Controllers
                 await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
-            _emailService.SendForgotPassword(new Core.Services.Infrastructure.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new Services.Infrastructure.Models.ForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
@@ -186,13 +186,13 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _tokenService.FindAsync(refreshToken);
+            var token = await _tokenService.FindByValueAsync(refreshToken);
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
             }
 
-            await _authService.SetTokensAsync(token.UserId);
+            await _authService.SetTokensAsync(token.UserId, token.UserRole);
 
             return Ok();
         }
@@ -242,7 +242,7 @@ namespace Api.Controllers
 
             await Task.WhenAll(
                 _userService.UpdateLastRequestAsync(user.Id),
-                _authService.SetTokensAsync(user.Id)
+                _authService.SetTokensAsync(user.Id, user.Role)
             );
 
             return Redirect(_appSettings.WebUrl);

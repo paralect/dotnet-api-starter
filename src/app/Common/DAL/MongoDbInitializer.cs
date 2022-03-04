@@ -29,7 +29,7 @@ namespace Common.DAL
 
             // custom serialization/deserialization to store enum Description attributes in DB
             // TODO rewrite to apply to all enums, if possible OR rewrite Node API to store enums as numbers
-            BsonSerializer.RegisterSerializer(typeof(TokenTypeEnum), new EnumSerializer<TokenTypeEnum>());
+            BsonSerializer.RegisterSerializer(typeof(TokenType), new EnumSerializer<TokenType>());
 
             InitializeCollections(services, dbSettings);
         }

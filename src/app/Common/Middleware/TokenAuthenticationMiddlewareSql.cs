@@ -1,8 +1,8 @@
 ﻿using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.DALSql;
 using Common.DALSql.Filters;
+using Common.DALSql.Repositories;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
 
@@ -17,7 +17,7 @@ namespace Common.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, ShipDbContext dbContext)
+        public async Task Invoke(HttpContext context, ITokenRepository tokenRepository)
         {
             var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
             if (accessToken.HasNoValue())
@@ -31,11 +31,12 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var token = await dbContext.Tokens.FindOneByFilterAsync(new TokenFilter
+                var token = await tokenRepository.FindOneAsync(new TokenFilter
                 {
                     Value = accessToken,
                     AsNoTracking = true
                 });
+
                 if (token != null && !token.IsExpired())
                 {
                     var principal = new Principal(new GenericIdentity(token.UserId.ToString()), new string[] { });

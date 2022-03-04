@@ -1,17 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using Api.Controllers;
-using Api.Core.Services.Document.Models;
-using Api.Core.Services.Infrastructure.Models;
-using Api.Core.Services.Interfaces.Document;
-using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
+using Api.Services.Document;
+using Api.Services.Document.Models;
+using Api.Services.Infrastructure;
+using Api.Services.Infrastructure.Models;
 using AutoMapper;
 using Common;
 using Common.DAL.Documents.Token;
 using Common.DAL.Documents.User;
 using Common.DAL.Repositories;
-using Common.Services.Interfaces;
+using Common.Enums;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -142,9 +142,10 @@ namespace Tests
             // Arrange
             var token = "sample";
             var userId = "user id sample";
+            var userRole = UserRole.User;
 
             _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.SignUpToken == token)))
-                .ReturnsAsync(new User { Id = userId });
+                .ReturnsAsync(new User { Id = userId, Role = userRole });
             
             var controller = CreateInstance();
 
@@ -154,7 +155,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.MarkEmailAsVerifiedAsync(userId), Times.Once);
             _userService.Verify(service => service.UpdateLastRequestAsync(userId), Times.Once);
-            _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
+            _authService.Verify(service => service.SetTokensAsync(userId, userRole), Times.Once);
             Assert.True((result as RedirectResult)?.Url == _appSettings.WebUrl);
         }
 
@@ -234,10 +235,12 @@ namespace Tests
         {
             // Arrange
             var userId = "user id";
+            var userRole = UserRole.User;
             var password = "sample";
             var user = new User
             {
                 Id = userId,
+                Role = userRole,
                 PasswordHash = password.GetHash(),
                 IsEmailVerified = true
             };
@@ -257,7 +260,7 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.UpdateLastRequestAsync(userId), Times.Once);
-            _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
+            _authService.Verify(service => service.SetTokensAsync(userId, userRole), Times.Once);
             Assert.IsType<OkObjectResult>(result);
         }
 
@@ -307,7 +310,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
             _emailService.Verify(service => service.SendForgotPassword(
-                It.Is<Api.Core.Services.Infrastructure.Models.ForgotPasswordModel>(m => m.Email == user.Email))
+                It.Is<Api.Services.Infrastructure.Models.ForgotPasswordModel>(m => m.Email == user.Email))
             );
 
             Assert.IsType<OkResult>(result);
@@ -400,7 +403,7 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindAsync(refreshToken))
+            _tokenService.Setup(service => service.FindByValueAsync(refreshToken))
                 .ReturnsAsync((Token)null);
 
             var controller = CreateInstance();
@@ -418,6 +421,7 @@ namespace Tests
         {
             // Arrange
             var userId = "user id";
+            var userRole = UserRole.User;
             var refreshToken = "refresh token";
             var contextMock = new Mock<HttpContext>();
             contextMock.Setup(context => context.Request.Cookies[Constants.CookieNames.RefreshToken])
@@ -425,8 +429,13 @@ namespace Tests
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindAsync(refreshToken))
-                .ReturnsAsync(new Token { UserId = userId, ExpireAt = DateTime.UtcNow.AddYears(1) });
+            _tokenService.Setup(service => service.FindByValueAsync(refreshToken))
+                .ReturnsAsync(new Token
+                {
+                    UserId = userId,
+                    UserRole = userRole,
+                    ExpireAt = DateTime.UtcNow.AddYears(1)
+                });
 
             var controller = CreateInstance();
             controller.ControllerContext = controllerContext;
@@ -435,7 +444,7 @@ namespace Tests
             var result = await controller.RefreshTokenAsync();
 
             // Assert
-            _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
+            _authService.Verify(service => service.SetTokensAsync(userId, userRole), Times.Once);
             Assert.IsType<OkResult>(result);
         }
 
@@ -588,7 +597,8 @@ namespace Tests
                 OAuth = new User.OAuthSettings
                 {
                     Google = false
-                }
+                },
+                Role = UserRole.User
             };
 
             _userService.Setup(service => service.FindByEmailAsync(payload.Email))
@@ -605,7 +615,7 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.UpdateLastRequestAsync(user.Id), Times.Once);
-            _authService.Verify(service => service.SetTokensAsync(user.Id), Times.Once);
+            _authService.Verify(service => service.SetTokensAsync(user.Id, user.Role), Times.Once);
             Assert.True(result is RedirectResult redirectResult && redirectResult.Url == _appSettings.WebUrl);
         }
 
@@ -619,9 +629,9 @@ namespace Tests
                 _userService.Object,
                 _tokenService.Object,
                 _authService.Object,
+                _googleService.Object,
                 _environment.Object,
                 _appSettingsOptions.Object,
-                _googleService.Object,
                 _mapper.Object);
         }
     }

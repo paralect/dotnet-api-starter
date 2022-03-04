@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Api.Core.Services.Interfaces.Infrastructure;
-using Api.Core.Settings;
-using Api.Core.Utils;
+using Api.Settings;
+using Api.Utils;
 using Api.Mapping;
+using Api.Services.Infrastructure;
 using Common.DAL;
 using Common.DAL.Interfaces;
 using Common.Middleware;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -117,13 +116,20 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
+            // replace with simpler version, if SQL DAL is removed from the solution:
+            // services.AddTransientByConvention(
+            //     typeof(IRepository<,>),
+            //     t => t.Name.EndsWith("Repository")
+            // );
+
             services.AddTransientByConvention(
-                typeof(IRepository<,>),
-                t => t.Name.EndsWith("Repository")
+                new List<Type> { typeof(IRepository<,>) },
+                t => t.Namespace.StartsWith("Common.DAL."),
+                t => t.Namespace.StartsWith("Common.DAL.") && t.Name.EndsWith("Repository")
             ); // register repositories
 
             services.AddTransientByConvention(
-                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
+                typeof(IAuthService),
                 t => t.Name.EndsWith("Service")
             ); // register services
 
