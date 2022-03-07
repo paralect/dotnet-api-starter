@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Common.DAL.Documents.Token;
 using Common.DAL.Documents.User;
 using Common.Enums;
 using Common.Settings;
-using Common.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -63,15 +61,6 @@ namespace Common.DAL
 
             foreach (var description in collectionDescriptions)
             {
-                // the call to CreateCollection is necessary to apply validation schema to the collection
-                if (!CollectionExists(db, description.Name))
-                {
-                    var createCollectionOptionsType = typeof(CreateCollectionOptions<>).MakeGenericType(description.DocumentType);
-                    dynamic createCollectionOptions = Activator.CreateInstance(createCollectionOptionsType);
-                    
-                    db.CreateCollection(description.Name, createCollectionOptions);
-                }
-
                 var method = typeof(IMongoDatabase).GetMethod("GetCollection");
                 var generic = method.MakeGenericMethod(description.DocumentType);
                 var collection = generic.Invoke(db, new object[] { description.Name, null });
@@ -95,14 +84,6 @@ namespace Common.DAL
 
                 services.AddSingleton(collectionType, collection);
             }
-        }
-
-        private static bool CollectionExists(IMongoDatabase database, string collectionName)
-        {
-            var filter = new BsonDocument("name", collectionName);
-            var options = new ListCollectionNamesOptions { Filter = filter };
-
-            return database.ListCollectionNames(options).Any();
         }
     }
 
