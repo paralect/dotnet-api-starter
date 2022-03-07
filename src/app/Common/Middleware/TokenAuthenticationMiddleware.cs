@@ -33,14 +33,14 @@ namespace Common.Middleware
 
             if (accessToken.HasValue())
             {
-                var userToken = await tokenRepository.FindOneAsync(new TokenFilter
+                var token = await tokenRepository.FindOneAsync(new TokenFilter
                 {
                     Value = accessToken
                 });
 
-                if (userToken != null && !userToken.IsExpired())
+                if (token != null && !token.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(userToken.UserId), new string[] { Enum.GetName(typeof(UserRole), userToken.UserRole) });
+                    var principal = new Principal(new GenericIdentity(token.UserId), new string[] { Enum.GetName(typeof(UserRole), token.UserRole) });
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

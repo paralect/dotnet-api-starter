@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Common.Enums;
 
 namespace Common.DALSql.Entities
 {
@@ -14,6 +15,7 @@ namespace Common.DALSql.Entities
         public string PasswordHash { get; set; }
         [Required]
         public string Email { get; set; }
+        public UserRole Role { get; set; }
         public string PhoneNumber { get; set; }
         public bool IsEmailVerified { get; set; }
         [Required]

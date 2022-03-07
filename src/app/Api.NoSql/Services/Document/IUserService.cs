@@ -23,7 +23,6 @@ namespace Api.Services.Document
         Task UpdateLastRequestAsync(string id);
         Task UpdateResetPasswordTokenAsync(string id, string token);
         Task UpdatePasswordAsync(string id, string newPassword);
-        Task UpdateInfoAsync(string id, string email, string firstName, string lastName);
         Task MarkEmailAsVerifiedAsync(string id);
         Task EnableGoogleAuthAsync(string id);
 

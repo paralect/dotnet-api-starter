@@ -70,31 +70,21 @@ namespace Api.Controllers
             return Ok(viewModel);
         }
 
-        [HttpPut("current")]
-        public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentModel model)
+        // TODO change to PUT on client side and here
+        [HttpPost("current")]
+        public async Task<IActionResult> UpdateCurrentAsync([FromBody] UpdateCurrentUserModel model)
         {
-            if (CurrentUserId == null)
-            {
-                return BadRequest("UserId", "User not found.");
-            }
+            var userId = CurrentUserId!.Value;
 
-            var userId = CurrentUserId.Value;
-
-            var isEmailInUse = await _userService.IsEmailInUseAsync(userId, model.Email);
-            if (isEmailInUse)
-            {
-                return BadRequest(nameof(model.Email), "This email is already in use.");
-            }
-
-            await _userService.UpdateInfoAsync(userId, model.Email, model.FirstName, model.LastName);
+            await _userService.UpdatePasswordAsync(userId, model.Password);
 
             var user = await _userService.FindByIdAsync(userId);
             return Ok(new
             {
                 userId,
-                model.FirstName,
-                model.LastName,
-                model.Email,
+                user.FirstName,
+                user.LastName,
+                user.Email,
                 user.IsEmailVerified
             });
         }

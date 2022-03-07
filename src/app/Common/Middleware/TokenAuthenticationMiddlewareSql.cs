@@ -1,8 +1,13 @@
-﻿using System.Security.Principal;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.DALSql.Entities;
 using Common.DALSql.Filters;
 using Common.DALSql.Repositories;
+using Common.Enums;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
 
@@ -34,12 +39,21 @@ namespace Common.Middleware
                 var token = await tokenRepository.FindOneAsync(new TokenFilter
                 {
                     Value = accessToken,
-                    AsNoTracking = true
+                    AsNoTracking = true,
+                    IncludeProperties = new List<Expression<Func<Token, object>>>
+                    {
+                        x => x.User
+                    }
                 });
 
                 if (token != null && !token.IsExpired())
                 {
-                    var principal = new Principal(new GenericIdentity(token.UserId.ToString()), new string[] { });
+                    var principal = new Principal(
+                        new GenericIdentity(token.UserId.ToString()),
+                        new string[] {
+                            Enum.GetName(typeof(UserRole), token.User.Role)
+                        }
+                    );
 
                     Thread.CurrentPrincipal = principal;
                     context.User = principal;

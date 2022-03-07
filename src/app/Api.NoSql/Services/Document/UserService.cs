@@ -64,16 +64,6 @@ namespace Api.Services.Document
             });
         }
 
-        public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
-        {
-            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
-            {
-                new SetOperator<User, string>(user => user.Email, email),
-                new SetOperator<User, string>(user => user.FirstName, firstName),
-                new SetOperator<User, string>(user => user.LastName, lastName)
-            });
-        }
-
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
         {
             var signUpToken = SecurityUtils.GenerateSecureToken();

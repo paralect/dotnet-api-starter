@@ -71,14 +71,14 @@ namespace Api.Controllers
 
             if (_environment.IsDevelopment())
             {
-                return Ok(new { _signupToken = user.SignupToken });
+                return Ok(new { signupToken = user.SignupToken });
             }
 
             return Ok();
         }
 
-        [HttpGet("verifyEmail/{token}")]
-        public async Task<IActionResult> VerifyEmailAsync(string token)
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmailAsync([FromQuery] string token)
         {
             if (token == null)
             {
