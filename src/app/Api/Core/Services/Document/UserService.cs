@@ -5,9 +5,9 @@ using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Common.DAL.Documents.User;
+using Common.DAL.FluentUpdater;
 using Common.DAL.Interfaces;
 using Common.DAL.Repositories;
-using Common.DAL.UpdateDocumentOperators;
 using Common.Services;
 using Common.Utils;
 
@@ -47,21 +47,17 @@ namespace Api.Core.Services.Document
 
         public async Task UpdatePasswordAsync(string id, string newPassword)
         {
-            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
-            {
-                new SetOperator<User, string>(user => user.PasswordHash, newPassword.GetHash()),
-                new SetOperator<User, string>(user => user.ResetPasswordToken, string.Empty)
-            });
+            await _userRepository.UpdateOneAsync(id, Updater<User>
+                .Set(u => u.PasswordHash, newPassword.GetHash())
+                .Set(u => u.ResetPasswordToken, string.Empty));
         }
 
         public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
         {
-            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
-            {
-                new SetOperator<User, string>(user => user.Email, email),
-                new SetOperator<User, string>(user => user.FirstName, firstName),
-                new SetOperator<User, string>(user => user.LastName, lastName)
-            });
+            await _userRepository.UpdateOneAsync(id, Updater<User>
+                .Set(u => u.Email, email)
+                .Set(u => u.FirstName, firstName)
+                .Set(u => u.LastName, lastName));
         }
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)

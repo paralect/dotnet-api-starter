@@ -3,7 +3,6 @@ using Api.Core.Services.Interfaces.Document;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
-using Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
