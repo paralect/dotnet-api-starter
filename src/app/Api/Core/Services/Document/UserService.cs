@@ -52,14 +52,6 @@ namespace Api.Core.Services.Document
                 .Set(u => u.ResetPasswordToken, string.Empty));
         }
 
-        public async Task UpdateInfoAsync(string id, string email, string firstName, string lastName)
-        {
-            await _userRepository.UpdateOneAsync(id, Updater<User>
-                .Set(u => u.Email, email)
-                .Set(u => u.FirstName, firstName)
-                .Set(u => u.LastName, lastName));
-        }
-
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
         {
             var signUpToken = SecurityUtils.GenerateSecureToken();
