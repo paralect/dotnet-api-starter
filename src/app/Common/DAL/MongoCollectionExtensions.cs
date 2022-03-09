@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
@@ -14,14 +15,15 @@ internal static class MongoCollectionExtensions
         int pageSize)
     {
         var count = await collection.CountDocumentsAsync(filterQuery);
+
+        var pipelineDefinitions = GetPipelineDefinitions(
+            filterQuery,
+            sortQuery,
+            pageIndex,
+            pageSize);
+
         var data = await collection.Aggregate(
-            PipelineDefinition<TDocument, TDocument>.Create(new[]
-            {
-                    PipelineStageDefinitionBuilder.Match(filterQuery),
-                    PipelineStageDefinitionBuilder.Sort(sortQuery),
-                    PipelineStageDefinitionBuilder.Skip<TDocument>((pageIndex - 1) * pageSize),
-                    PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize),
-            }),
+            PipelineDefinition<TDocument, TDocument>.Create(pipelineDefinitions),
             new AggregateOptions
             {
                 Collation = Constants.DefaultCollation
@@ -37,5 +39,23 @@ internal static class MongoCollectionExtensions
         };
 
         return page;
+    }
+
+    private static IEnumerable<PipelineStageDefinition<TDocument, TDocument>> GetPipelineDefinitions<TDocument>(
+        FilterDefinition<TDocument> filterQuery,
+        SortDefinition<TDocument> sortQuery,
+        int pageIndex,
+        int pageSize)
+    {
+        yield return PipelineStageDefinitionBuilder.Match(filterQuery);
+
+        if (sortQuery != null)
+        {
+            yield return PipelineStageDefinitionBuilder.Sort(sortQuery);
+        }
+
+        yield return PipelineStageDefinitionBuilder.Skip<TDocument>((pageIndex - 1) * pageSize);
+
+        yield return PipelineStageDefinitionBuilder.Limit<TDocument>(pageSize);
     }
 }

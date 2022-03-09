@@ -54,7 +54,7 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
 
     public async Task<TDocument> FindOneAsync(TFilter filter)
     {
-        var result = await collection.FindAsync(BuildFilterQuery(filter));
+        var result = await collection.FindAsync(BuildFilterQuery(filter, false));
         return result.SingleOrDefault();
     }
 
@@ -64,7 +64,7 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
         int page,
         int pageSize)
     {
-        var filterQuery = BuildFilterQuery(filter);
+        var filterQuery = BuildFilterQuery(filter, false);
         var sortQuery = BuildSortQuery(sortFields);
 
         return await collection.AggregateByPage(filterQuery, sortQuery, page, pageSize);
@@ -120,7 +120,7 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
         return new List<FilterDefinition<TDocument>>();
     }
 
-    private FilterDefinition<TDocument> BuildFilterQuery(TFilter filter)
+    private FilterDefinition<TDocument> BuildFilterQuery(TFilter filter, bool isEmptyFilterCheckEnabled = true)
     {
         var filterQueries = GetFilterQueries(filter).ToList();
         if (filter.Id.HasValue())
@@ -128,26 +128,27 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
             filterQueries.Add(GetFilterById(filter.Id));
         }
 
+        if (isEmptyFilterCheckEnabled && !filterQueries.Any() && !filter.IsEmptyFilterAllowed)
+        {
+            throw new ApplicationException("Empty filter is not allowed");
+        }
+
         return filterQueries.Any()
             ? Builders<TDocument>.Filter.And(filterQueries)
             : FilterDefinition<TDocument>.Empty;
     }
 
-    private SortDefinition<TDocument> BuildSortQuery(IList<(string Key, SortDirection Value)> sortFields = null)
+    private SortDefinition<TDocument> BuildSortQuery(IList<(string Key, SortDirection Value)> sortFields)
     {
-        var defaultSortFields = new List<(string, SortDirection)>
-            {
-                (nameof(BaseDocument.CreatedOn).ToCamelCase(), SortDirection.Descending)
-            };
-
-        var sortFieldsToApply = sortFields != null && sortFields.Any()
-            ? sortFields
-            : defaultSortFields;
+        if (sortFields == null || !sortFields.Any())
+        {
+            return null;
+        }
 
         var builder = Builders<TDocument>.Sort;
 
         var sortDefinitions = new List<SortDefinition<TDocument>>();
-        foreach (var field in sortFieldsToApply)
+        foreach (var field in sortFields)
         {
             sortDefinitions.Add(field.Value == SortDirection.Ascending
                 ? builder.Ascending(field.Key)
