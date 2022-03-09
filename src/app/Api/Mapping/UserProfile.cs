@@ -1,8 +1,8 @@
 ﻿using Api.Models;
 using Api.Models.User;
 using AutoMapper;
-using Common.DAL;
-using Common.DAL.Documents.User;
+using Common.Dal.Documents.User;
+using Common.Dal;
 
 namespace Api.Mapping
 {

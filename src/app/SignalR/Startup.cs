@@ -1,5 +1,5 @@
-using Common.DAL;
-using Common.DAL.Interfaces;
+using Common.Dal.Interfaces;
+using Common.Dal;
 using Common.Middleware;
 using Common.Services.Interfaces;
 using Common.Settings;

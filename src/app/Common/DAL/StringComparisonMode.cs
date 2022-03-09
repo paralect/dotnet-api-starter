@@ -1,9 +1,8 @@
-﻿namespace Common.DAL
+﻿namespace Common.Dal;
+
+public enum StringComparisonMode : byte
 {
-    public enum StringComparisonMode : byte
-    {
-        StrictEqual,
-        Contains,
-        EndsWith
-    }
+    StrictEqual,
+    Contains,
+    EndsWith
 }

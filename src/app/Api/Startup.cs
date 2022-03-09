@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Api.Core.Services.Document;
-using Api.Core.Services.Infrastructure;
-using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Mapping;
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
+using Common.Dal.Interfaces;
+using Common.Dal;
 using Common.Middleware;
-using Common.Services;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
@@ -22,7 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using IIdGenerator = Common.DAL.Interfaces.IIdGenerator;
+using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api

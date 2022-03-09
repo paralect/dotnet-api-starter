@@ -1,7 +1,6 @@
-﻿namespace Common.DAL.Interfaces
+﻿namespace Common.Dal.Interfaces;
+
+public interface IIdGenerator
 {
-    public interface IIdGenerator
-    {
-        string Generate();
-    }
+    string Generate();
 }

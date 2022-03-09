@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace Common.DAL
+namespace Common.Dal;
+
+public class Page<TModel>
 {
-    public class Page<TModel>
-    {
-        public int TotalPages { get; set; }
-        public long Count { get; set; }
-        public ICollection<TModel> Items { get; set; }
-    }
+    public int TotalPages { get; set; }
+    public long Count { get; set; }
+    public ICollection<TModel> Items { get; set; }
 }

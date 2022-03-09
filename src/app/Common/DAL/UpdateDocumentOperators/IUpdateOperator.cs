@@ -1,10 +1,9 @@
-using Common.DAL.Documents;
+using Common.Dal.Documents;
 using MongoDB.Driver;
 
-namespace Common.DAL.UpdateDocumentOperators
+namespace Common.Dal.UpdateDocumentOperators;
+
+public interface IUpdateOperator<TDocument> where TDocument : BaseDocument
 {
-    public interface IUpdateOperator<TDocument> where TDocument: BaseDocument
-    {
-        UpdateDefinition<TDocument> ToUpdateDefinition();
-    }
+    UpdateDefinition<TDocument> ToUpdateDefinition();
 }

@@ -1,17 +1,16 @@
 using System;
 
-namespace Common.Utils
-{
-    public static class DocumentExtensions
-    {
-        public static bool IsExpired(this IExpirable token)
-        {
-            return token.ExpireAt <= DateTime.UtcNow;
-        }
-    }
+namespace Common.Utils;
 
-    public interface IExpirable
+public static class DocumentExtensions
+{
+    public static bool IsExpired(this IExpirable token)
     {
-        public DateTime ExpireAt { get; set; }
+        return token.ExpireAt <= DateTime.UtcNow;
     }
+}
+
+public interface IExpirable
+{
+    public DateTime ExpireAt { get; set; }
 }

@@ -8,7 +8,7 @@ using Api.Models.User;
 using Api.Security;
 using AutoMapper;
 using Common;
-using Common.DAL.Repositories;
+using Common.Dal.Repositories;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;

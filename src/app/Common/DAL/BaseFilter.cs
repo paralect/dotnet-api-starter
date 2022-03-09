@@ -1,7 +1,6 @@
-﻿namespace Common.DAL
+﻿namespace Common.Dal;
+
+public class BaseFilter
 {
-    public class BaseFilter
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

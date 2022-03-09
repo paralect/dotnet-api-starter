@@ -5,9 +5,9 @@ using Api.Models;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
+using Common.Dal;
+using Common.Dal.Interfaces;
+using Common.Dal.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers

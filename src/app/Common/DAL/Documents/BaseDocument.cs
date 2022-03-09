@@ -1,12 +1,11 @@
 ﻿using System;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Common.DAL.Documents
+namespace Common.Dal.Documents;
+
+public class BaseDocument
 {
-    public class BaseDocument
-    {
-        [BsonId]
-        public string Id { get; set; }
-        public DateTime CreatedOn { get; set; }
-    }
+    [BsonId]
+    public string Id { get; set; }
+    public DateTime CreatedOn { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Api.Core.Services.Document.Models;
-using Common.DAL.Documents.User;
-using Common.DAL.Repositories;
+using Common.Dal.Documents.User;
+using Common.Dal.Repositories;
 using Common.Services.Interfaces;
 
 namespace Api.Core.Services.Interfaces.Document

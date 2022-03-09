@@ -1,27 +1,26 @@
-﻿using Common.DAL.Documents.Token;
-using Common.DAL.Documents.User;
-using Common.DAL.Interfaces;
+﻿using Common.Dal.Documents.Token;
+using Common.Dal.Documents.User;
+using Common.Dal.Interfaces;
 using MongoDB.Driver;
 
-namespace Common.DAL
+namespace Common.Dal;
+
+public class DbContext : IDbContext
 {
-    public class DbContext : IDbContext
+    public DbContext(
+        IMongoClient client,
+        IMongoCollection<User> users,
+        IMongoCollection<Token> tokens
+    )
     {
-        public DbContext(
-            IMongoClient client,
-            IMongoCollection<User> users,
-            IMongoCollection<Token> tokens
-        )
-        {
-            Client = client;
+        Client = client;
 
-            Users = users;
-            Tokens = tokens;
-        }
-
-        public IMongoClient Client { get; }
-
-        public IMongoCollection<User> Users { get; }
-        public IMongoCollection<Token> Tokens { get; }
+        Users = users;
+        Tokens = tokens;
     }
+
+    public IMongoClient Client { get; }
+
+    public IMongoCollection<User> Users { get; }
+    public IMongoCollection<Token> Tokens { get; }
 }

@@ -1,11 +1,10 @@
 ﻿using System.Security.Principal;
 
-namespace Common.Middleware
+namespace Common.Middleware;
+
+public class Principal : GenericPrincipal
 {
-    public class Principal : GenericPrincipal
+    public Principal(IIdentity identity, string[] roles) : base(identity, roles)
     {
-        public Principal(IIdentity identity, string[] roles) : base(identity, roles)
-        {
-        }
     }
 }

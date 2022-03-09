@@ -4,10 +4,10 @@ using Api.Core.Services.Document.Models;
 using Api.Core.Services.Infrastructure.Models;
 using Api.Core.Services.Interfaces.Document;
 using Api.Core.Services.Interfaces.Infrastructure;
-using Common.DAL.Documents.User;
-using Common.DAL.FluentUpdater;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
+using Common.Dal.Documents.User;
+using Common.Dal.FluentUpdater;
+using Common.Dal.Interfaces;
+using Common.Dal.Repositories;
 using Common.Services;
 using Common.Utils;
 
@@ -64,7 +64,7 @@ namespace Api.Core.Services.Document
                 Email = model.Email,
                 IsEmailVerified = false,
                 SignupToken = signUpToken,
-                Role = Common.Enums.UserRoleEnum.User
+                Role = Common.Enums.UserRole.User
             };
 
             await _userRepository.InsertAsync(newUser);

@@ -2,8 +2,8 @@
 using Api.Controllers;
 using Api.Core.Services.Interfaces.Document;
 using AutoMapper;
-using Common.DAL.Documents.User;
-using Common.DAL.Interfaces;
+using Common.Dal.Documents.User;
+using Common.Dal.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

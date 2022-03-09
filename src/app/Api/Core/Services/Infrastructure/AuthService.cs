@@ -31,8 +31,8 @@ namespace Api.Core.Services.Infrastructure
         public async Task SetTokensAsync(string userId)
         {
             var tokens = await _tokenService.CreateAuthTokensAsync(userId);
-            var accessToken = tokens.Single(t => t.Type == TokenTypeEnum.Access);
-            var refreshToken = tokens.Single(t => t.Type == TokenTypeEnum.Refresh);
+            var accessToken = tokens.Single(t => t.Type == TokenType.Access);
+            var refreshToken = tokens.Single(t => t.Type == TokenType.Refresh);
 
             var domain = new Uri(_appSettings.WebUrl).Host;
 

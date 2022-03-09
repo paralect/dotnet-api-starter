@@ -1,8 +1,7 @@
-﻿namespace Common.DAL
+﻿namespace Common.Dal;
+
+public enum SortDirection : byte
 {
-    public enum SortDirection : byte
-    {
-        Ascending,
-        Descending
-    }
+    Ascending,
+    Descending
 }

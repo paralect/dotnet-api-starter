@@ -1,9 +1,8 @@
-﻿using Common.DAL.Documents.Token;
-using Common.DAL.Repositories;
+﻿using Common.Dal.Documents.Token;
+using Common.Dal.Repositories;
 
-namespace Common.DAL.Interfaces
+namespace Common.Dal.Interfaces;
+
+public interface ITokenRepository : IRepository<Token, TokenFilter>
 {
-    public interface ITokenRepository : IRepository<Token, TokenFilter>
-    {
-    }
 }

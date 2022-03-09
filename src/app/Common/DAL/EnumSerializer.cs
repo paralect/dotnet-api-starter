@@ -20,157 +20,156 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace Common.DAL
+namespace Common.Dal;
+
+/// <summary>
+/// Represents a serializer for enums.
+/// </summary>
+/// <typeparam name="TEnum">The type of the enum.</typeparam>
+public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct
 {
+    // private fields
+    private readonly BsonType _representation;
+
+    // constructors
     /// <summary>
-    /// Represents a serializer for enums.
+    /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
     /// </summary>
-    /// <typeparam name="TEnum">The type of the enum.</typeparam>
-    public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct
+    public EnumSerializer()
+        : this(0) // 0 means use underlying type
     {
-        // private fields
-        private readonly BsonType _representation;
+    }
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
-        /// </summary>
-        public EnumSerializer()
-            : this(0) // 0 means use underlying type
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
+    /// </summary>
+    /// <param name="representation">The representation.</param>
+    public EnumSerializer(BsonType representation)
+    {
+        switch (representation)
         {
+            case 0:
+            case BsonType.Int32:
+            case BsonType.Int64:
+            case BsonType.String:
+                break;
+
+            default:
+                var message = $"{representation} is not a valid representation for an EnumSerializer.";
+                throw new ArgumentException(message);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
-        /// </summary>
-        /// <param name="representation">The representation.</param>
-        public EnumSerializer(BsonType representation)
+        // don't know of a way to enforce this at compile time
+        var enumTypeInfo = typeof(TEnum).GetTypeInfo();
+        if (!enumTypeInfo.IsEnum)
         {
-            switch (representation)
-            {
-                case 0:
-                case BsonType.Int32:
-                case BsonType.Int64:
-                case BsonType.String:
-                    break;
-
-                default:
-                    var message = $"{representation} is not a valid representation for an EnumSerializer.";
-                    throw new ArgumentException(message);
-            }
-
-            // don't know of a way to enforce this at compile time
-            var enumTypeInfo = typeof(TEnum).GetTypeInfo();
-            if (!enumTypeInfo.IsEnum)
-            {
-                var message = $"{typeof(TEnum).FullName} is not an enum type.";
-                throw new BsonSerializationException(message);
-            }
-
-            _representation = representation;
+            var message = $"{typeof(TEnum).FullName} is not an enum type.";
+            throw new BsonSerializationException(message);
         }
 
-        // public properties
-        /// <summary>
-        /// Gets the representation.
-        /// </summary>
-        /// <value>
-        /// The representation.
-        /// </value>
-        public BsonType Representation
-        {
-            get { return _representation; }
-        }
+        _representation = representation;
+    }
 
-        // public methods
-        /// <summary>
-        /// Deserializes a value.
-        /// </summary>
-        /// <param name="context">The deserialization context.</param>
-        /// <param name="args">The deserialization args.</param>
-        /// <returns>A deserialized value.</returns>
-        public override TEnum Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-        {
-            var bsonReader = context.Reader;
+    // public properties
+    /// <summary>
+    /// Gets the representation.
+    /// </summary>
+    /// <value>
+    /// The representation.
+    /// </value>
+    public BsonType Representation
+    {
+        get { return _representation; }
+    }
 
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
+    // public methods
+    /// <summary>
+    /// Deserializes a value.
+    /// </summary>
+    /// <param name="context">The deserialization context.</param>
+    /// <param name="args">The deserialization args.</param>
+    /// <returns>A deserialized value.</returns>
+    public override TEnum Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    {
+        var bsonReader = context.Reader;
+
+        var bsonType = bsonReader.GetCurrentBsonType();
+        switch (bsonType)
+        {
+            case BsonType.Int32: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt32());
+            case BsonType.Int64: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt64());
+            case BsonType.Double: return (TEnum)Enum.ToObject(typeof(TEnum), (long)bsonReader.ReadDouble());
+            case BsonType.String:
             {
-                case BsonType.Int32: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt32());
-                case BsonType.Int64: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt64());
-                case BsonType.Double: return (TEnum)Enum.ToObject(typeof(TEnum), (long)bsonReader.ReadDouble());
-                case BsonType.String:
+                var value = bsonReader.ReadString();
+                foreach (var enumValue in (TEnum[])Enum.GetValues(typeof(TEnum)))
                 {
-                    var value = bsonReader.ReadString();
-                    foreach (var enumValue in (TEnum[])Enum.GetValues(typeof(TEnum)))
+                    var description = enumValue.GetDescription();
+                    if (string.Equals(value, description, StringComparison.InvariantCulture))
                     {
-                        var description = enumValue.GetDescription();
-                        if (string.Equals(value, description, StringComparison.InvariantCulture))
-                        {
-                            return enumValue;
-                        }
+                        return enumValue;
                     }
-                    return (TEnum)Enum.Parse(typeof(TEnum), value);
                 }
-                default:
-                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
+                return (TEnum)Enum.Parse(typeof(TEnum), value);
             }
+            default:
+                throw CreateCannotDeserializeFromBsonTypeException(bsonType);
         }
+    }
 
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <param name="context">The serialization context.</param>
-        /// <param name="args">The serialization args.</param>
-        /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnum value)
+    /// <summary>
+    /// Serializes a value.
+    /// </summary>
+    /// <param name="context">The serialization context.</param>
+    /// <param name="args">The serialization args.</param>
+    /// <param name="value">The object.</param>
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnum value)
+    {
+        var bsonWriter = context.Writer;
+
+        switch (_representation)
         {
-            var bsonWriter = context.Writer;
+            case 0:
+                var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
+                if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64)
+                {
+                    goto case BsonType.Int64;
+                }
+                else
+                {
+                    goto case BsonType.Int32;
+                }
 
-            switch (_representation)
-            {
-                case 0:
-                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
-                    if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64)
-                    {
-                        goto case BsonType.Int64;
-                    }
-                    else
-                    {
-                        goto case BsonType.Int32;
-                    }
+            case BsonType.Int32:
+                bsonWriter.WriteInt32(Convert.ToInt32(value));
+                break;
 
-                case BsonType.Int32:
-                    bsonWriter.WriteInt32(Convert.ToInt32(value));
-                    break;
+            case BsonType.Int64:
+                bsonWriter.WriteInt64(Convert.ToInt64(value));
+                break;
 
-                case BsonType.Int64:
-                    bsonWriter.WriteInt64(Convert.ToInt64(value));
-                    break;
+            case BsonType.String:
+                bsonWriter.WriteString(value.GetDescription());
+                break;
 
-                case BsonType.String:
-                    bsonWriter.WriteString(value.GetDescription());
-                    break;
-
-                default:
-                    throw new BsonInternalException("Unexpected EnumRepresentation.");
-            }
+            default:
+                throw new BsonInternalException("Unexpected EnumRepresentation.");
         }
+    }
 
-        /// <summary>
-        /// Returns a serializer that has been reconfigured with the specified representation.
-        /// </summary>
-        /// <param name="representation">The representation.</param>
-        /// <returns>The reconfigured serializer.</returns>
-        public EnumSerializer<TEnum> WithRepresentation(BsonType representation)
-        {
-            return representation == _representation ? this : new EnumSerializer<TEnum>(representation);
-        }
+    /// <summary>
+    /// Returns a serializer that has been reconfigured with the specified representation.
+    /// </summary>
+    /// <param name="representation">The representation.</param>
+    /// <returns>The reconfigured serializer.</returns>
+    public EnumSerializer<TEnum> WithRepresentation(BsonType representation)
+    {
+        return representation == _representation ? this : new EnumSerializer<TEnum>(representation);
+    }
 
-        // explicit interface implementations
-        IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
-        {
-            return WithRepresentation(representation);
-        }
+    // explicit interface implementations
+    IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
+    {
+        return WithRepresentation(representation);
     }
 }

@@ -1,13 +1,12 @@
-﻿using Common.DAL.Interfaces;
+﻿using Common.Dal.Interfaces;
 using MongoDB.Bson;
 
-namespace Common.DAL
+namespace Common.Dal;
+
+public class IdGenerator : IIdGenerator
 {
-    public class IdGenerator : IIdGenerator
+    public string Generate()
     {
-        public string Generate()
-        {
-            return ObjectId.GenerateNewId().ToString();
-        }
+        return ObjectId.GenerateNewId().ToString();
     }
 }
