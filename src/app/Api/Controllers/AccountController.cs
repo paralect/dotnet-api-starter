@@ -113,7 +113,7 @@ namespace Api.Controllers
 
             if (user.IsEmailVerified == false)
             {
-                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
+                return BadRequest(nameof(model.Email), "Please verify your email to sign in.");
             }
 
             await Task.WhenAll(
