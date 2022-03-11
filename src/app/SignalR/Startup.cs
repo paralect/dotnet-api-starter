@@ -1,7 +1,6 @@
 using Common.Dal.Interfaces;
 using Common.Dal;
 using Common.Middleware;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
 using SignalR.Mapping;
 using SignalR.Services;
+using Common.Services.Domain.Interfaces;
 
 namespace SignalR
 {

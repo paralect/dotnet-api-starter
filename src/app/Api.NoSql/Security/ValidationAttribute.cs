@@ -1,4 +1,4 @@
-﻿using Api.Core.Utils;
+﻿using Api.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

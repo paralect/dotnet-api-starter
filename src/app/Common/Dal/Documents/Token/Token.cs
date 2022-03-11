@@ -10,4 +10,5 @@ public class Token : BaseDocument, IExpirable
     public string Value { get; set; }
     public DateTime ExpireAt { get; set; }
     public string UserId { get; set; }
+    public UserRole UserRole { get; set; }
 }

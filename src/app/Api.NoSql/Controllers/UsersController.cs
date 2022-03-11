@@ -1,13 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Api.Core.Services.Interfaces.Document;
 using Api.Models;
 using Api.Models.User;
 using Api.Security;
 using AutoMapper;
 using Common.Dal;
-using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
+using Common.Services.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -15,13 +14,11 @@ namespace Api.Controllers
     [Authorize]
     public class UsersController : BaseController
     {
-        private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public UsersController(IUserRepository userRepository, IUserService userService, IMapper mapper)
+        public UsersController(IUserService userService, IMapper mapper)
         {
-            _userRepository = userRepository;
             _userService = userService;
             _mapper = mapper;
         }
@@ -37,7 +34,7 @@ namespace Api.Controllers
                     .ToList()
                 : null;
 
-            var page = await _userRepository.FindPageAsync(
+            var page = await _userService.FindPageAsync(
                 new UserFilter { SearchValue = model.SearchValue },
                 sort,
                 model.Page,

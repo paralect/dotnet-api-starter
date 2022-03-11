@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Api.Core.Services.Interfaces.Infrastructure;
-using Api.Core.Settings;
-using Api.Core.Utils;
+using Api.Settings;
+using Api.Utils;
 using Api.Mapping;
-using Common.Dal.Interfaces;
-using Common.Dal;
 using Common.Middleware;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -19,6 +15,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
+using Common.Dal.Interfaces;
+using Common.Dal;
+using Api.Services.Interfaces;
 
 namespace Api
 {
@@ -109,7 +108,7 @@ namespace Api
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
@@ -117,13 +116,20 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
+            // replace with simpler version, if SQL DAL is removed from the solution:
+            // services.AddTransientByConvention(
+            //     typeof(IRepository<,>),
+            //     t => t.Name.EndsWith("Repository")
+            // );
+
             services.AddTransientByConvention(
-                typeof(IRepository<,>),
-                t => t.Name.EndsWith("Repository")
+                new List<Type> { typeof(IRepository<,>) },
+                t => t.Namespace.StartsWith("Common.DAL."),
+                t => t.Namespace.StartsWith("Common.DAL.") && t.Name.EndsWith("Repository")
             ); // register repositories
 
             services.AddTransientByConvention(
-                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
+                typeof(IAuthService),
                 t => t.Name.EndsWith("Service")
             ); // register services
 
@@ -135,7 +141,7 @@ namespace Api
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+            _configuration.GetSection("DB").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }
