@@ -1,17 +1,15 @@
-﻿using Api.Core.Services.Document;
-using Api.Core.Services.Infrastructure;
-using Api.Core.Services.Interfaces.Document;
+﻿using System;
+using System.Collections.Generic;
 using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Core.Settings;
 using Api.Core.Utils;
 using Api.Mapping;
-using Common.DAL;
-using Common.DAL.Interfaces;
-using Common.DAL.Repositories;
+using Common.Dal.Interfaces;
+using Common.Dal;
 using Common.Middleware;
-using Common.Services;
 using Common.Services.Interfaces;
 using Common.Settings;
+using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using IIdGenerator = Common.DAL.Interfaces.IIdGenerator;
+using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
 using ValidationAttribute = Api.Security.ValidationAttribute;
 
 namespace Api
@@ -119,14 +117,15 @@ namespace Api
 
         private void ConfigureDI(IServiceCollection services)
         {
-            services.AddTransient<IAuthService, AuthService>();
-            services.AddTransient<IEmailService, EmailService>();
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<IGoogleService, GoogleService>();
+            services.AddTransientByConvention(
+                typeof(IRepository<,>),
+                t => t.Name.EndsWith("Repository")
+            ); // register repositories
 
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ITokenRepository, TokenRepository>();
+            services.AddTransientByConvention(
+                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
+                t => t.Name.EndsWith("Service")
+            ); // register services
 
             services.AddTransient<IDbContext, DbContext>();
 

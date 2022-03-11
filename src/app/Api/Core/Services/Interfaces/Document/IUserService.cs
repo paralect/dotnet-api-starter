@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Api.Core.Services.Document.Models;
-using Common.DAL.Documents.User;
-using Common.DAL.Repositories;
+using Common.Dal.Documents.User;
+using Common.Dal.Repositories;
 using Common.Services.Interfaces;
 
 namespace Api.Core.Services.Interfaces.Document
@@ -16,7 +16,6 @@ namespace Api.Core.Services.Interfaces.Document
         Task UpdateLastRequestAsync(string id);
         Task UpdateResetPasswordTokenAsync(string id, string token);
         Task UpdatePasswordAsync(string id, string newPassword);
-        Task UpdateInfoAsync(string id, string email, string firstName, string lastName);
         Task MarkEmailAsVerifiedAsync(string id);
         Task EnableGoogleAuthAsync(string id);
 

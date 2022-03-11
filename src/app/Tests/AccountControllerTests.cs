@@ -8,9 +8,9 @@ using Api.Core.Services.Interfaces.Infrastructure;
 using Api.Models.Account;
 using AutoMapper;
 using Common;
-using Common.DAL.Documents.Token;
-using Common.DAL.Documents.User;
-using Common.DAL.Repositories;
+using Common.Dal.Documents.Token;
+using Common.Dal.Documents.User;
+using Common.Dal.Repositories;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
@@ -453,7 +453,7 @@ namespace Tests
             controller.ControllerContext = controllerContext;
 
             // Act
-            var result = await controller.LogoutAsync();
+            var result = await controller.SignOutAsync();
 
             // Assert
             _authService.Verify(service => service.UnsetTokensAsync(currentUserId), Times.Once);

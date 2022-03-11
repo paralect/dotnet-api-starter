@@ -1,8 +1,7 @@
-﻿namespace Common.Settings
+﻿namespace Common.Settings;
+
+public class DbSettings
 {
-    public class DbSettings
-    {
-        public string ConnectionString { get; set; }
-        public string Database { get; set; }
-    }
+    public string ConnectionString { get; set; }
+    public string Database { get; set; }
 }

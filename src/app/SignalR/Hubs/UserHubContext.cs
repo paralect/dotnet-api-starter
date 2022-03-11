@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
-using Common.DAL.Documents.User;
+using Common.Dal.Documents.User;
 using Microsoft.AspNetCore.SignalR;
 using SignalR.Models;
 

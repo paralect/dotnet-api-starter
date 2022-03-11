@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Common.DAL.Documents.User;
+using Common.Dal.Documents.User;
 
 namespace SignalR.Hubs
 {

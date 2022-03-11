@@ -8,7 +8,7 @@ using Api.Models.User;
 using Api.Security;
 using AutoMapper;
 using Common;
-using Common.DAL.Repositories;
+using Common.Dal.Repositories;
 using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
@@ -52,7 +52,7 @@ namespace Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("signup")]
+        [HttpPost("sign-up")]
         public async Task<IActionResult> SignUpAsync([FromBody]SignUpModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
@@ -71,14 +71,14 @@ namespace Api.Controllers
 
             if (_environment.IsDevelopment())
             {
-                return Ok(new { _signupToken = user.SignupToken });
+                return Ok(new { signupToken = user.SignupToken });
             }
 
             return Ok();
         }
 
-        [HttpGet("verifyEmail/{token}")]
-        public async Task<IActionResult> VerifyEmailAsync(string token)
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmailAsync([FromQuery] string token)
         {
             if (token == null)
             {
@@ -102,7 +102,7 @@ namespace Api.Controllers
             return Redirect(_appSettings.WebUrl);
         }
 
-        [HttpPost("signin")]
+        [HttpPost("sign-in")]
         public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
@@ -113,7 +113,7 @@ namespace Api.Controllers
 
             if (user.IsEmailVerified == false)
             {
-                return BadRequest( nameof(model.Email), "Please verify your email to sign in.");
+                return BadRequest(nameof(model.Email), "Please verify your email to sign in.");
             }
 
             await Task.WhenAll(
@@ -124,7 +124,7 @@ namespace Api.Controllers
             return Ok(_mapper.Map<UserViewModel>(user));
         }
 
-        [HttpPost("forgotPassword")]
+        [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
@@ -150,7 +150,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("resetPassword")]
+        [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
         {
             var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
@@ -197,8 +197,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("logout")]
-        public async Task<IActionResult> LogoutAsync()
+        [HttpPost("sign-out")]
+        public async Task<IActionResult> SignOutAsync()
         {
             if (CurrentUserId.HasValue())
             {

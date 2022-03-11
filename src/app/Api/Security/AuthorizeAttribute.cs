@@ -11,9 +11,9 @@ namespace Api.Security
     {
         private readonly string[] _roles;
 
-        public AuthorizeAttribute(params UserRoleEnum[] allowedRoles)
+        public AuthorizeAttribute(params UserRole[] allowedRoles)
         {
-            _roles = allowedRoles.Select(x => Enum.GetName(typeof(UserRoleEnum), x)).ToArray();
+            _roles = allowedRoles.Select(x => Enum.GetName(typeof(UserRole), x)).ToArray();
         }
 
         public void OnAuthorization(AuthorizationFilterContext context)

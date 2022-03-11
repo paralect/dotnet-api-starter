@@ -1,8 +1,7 @@
-﻿namespace Common.Settings
+﻿namespace Common.Settings;
+
+public class AppSettings
 {
-    public class AppSettings
-    {
-        public string WebUrl { get; set; }
-        public string LandingUrl { get; set; }
-    }
+    public string WebUrl { get; set; }
+    public string LandingUrl { get; set; }
 }

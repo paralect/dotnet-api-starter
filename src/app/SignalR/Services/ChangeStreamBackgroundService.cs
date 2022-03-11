@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Common.DAL.Documents.User;
-using Common.DAL.Interfaces;
+using Common.Dal.Documents.User;
+using Common.Dal.Interfaces;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using SignalR.Hubs;

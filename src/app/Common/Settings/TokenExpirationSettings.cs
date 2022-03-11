@@ -1,8 +1,7 @@
-﻿namespace Common.Settings
+﻿namespace Common.Settings;
+
+public class TokenExpirationSettings
 {
-    public class TokenExpirationSettings
-    {
-        public int AccessTokenExpiresInHours { get; set; }
-        public int RefreshTokenExpiresInHours { get; set; }
-    }
+    public int AccessTokenExpiresInHours { get; set; }
+    public int RefreshTokenExpiresInHours { get; set; }
 }
