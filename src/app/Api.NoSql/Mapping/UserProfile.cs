@@ -1,10 +1,10 @@
-﻿using Api.Models;
-using Api.Models.User;
+﻿using Api.NoSql.Models;
+using Api.NoSql.Models.User;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Documents.User;
 
-namespace Api.Mapping
+namespace Api.NoSql.Mapping
 {
     public class UserProfile : Profile
     {

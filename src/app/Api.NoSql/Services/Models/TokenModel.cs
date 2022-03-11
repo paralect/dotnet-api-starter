@@ -1,7 +1,7 @@
 ﻿using System;
 using Common.Enums;
 
-namespace Api.Services.Models
+namespace Api.NoSql.Services.Models
 {
     public class TokenModel
     {

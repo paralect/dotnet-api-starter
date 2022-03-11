@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Api.Controllers;
+using Api.NoSql.Controllers;
 using AutoMapper;
 using Common.Dal.Documents.User;
 using Common.Services.Domain.Interfaces;

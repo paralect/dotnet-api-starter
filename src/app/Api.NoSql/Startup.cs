@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Api.Settings;
-using Api.Utils;
-using Api.Mapping;
 using Common.Middleware;
 using Common.Settings;
 using Common.Utils;
@@ -14,12 +11,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
-using ValidationAttribute = Api.Security.ValidationAttribute;
+using ValidationAttribute = Api.NoSql.Security.ValidationAttribute;
 using Common.Dal.Interfaces;
 using Common.Dal;
-using Api.Services.Interfaces;
+using Api.NoSql.Services.Interfaces;
+using Api.NoSql.Utils;
+using Api.NoSql.Settings;
+using Api.NoSql.Mapping;
 
-namespace Api
+namespace Api.NoSql
 {
     public class Startup
     {

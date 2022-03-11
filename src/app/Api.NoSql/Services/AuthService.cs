@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Api.Services.Interfaces;
+using Api.NoSql.Services.Interfaces;
 using Common;
 using Common.Dal.Documents.Token;
 using Common.Dal.Interfaces;
@@ -12,7 +12,7 @@ using Common.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Api.Services
+namespace Api.NoSql.Services
 {
     public class AuthService : IAuthService
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models.User
+namespace Api.NoSql.Models.User
 {
     public class UpdateCurrentUserModel
     {

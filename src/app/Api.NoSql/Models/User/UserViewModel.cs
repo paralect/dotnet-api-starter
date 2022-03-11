@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Api.Models.User
+namespace Api.NoSql.Models.User
 {
     public class UserViewModel
     {

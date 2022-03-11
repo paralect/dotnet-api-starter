@@ -1,4 +1,4 @@
-﻿namespace Api.Settings
+﻿namespace Api.NoSql.Settings
 {
     public class GoogleSettings
     {

@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Api.Services.Interfaces;
-using Api.Services.Models;
-using Api.Settings;
+using Api.NoSql.Services.Interfaces;
+using Api.NoSql.Services.Models;
+using Api.NoSql.Settings;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.Extensions.Options;
 
-namespace Api.Services.Infrastructure
+namespace Api.NoSql.Services
 {
     public class GoogleService : IGoogleService
     {

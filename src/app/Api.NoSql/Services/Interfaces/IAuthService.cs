@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Common.Enums;
 
-namespace Api.Services.Interfaces
+namespace Api.NoSql.Services.Interfaces
 {
     public interface IAuthService
     {

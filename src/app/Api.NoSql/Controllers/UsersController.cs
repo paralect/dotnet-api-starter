@@ -1,15 +1,15 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Api.Models;
-using Api.Models.User;
-using Api.Security;
+using Api.NoSql.Models;
+using Api.NoSql.Models.User;
+using Api.NoSql.Security;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Repositories;
 using Common.Services.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
+namespace Api.NoSql.Controllers
 {
     [Authorize]
     public class UsersController : BaseController

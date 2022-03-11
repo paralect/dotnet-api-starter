@@ -1,8 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Api.Models.Account;
-using Api.Models.User;
-using Api.Services.Interfaces;
-using Api.Security;
 using AutoMapper;
 using Common;
 using Common.Dal.Repositories;
@@ -15,9 +11,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
+using ForgotPasswordModel = Api.NoSql.Models.Account.ForgotPasswordModel;
+using Api.NoSql.Services.Interfaces;
+using Api.NoSql.Models.Account;
+using Api.NoSql.Models.User;
+using Api.NoSql.Security;
 
-namespace Api.Controllers
+namespace Api.NoSql.Controllers
 {
     public class AccountController : BaseController
     {
@@ -53,14 +53,14 @@ namespace Api.Controllers
         }
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> SignUpAsync([FromBody]SignUpModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
-            
+
             user = await _userService.CreateUserAccountAsync(new CreateUserModel
             {
                 Email = model.Email,
@@ -85,7 +85,7 @@ namespace Api.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _userService.FindOneAsync(new UserFilter {SignUpToken = token});
+            var user = await _userService.FindOneAsync(new UserFilter { SignUpToken = token });
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -103,7 +103,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("sign-in")]
-        public async Task<IActionResult> SignInAsync([FromBody]SignInModel model)
+        public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
@@ -125,7 +125,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromBody]ForgotPasswordModel model)
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user == null)
@@ -151,9 +151,9 @@ namespace Api.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPasswordAsync([FromBody]ResetPasswordModel model)
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _userService.FindOneAsync(new UserFilter {ResetPasswordToken = model.Token});
+            var user = await _userService.FindOneAsync(new UserFilter { ResetPasswordToken = model.Token });
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -165,7 +165,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("resend")]
-        public async Task<IActionResult> ResendVerificationAsync([FromBody]ResendVerificationModel model)
+        public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
@@ -217,7 +217,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("signin/google")]
-        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery]SignInGoogleModel model)
+        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery] SignInGoogleModel model)
         {
             var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
             if (payload == null)
