@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Dal;
 using Common.Dal.Documents.User;
+using Common.Dal.FluentUpdater;
 using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
-using Common.Dal.UpdateDocumentOperators;
+using Common.Enums;
 using Common.Services.Domain.Interfaces;
 using Common.Services.Domain.Models;
 using Common.Services.Infrastructure.Interfaces;
@@ -58,11 +59,9 @@ namespace Common.Services.Domain
 
         public async Task UpdatePasswordAsync(string id, string newPassword)
         {
-            await _userRepository.UpdateOneAsync(id, new IUpdateOperator<User>[]
-            {
-                new SetOperator<User, string>(user => user.PasswordHash, newPassword.GetHash()),
-                new SetOperator<User, string>(user => user.ResetPasswordToken, string.Empty)
-            });
+            await _userRepository.UpdateOneAsync(id, Updater<User>
+                .Set(u => u.PasswordHash, newPassword.GetHash())
+                .Set(u => u.ResetPasswordToken, string.Empty));
         }
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
@@ -77,7 +76,7 @@ namespace Common.Services.Domain
                 Email = model.Email,
                 IsEmailVerified = false,
                 SignupToken = signUpToken,
-                Role = Enums.UserRole.User
+                Role = UserRole.User
             };
 
             await _userRepository.InsertAsync(newUser);

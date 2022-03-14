@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Common.Middleware;
+﻿using Common.Middleware;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +16,9 @@ using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Utils;
 using Api.NoSql.Settings;
 using Api.NoSql.Mapping;
+using System.Collections.Generic;
+using System;
+using Common.Services.Domain.Interfaces;
 
 namespace Api.NoSql
 {
@@ -116,22 +117,15 @@ namespace Api.NoSql
 
         private void ConfigureDI(IServiceCollection services)
         {
-            // replace with simpler version, if SQL DAL is removed from the solution:
-            // services.AddTransientByConvention(
-            //     typeof(IRepository<,>),
-            //     t => t.Name.EndsWith("Repository")
-            // );
+            services.AddTransientByConvention(
+                typeof(IRepository<,>),
+                t => t.Name.EndsWith("Repository")
+            );
 
             services.AddTransientByConvention(
-                new List<Type> { typeof(IRepository<,>) },
-                t => t.Namespace.StartsWith("Common.DAL."),
-                t => t.Namespace.StartsWith("Common.DAL.") && t.Name.EndsWith("Repository")
-            ); // register repositories
-
-            services.AddTransientByConvention(
-                typeof(IAuthService),
+                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
                 t => t.Name.EndsWith("Service")
-            ); // register services
+            );
 
             services.AddTransient<IDbContext, DbContext>();
 

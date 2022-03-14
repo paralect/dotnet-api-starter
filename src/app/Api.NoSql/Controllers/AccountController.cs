@@ -16,6 +16,7 @@ using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Models.Account;
 using Api.NoSql.Models.User;
 using Api.NoSql.Security;
+using Common.Services.Infrastructure.Models;
 
 namespace Api.NoSql.Controllers
 {
@@ -170,7 +171,7 @@ namespace Api.NoSql.Controllers
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                _emailService.SendSignUpWelcome(new Common.Services.Infrastructure.Models.SignUpWelcomeModel
+                _emailService.SendSignUpWelcome(new SignUpWelcomeModel
                 {
                     Email = model.Email,
                     SignUpToken = user.SignupToken

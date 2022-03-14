@@ -3,7 +3,7 @@
     "AccessTokenExpiresInHours": 1,
     "RefreshTokenExpiresInHours": 10
   },
-  "MongoConnection": {
+  "DB": {
     "ConnectionString": "mongodb://localhost:27017",
     "Database": "api-development"
   },
