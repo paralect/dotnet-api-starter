@@ -1,4 +1,4 @@
-﻿using Common.Services.Infrastructure.Models;
+﻿using Common.Services.Infrastructure.Email.Models;
 
 namespace Common.Services.Infrastructure.Interfaces;
 

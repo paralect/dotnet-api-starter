@@ -12,8 +12,8 @@ using Common.Dal.Repositories;
 using Common.Enums;
 using Common.Services.Domain.Interfaces;
 using Common.Services.Domain.Models;
+using Common.Services.Infrastructure.Email.Models;
 using Common.Services.Infrastructure.Interfaces;
-using Common.Services.Infrastructure.Models;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -312,7 +312,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
             _emailService.Verify(service => service.SendForgotPassword(
-                It.Is<Common.Services.Infrastructure.Models.ForgotPasswordModel>(m => m.Email == user.Email))
+                It.Is<Common.Services.Infrastructure.Email.Models.ForgotPasswordModel>(m => m.Email == user.Email))
             );
 
             Assert.IsType<OkResult>(result);

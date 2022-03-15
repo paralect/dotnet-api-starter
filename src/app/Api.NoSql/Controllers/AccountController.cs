@@ -16,7 +16,7 @@ using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Models.Account;
 using Api.NoSql.Models.User;
 using Api.NoSql.Security;
-using Common.Services.Infrastructure.Models;
+using Common.Services.Infrastructure.Email.Models;
 
 namespace Api.NoSql.Controllers
 {
@@ -141,7 +141,7 @@ namespace Api.NoSql.Controllers
                 await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
-            _emailService.SendForgotPassword(new Common.Services.Infrastructure.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new Common.Services.Infrastructure.Email.Models.ForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",

@@ -1,4 +1,4 @@
-﻿namespace Common.Services.Infrastructure.Models;
+﻿namespace Common.Services.Infrastructure.Email.Models;
 
 public class ForgotPasswordModel
 {
