@@ -1,7 +1,6 @@
 using Common.Dal.Interfaces;
 using Common.Dal;
 using Common.Middleware;
-using Common.Services.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
 using SignalR.Mapping;
 using SignalR.Services;
+using Common.Services.Domain.Interfaces;
 
 namespace SignalR
 {
@@ -76,7 +76,7 @@ namespace SignalR
 
             services.AddTransient<IUserHubContext, UserHubContext>();
 
-            services.Configure<DbSettings>(options => { _configuration.GetSection("MongoConnection").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }
@@ -84,7 +84,7 @@ namespace SignalR
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("MongoConnection").Bind(dbSettings);
+            _configuration.GetSection("DB").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }
