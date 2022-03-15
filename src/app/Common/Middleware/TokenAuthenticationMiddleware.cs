@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Common.Enums;
 using Common.Services.Domain.Interfaces;
 using Common.Utils;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Middleware;
@@ -46,13 +45,5 @@ public class TokenAuthenticationMiddleware
         }
 
         await _next(context);
-    }
-}
-
-public static class TokenAuthenticationMiddlewareExtensions
-{
-    public static IApplicationBuilder UseTokenAuthentication(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<TokenAuthenticationMiddleware>();
     }
 }

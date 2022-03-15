@@ -7,6 +7,9 @@
     "ConnectionString": "mongodb://mongo:27017",
     "Database": "api-development"
   },
+  "DBSql": {
+    "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd"
+  },
   "App": {
     "WebUrl": "http://localhost:3002",
     "LandingUrl": "http://localhost:3000"

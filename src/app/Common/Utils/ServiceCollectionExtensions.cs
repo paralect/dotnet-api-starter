@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
         Func<Type, bool> predicate)
         => services.AddTransientByConvention(assemblyMarkerTypes, predicate, predicate);
 
-    private static IServiceCollection AddTransientByConvention(
+    public static IServiceCollection AddTransientByConvention(
         this IServiceCollection services,
         IEnumerable<Type> assemblyMarkerTypes,
         Func<Type, bool> interfacePredicate,
