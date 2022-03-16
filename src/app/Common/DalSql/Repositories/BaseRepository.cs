@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 using Common.Utils;
@@ -84,6 +83,12 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
     public async Task InsertManyAsync(IEnumerable<TEntity> entities)
     {
         table.AddRange(entities);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateOneAsync(TEntity entity)
+    {
+        table.Update(entity);
         await dbContext.SaveChangesAsync();
     }
 

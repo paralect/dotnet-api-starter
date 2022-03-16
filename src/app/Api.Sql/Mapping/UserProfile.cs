@@ -1,10 +1,10 @@
-﻿using Api.Models;
-using Api.Models.User;
+﻿using Api.Sql.Models;
+using Api.Sql.Models.User;
 using AutoMapper;
 using Common.DalSql;
 using Common.DalSql.Entities;
 
-namespace Api.Mapping
+namespace Api.Sql.Mapping
 {
     public class UserProfile : Profile
     {

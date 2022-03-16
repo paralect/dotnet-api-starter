@@ -1,4 +1,4 @@
-﻿namespace Api.Services.Domain.Models
+﻿namespace Common.ServicesSql.Domain.Models
 {
     public class CreateUserModel
     {

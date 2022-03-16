@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Api.Models
+namespace Api.Sql.Models
 {
     public class PageFilterModel
     {

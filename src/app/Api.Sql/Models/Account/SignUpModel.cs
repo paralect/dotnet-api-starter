@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models.Account
+namespace Api.Sql.Models.Account
 {
     public class SignUpModel
     {

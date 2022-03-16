@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Api.Services.Infrastructure.Models;
+using Api.Sql.Services.Models;
 
-namespace Api.Services.Infrastructure
+namespace Api.Sql.Services.Interfaces
 {
     public interface IGoogleService
     {

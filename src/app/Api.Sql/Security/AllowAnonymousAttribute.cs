@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Security
+namespace Api.Sql.Security
 {
     public class AllowAnonymousAttribute : Attribute, IAuthorizationFilter
     {

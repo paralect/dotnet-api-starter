@@ -1,46 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Services.Infrastructure.Models;
-using Api.Services.Infrastructure;
-using Api.Models.User;
-using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 using Common.DalSql.Repositories;
 using Common.Utils;
-using Api.Services.Domain.Models;
+using Common.ServicesSql.Domain.Interfaces;
+using Common.ServicesSql.Domain.Models;
+using Common.ServicesSql.Infrastructure.Interfaces;
+using Common.ServicesSql.Infrastructure.Email.Models;
 
-namespace Api.Services.Domain
+namespace Common.ServicesSql.Domain
 {
-    public class UserService : IUserService
+    public class UserService : BaseEntityService<User, UserFilter>, IUserService
     {
         private readonly IEmailService _emailService;
-        private readonly IAuthService _authService;
         private readonly IUserRepository _userRepository;
 
         public UserService(
             IEmailService emailService,
-            IAuthService authSqlService,
-            IUserRepository userRepository)
+            IUserRepository userRepository): base(userRepository)
         {
             _emailService = emailService;
-            _authService = authSqlService;
             _userRepository = userRepository;
-        }
-
-        public async Task<User> FindByIdAsync(long id)
-        {
-            return await _userRepository.FindOneAsync(new UserFilter
-            {
-                Id = id
-            });
         }
 
         public async Task<User> FindByEmailAsync(string email)
         {
-            return await _userRepository.FindOneAsync(new UserFilter
+            return await FindOneAsync(new UserFilter
             {
                 Email = email
             });
@@ -48,7 +34,7 @@ namespace Api.Services.Domain
 
         public async Task<User> FindBySignupTokenAsync(string token)
         {
-            return await _userRepository.FindOneAsync(new UserFilter
+            return await FindOneAsync(new UserFilter
             {
                 SignupToken = token
             });
@@ -56,20 +42,22 @@ namespace Api.Services.Domain
 
         public async Task<User> FindByResetPasswordTokenAsync(string token)
         {
-            return await _userRepository.FindOneAsync(new UserFilter
+            return await FindOneAsync(new UserFilter
             {
                 ResetPasswordToken = token
             });
         }
 
-        public async Task<Page<UserViewModel>> FindPageAsync(
-            UserFilter filter,
-            ICollection<SortField> sortFields,
-            int page,
-            int pageSize,
-            Expression<Func<User, UserViewModel>> map)
+        public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
         {
-            return await _userRepository.FindPageAsync(filter, sortFields, page, pageSize, map);
+            var user = await FindOneAsync(new UserFilter
+            {
+                IdToExclude = userIdToExclude,
+                Email = email,
+                AsNoTracking = true
+            });
+
+            return user != null;
         }
 
         public async Task<User> CreateUserAccountAsync(CreateUserModel model)
@@ -104,7 +92,15 @@ namespace Api.Services.Domain
             user.IsEmailVerified = true;
             user.LastRequest = DateTime.UtcNow;
 
-            await _authService.SetTokensAsync(id);
+            await _userRepository.UpdateOneAsync(user);
+        }
+
+        public async Task EnableGoogleAuthAsync(User user)
+        {
+            user.OAuthGoogle = true;
+            user.LastRequest = DateTime.UtcNow;
+
+            await _userRepository.UpdateOneAsync(user);
         }
 
         public async Task SignInAsync(long id)
@@ -112,13 +108,15 @@ namespace Api.Services.Domain
             var user = await _userRepository.FindById(id);
             user.LastRequest = DateTime.UtcNow;
 
-            await _authService.SetTokensAsync(id);
+            await _userRepository.UpdateOneAsync(user);
         }
 
         public async Task UpdateResetPasswordTokenAsync(long id, string token)
         {
             var user = await _userRepository.FindById(id);
             user.ResetPasswordToken = token;
+
+            await _userRepository.UpdateOneAsync(user);
         }
 
         public async Task<string> SetResetPasswordTokenAsync(long id)
@@ -127,6 +125,7 @@ namespace Api.Services.Domain
             if (user.ResetPasswordToken.HasNoValue())
             {
                 user.ResetPasswordToken = SecurityUtils.GenerateSecureToken();
+                await _userRepository.UpdateOneAsync(user);
             }
 
             return user.ResetPasswordToken;
@@ -137,6 +136,8 @@ namespace Api.Services.Domain
             var user = await _userRepository.FindById(id);
             user.PasswordHash = newPassword.GetHash();
             user.ResetPasswordToken = string.Empty;
+
+            await _userRepository.UpdateOneAsync(user);
         }
 
         public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
@@ -145,54 +146,24 @@ namespace Api.Services.Domain
             user.Email = email;
             user.FirstName = firstName;
             user.LastName = lastName;
+
+            await _userRepository.UpdateOneAsync(user);
         }
 
-        public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
+        public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
         {
-            var user = await _userRepository.FindOneAsync(new UserFilter
+            var user = new User
             {
-                IdToExclude = userIdToExclude,
-                Email = email,
-                AsNoTracking = true
-            });
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                IsEmailVerified = true,
+                OAuthGoogle = true
+            };
 
-            return user != null;
-        }
+            await _userRepository.InsertAsync(user);
 
-        public async Task SignInGoogleWithCodeAsync(GooglePayloadModel payload)
-        {
-            var user = await _userRepository.FindOneAsync(new UserFilter
-            {
-                Email = payload.Email,
-                IncludeProperties = new List<Expression<Func<User, object>>>
-                {
-                    u => u.Tokens
-                }
-            });
-
-            if (user == null)
-            {
-                user = new User
-                {
-                    FirstName = payload.GivenName,
-                    LastName = payload.FamilyName,
-                    Email = payload.Email,
-                    IsEmailVerified = true,
-                    OAuthGoogle = true
-                };
-
-                await _userRepository.InsertAsync(user);
-            }
-            else
-            {
-                if (!user.OAuthGoogle)
-                {
-                    user.OAuthGoogle = true;
-                    user.LastRequest = DateTime.UtcNow;
-                }
-            }
-
-            _authService.SetTokens(user);
+            return user;
         }
     }
 }

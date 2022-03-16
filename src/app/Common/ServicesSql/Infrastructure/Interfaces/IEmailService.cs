@@ -1,6 +1,6 @@
-﻿using Api.Services.Infrastructure.Models;
+﻿using Common.ServicesSql.Infrastructure.Email.Models;
 
-namespace Api.Services.Infrastructure
+namespace Common.ServicesSql.Infrastructure.Interfaces
 {
     public interface IEmailService
     {

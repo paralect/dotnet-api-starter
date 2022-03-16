@@ -1,4 +1,4 @@
-﻿namespace Api.Settings
+﻿namespace Api.Sql.Settings
 {
     public class GoogleSettings
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Sql.Services.Interfaces;
 using Common;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
@@ -12,7 +13,7 @@ using Common.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Api.Services.Infrastructure
+namespace Api.Sql.Services
 {
     public class AuthService : IAuthService
     {

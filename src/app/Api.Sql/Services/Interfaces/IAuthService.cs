@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Common.DalSql.Entities;
 
-namespace Api.Services.Infrastructure
+namespace Api.Sql.Services.Interfaces
 {
     public interface IAuthService
     {

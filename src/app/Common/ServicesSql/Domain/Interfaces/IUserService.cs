@@ -2,35 +2,36 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Services.Infrastructure.Models;
-using Api.Models.User;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
-using Api.Services.Domain.Models;
+using Common.ServicesSql.Domain.Models;
 
-namespace Api.Services.Domain
+namespace Common.ServicesSql.Domain.Interfaces
 {
     public interface IUserService
     {
         Task<User> FindByIdAsync(long id);
+        Task<User> FindOneAsync(UserFilter filter);
         Task<User> FindByEmailAsync(string email);
         Task<User> FindBySignupTokenAsync(string token);
         Task<User> FindByResetPasswordTokenAsync(string token);
-        Task<Page<UserViewModel>> FindPageAsync(
+        Task<Page<T>> FindPageAsync<T>(
             UserFilter filter,
             ICollection<SortField> sortFields,
             int page,
             int pageSize,
-            Expression<Func<User, UserViewModel>> map
+            Expression<Func<User, T>> map
         );
         Task<bool> IsEmailInUseAsync(long idToExclude, string email);
 
 
         Task<User> CreateUserAccountAsync(CreateUserModel model);
+        Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
+
         Task VerifyEmailAsync(long id);
+        Task EnableGoogleAuthAsync(User user);
         Task SignInAsync(long id);
-        Task SignInGoogleWithCodeAsync(GooglePayloadModel payload);
         Task UpdateResetPasswordTokenAsync(long id, string token);
         Task UpdatePasswordAsync(long id, string newPassword);
         Task UpdateInfoAsync(long id, string email, string firstName, string lastName);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Common.DalSql.Entities;
 using Common.Enums;
 using Common.Utils;
 

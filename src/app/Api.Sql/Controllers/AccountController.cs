@@ -1,11 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Api.Services.Domain.Models;
-using Api.Services.Infrastructure.Models;
-using Api.Services.Domain;
-using Api.Services.Infrastructure;
-using Api.Models.Account;
-using Api.Models.User;
-using Api.Security;
 using AutoMapper;
 using Common;
 using Common.Settings;
@@ -14,9 +7,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Models.Account.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Sql.Models.Account.ForgotPasswordModel;
+using Api.Sql.Models.Account;
+using Api.Sql.Services.Interfaces;
+using Api.Sql.Models.User;
+using Common.ServicesSql.Domain.Interfaces;
+using Common.ServicesSql.Infrastructure.Interfaces;
+using Common.ServicesSql.Domain.Models;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System;
+using Common.DalSql.Entities;
+using Common.DalSql.Filters;
+using Api.Sql.Security;
+using Common.ServicesSql.Infrastructure.Email.Models;
 
-namespace Api.Controllers
+namespace Api.Sql.Controllers
 {
     public class AccountController : BaseController
     {
@@ -65,6 +71,7 @@ namespace Api.Controllers
             }
 
             await _userService.SignInAsync(user.Id);
+            await _authService.SetTokensAsync(user.Id);
 
             return Ok(_mapper.Map<UserViewModel>(user));
         }
@@ -109,6 +116,7 @@ namespace Api.Controllers
             }
 
             await _userService.VerifyEmailAsync(user.Id);
+            await _authService.SetTokensAsync(user.Id);
 
             return Redirect(_appSettings.WebUrl);
         }
@@ -125,7 +133,7 @@ namespace Api.Controllers
 
             var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
 
-            _emailService.SendForgotPassword(new Services.Infrastructure.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new Common.ServicesSql.Infrastructure.Email.Models.ForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
@@ -171,7 +179,15 @@ namespace Api.Controllers
         {
             var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
 
-            var token = await _tokenService.FindByValueAsync(refreshToken);
+            var token = await _tokenService.FindOneAsync(new TokenFilter
+            {
+                Value = refreshToken,
+                IncludeProperties = new List<Expression<Func<Token, object>>>
+                {
+                    x => x.User
+                }
+            });
+
             if (token == null || token.IsExpired())
             {
                 return Unauthorized();
@@ -210,7 +226,30 @@ namespace Api.Controllers
                 return NotFound();
             }
 
-            await _userService.SignInGoogleWithCodeAsync(payload);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                Email = payload.Email,
+                IncludeProperties = new List<Expression<Func<User, object>>>
+                {
+                    x => x.Tokens
+                }
+            });
+
+            if (user == null)
+            {
+                user = await _userService.CreateUserAccountAsync(new CreateUserGoogleModel
+                {
+                    FirstName = payload.GivenName,
+                    LastName = payload.FamilyName,
+                    Email = payload.Email
+                });
+            }
+            else if (!user.OAuthGoogle)
+            {
+                await _userService.EnableGoogleAuthAsync(user);
+            }
+
+            _authService.SetTokens(user);
 
             return Redirect(_appSettings.WebUrl);
         }

@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Api.Services.Infrastructure.Models;
-using Api.Settings;
+using Api.Sql.Services.Interfaces;
+using Api.Sql.Services.Models;
+using Api.Sql.Settings;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.Extensions.Options;
 
-namespace Api.Services.Infrastructure
+namespace Api.Sql.Services
 {
     public class GoogleService : IGoogleService
     {
@@ -37,7 +38,7 @@ namespace Api.Services.Infrastructure
             var payload = await GoogleJsonWebSignature.ValidateAsync(tokenResponse.IdToken,
                 new GoogleJsonWebSignature.ValidationSettings
                 {
-                    Audience = new List<string> {_googleSettings.ClientId}
+                    Audience = new List<string> { _googleSettings.ClientId }
                 });
 
             return payload != null

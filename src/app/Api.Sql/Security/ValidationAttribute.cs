@@ -1,8 +1,8 @@
-﻿using Api.Utils;
+﻿using Api.Sql.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Security
+namespace Api.Sql.Security
 {
     public class ValidationAttribute : ActionFilterAttribute
     {

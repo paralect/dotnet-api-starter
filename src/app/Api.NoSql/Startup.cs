@@ -1,5 +1,4 @@
-﻿using Common.Middleware;
-using Common.Settings;
+﻿using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

@@ -1,7 +1,7 @@
 ﻿using Common.Utils;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
+namespace Api.Sql.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -14,7 +14,7 @@ namespace Api.Controllers
                 var currentUserId = User?.Identity?.Name;
                 return currentUserId.HasValue()
                     ? long.Parse(currentUserId)
-                    : (long?)null;
+                    : null;
             }
         }
 

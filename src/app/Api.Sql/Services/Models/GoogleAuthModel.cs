@@ -1,4 +1,4 @@
-﻿namespace Api.Services.Infrastructure.Models
+﻿namespace Api.Sql.Services.Models
 {
     public class GooglePayloadModel
     {

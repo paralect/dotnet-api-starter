@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 
@@ -24,6 +23,8 @@ public interface IRepository<TEntity, in TFilter>
 
     Task InsertAsync(TEntity entity);
     Task InsertManyAsync(IEnumerable<TEntity> entities);
+
+    Task UpdateOneAsync(TEntity entity);
 
     //Task UpdateOneAsync<TField>(string id, Expression<Func<TEntity, TField>> fieldSelector, TField value);
     //Task UpdateOneAsync(string id, IUpdateOperator<TEntity> update);

@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Common.Middleware;
+using Microsoft.AspNetCore.Builder;
 
-namespace Common.Middleware;
+namespace Common.Utils;
 
 public static class MiddlewareExtensions
 {

@@ -2,16 +2,16 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Models;
-using Api.Models.User;
-using Api.Services.Domain;
+using Api.Sql.Models;
+using Api.Sql.Models.User;
 using AutoMapper;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
+using Common.ServicesSql.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
+namespace Api.Sql.Controllers
 {
     [Security.Authorize]
     public class UsersController : BaseController

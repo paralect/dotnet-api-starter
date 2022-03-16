@@ -2,7 +2,7 @@
 using System.Linq;
 using Common.Utils;
 
-namespace Api.Utils
+namespace Api.Sql.Utils
 {
     public static class ModelStateExtensions
     {

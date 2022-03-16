@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Api.Mapping;
-using Api.Services.Infrastructure;
-using Api.Settings;
-using Api.Utils;
+using Api.Sql.Mapping;
+using Api.Sql.Services.Interfaces;
+using Api.Sql.Settings;
+using Api.Sql.Utils;
 using Common.DalSql;
 using Common.DalSql.Repositories;
-using Common.Middleware;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -16,9 +15,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using ValidationAttribute = Api.Security.ValidationAttribute;
+using ValidationAttribute = Api.Sql.Security.ValidationAttribute;
 
-namespace Api
+namespace Api.Sql
 {
     public class Startup
     {

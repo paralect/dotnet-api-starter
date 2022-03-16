@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Security
+namespace Api.Sql.Security
 {
     public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {

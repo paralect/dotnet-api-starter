@@ -1,4 +1,4 @@
-﻿namespace Api.Models.Account
+﻿namespace Api.Sql.Models.Account
 {
     public class SignInGoogleModel
     {
