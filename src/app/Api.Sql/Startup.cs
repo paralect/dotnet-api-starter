@@ -5,7 +5,7 @@ using Api.Sql.Services.Interfaces;
 using Api.Sql.Settings;
 using Api.Sql.Utils;
 using Common.DalSql;
-using Common.DalSql.Repositories;
+using Common.DalSql.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;

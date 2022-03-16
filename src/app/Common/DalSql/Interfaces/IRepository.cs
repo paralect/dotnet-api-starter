@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 
-namespace Common.DalSql.Repositories;
+namespace Common.DalSql.Interfaces;
 
 public interface IRepository<TEntity, in TFilter>
     where TEntity : BaseEntity

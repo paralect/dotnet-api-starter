@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
-using Common.DalSql.Repositories;
+using Common.DalSql.Interfaces;
 using Common.ServicesSql.Domain.Interfaces;
 
 namespace Common.ServicesSql.Domain

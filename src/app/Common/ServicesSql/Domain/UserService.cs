@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
-using Common.DalSql.Repositories;
 using Common.Utils;
 using Common.ServicesSql.Domain.Interfaces;
 using Common.ServicesSql.Domain.Models;
 using Common.ServicesSql.Infrastructure.Interfaces;
 using Common.ServicesSql.Infrastructure.Email.Models;
+using Common.DalSql.Interfaces;
 
 namespace Common.ServicesSql.Domain
 {

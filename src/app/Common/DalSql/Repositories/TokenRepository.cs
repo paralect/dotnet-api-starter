@@ -1,5 +1,6 @@
 ﻿using Common.DalSql.Entities;
 using Common.DalSql.Filters;
+using Common.DalSql.Interfaces;
 
 namespace Common.DalSql.Repositories;
 

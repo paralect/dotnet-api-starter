@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
+using Common.DalSql.Interfaces;
 using Common.Utils;
 using Microsoft.EntityFrameworkCore;
 

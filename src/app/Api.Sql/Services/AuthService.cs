@@ -6,7 +6,7 @@ using Api.Sql.Services.Interfaces;
 using Common;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
-using Common.DalSql.Repositories;
+using Common.DalSql.Interfaces;
 using Common.Enums;
 using Common.Settings;
 using Common.Utils;
