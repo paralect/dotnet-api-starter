@@ -62,12 +62,12 @@ namespace SignalR
 
         private void ConfigureDi(IServiceCollection services)
         {
-            // replace with simpler version, if MongoDB DAL is removed from the solution:
+            // replace with simpler version, if SQL DAL is removed from the solution:
             // services.AddTransientByConvention(
             //     typeof(IRepository<,>),
             //     t => t.Name.EndsWith("Repository")
             // );
-               
+
             // services.AddTransientByConvention(
             //     typeof(IUserService),
             //     t => t.Name.EndsWith("Service")
@@ -75,14 +75,14 @@ namespace SignalR
 
             services.AddTransientByConvention(
                 new List<Type> { typeof(IRepository<,>) },
-                t => t.Namespace.StartsWith("Common.Dal."),
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository"),
                 t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository")
             );
 
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.Dal."),
-                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Service")
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
             );
 
             services.AddTransient<IDbContext, DbContext>();

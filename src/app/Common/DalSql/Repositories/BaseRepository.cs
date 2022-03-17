@@ -37,7 +37,7 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
 
     public async Task<TEntity> FindOneAsync(TFilter filter)
     {
-        return await ConstructQuery(filter).FirstOrDefaultAsync();
+        return await BuildFilterQuery(filter, false).FirstOrDefaultAsync();
     }
 
     public async Task<Page<TResultModel>> FindPageAsync<TResultModel>(
@@ -47,7 +47,7 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
         int pageSize,
         Expression<Func<TEntity, TResultModel>> map)
     {
-        var query = ConstructQuery(filter);
+        var query = BuildFilterQuery(filter, false);
         var count = await query.CountAsync();
 
         IEnumerable<TResultModel> items;
@@ -77,12 +77,19 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
 
     public async Task InsertAsync(TEntity entity)
     {
+        AddCreatedOn(entity);
+
         table.Add(entity);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task InsertManyAsync(IEnumerable<TEntity> entities)
     {
+        foreach (var entity in entities)
+        {
+            AddCreatedOn(entity);
+        }
+
         table.AddRange(entities);
         await dbContext.SaveChangesAsync();
     }
@@ -95,12 +102,12 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
 
     public async Task DeleteManyAsync(TFilter filter)
     {
-        var entities = ConstructQuery(filter);
-        table.RemoveRange(entities);
+        var query = BuildFilterQuery(filter);
+        table.RemoveRange(query);
         await dbContext.SaveChangesAsync();
     }
 
-    private IQueryable<TEntity> ConstructQuery(BaseFilter<TEntity> filter)
+    private IQueryable<TEntity> BuildFilterQuery(BaseFilter<TEntity> filter, bool isEmptyFilterCheckEnabled = true)
     {
         var query = table.AsQueryable();
         if (filter.AsNoTracking)
@@ -112,6 +119,11 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
         if (filter.Id.HasValue)
         {
             predicates.Add(entity => entity.Id == filter.Id);
+        }
+
+        if (isEmptyFilterCheckEnabled && !predicates.Any() && !filter.IsEmptyFilterAllowed)
+        {
+            throw new ApplicationException("Empty filter is not allowed");
         }
 
         if (predicates.Any())
@@ -128,5 +140,10 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
         }
 
         return query;
+    }
+
+    private void AddCreatedOn(TEntity entity)
+    {
+        entity.CreatedOn = DateTime.UtcNow;
     }
 }

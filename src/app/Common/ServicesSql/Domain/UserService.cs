@@ -8,6 +8,7 @@ using Common.ServicesSql.Domain.Models;
 using Common.ServicesSql.Infrastructure.Interfaces;
 using Common.ServicesSql.Infrastructure.Email.Models;
 using Common.DalSql.Interfaces;
+using Common.Enums;
 
 namespace Common.ServicesSql.Domain;
 
@@ -66,13 +67,13 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
 
         var user = new User
         {
+            Role = UserRole.User,
             FirstName = model.FirstName,
             LastName = model.LastName,
             PasswordHash = model.Password.GetHash(),
             Email = model.Email,
             IsEmailVerified = false,
-            SignupToken = signUpToken,
-            CreatedOn = DateTime.UtcNow // TODO do in repository
+            SignupToken = signUpToken
         };
 
         await _userRepository.InsertAsync(user);
@@ -82,6 +83,23 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
             Email = model.Email,
             SignUpToken = signUpToken
         });
+
+        return user;
+    }
+
+    public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
+    {
+        var user = new User
+        {
+            Role = UserRole.User,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Email = model.Email,
+            IsEmailVerified = true,
+            OAuthGoogle = true
+        };
+
+        await _userRepository.InsertAsync(user);
 
         return user;
     }
@@ -148,21 +166,5 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
         user.LastName = lastName;
 
         await _userRepository.UpdateOneAsync(user);
-    }
-
-    public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
-    {
-        var user = new User
-        {
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Email = model.Email,
-            IsEmailVerified = true,
-            OAuthGoogle = true
-        };
-
-        await _userRepository.InsertAsync(user);
-
-        return user;
     }
 }

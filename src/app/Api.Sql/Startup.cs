@@ -138,10 +138,17 @@ namespace Api.Sql
                 t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository")
             );
 
+            // register services from Api project
             services.AddTransientByConvention(
-                new List<Type> { typeof(IAuthService), typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Service")
+                typeof(IAuthService),
+                t => t.Name.EndsWith("Service")
+            );
+
+            // register services from Common project
+            services.AddTransientByConvention(
+                new List<Type> { typeof(IUserService) },
+                t => t.Namespace.StartsWith("Common.ServicesSql.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.ServicesSql.") && t.Name.EndsWith("Service")
             );
         }
 
