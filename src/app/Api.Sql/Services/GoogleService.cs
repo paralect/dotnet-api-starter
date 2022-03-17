@@ -30,7 +30,7 @@ namespace Api.Sql.Services
             return url;
         }
 
-        public async Task<GooglePayloadModel> ExchangeCodeForTokenAsync(string code)
+        public async Task<GoogleAuthModel> ExchangeCodeForTokenAsync(string code)
         {
             var tokenResponse = await CreateFlow()
                 .ExchangeCodeForTokenAsync(null, code, _googleSettings.RedirectUrl, CancellationToken.None);
@@ -42,7 +42,7 @@ namespace Api.Sql.Services
                 });
 
             return payload != null
-                ? new GooglePayloadModel
+                ? new GoogleAuthModel
                 {
                     Email = payload.Email,
                     FamilyName = payload.FamilyName,

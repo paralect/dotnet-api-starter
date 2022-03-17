@@ -1,9 +1,8 @@
-﻿namespace Common.ServicesSql.Infrastructure.Email.Models
+﻿namespace Common.ServicesSql.Infrastructure.Email.Models;
+
+public class ForgotPasswordModel
 {
-    public class ForgotPasswordModel
-    {
-        public string Email { get; set; }
-        public string ResetPasswordUrl { get; set; }
-        public string FirstName { get; set; }
-    }
+    public string Email { get; set; }
+    public string ResetPasswordUrl { get; set; }
+    public string FirstName { get; set; }
 }

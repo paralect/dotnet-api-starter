@@ -249,7 +249,7 @@ namespace Api.Sql.Controllers
                 await _userService.EnableGoogleAuthAsync(user);
             }
 
-            _authService.SetTokens(user);
+            await _authService.SetTokensAsync(user.Id);
 
             return Redirect(_appSettings.WebUrl);
         }

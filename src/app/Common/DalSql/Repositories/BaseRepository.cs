@@ -50,28 +50,28 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
         var query = ConstructQuery(filter);
         var count = await query.CountAsync();
 
+        IEnumerable<TResultModel> items;
+
         var skip = (pageNumber - 1) * pageSize;
         if (skip >= count)
         {
-            return new Page<TResultModel>
-            {
-                Count = count,
-                Items = Enumerable.Empty<TResultModel>()
-            };
+            items = Enumerable.Empty<TResultModel>();
         }
-
-        var result = await query
-            .Order(sort)
-            .Skip(skip)
-            .Take(pageSize)
-            .Select(map)
-            .ToListAsync();
+        else
+        {
+            items = await query
+                .Order(sort)
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(map)
+                .ToListAsync();
+        }
 
         return new Page<TResultModel>
         {
             TotalPages = (int)Math.Ceiling((float)count / pageSize),
             Count = count,
-            Items = result
+            Items = items
         };
     }
 

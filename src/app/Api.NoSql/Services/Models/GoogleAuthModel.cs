@@ -1,6 +1,6 @@
 ﻿namespace Api.NoSql.Services.Models
 {
-    public class GooglePayloadModel
+    public class GoogleAuthModel
     {
         public string Email { get; set; }
         public string GivenName { get; set; }

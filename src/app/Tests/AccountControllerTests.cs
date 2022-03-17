@@ -495,7 +495,7 @@ namespace Tests
             // Arrange
             var model = new SignInGoogleModel {Code = "test code"};
             _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
-                .ReturnsAsync((GooglePayloadModel)null);
+                .ReturnsAsync((GoogleAuthModel)null);
 
             var controller = CreateInstance();
 
@@ -511,7 +511,7 @@ namespace Tests
         {
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };
-            var payload = new GooglePayloadModel
+            var payload = new GoogleAuthModel
             {
                 Email = "test@test.com",
                 GivenName = "Test",
@@ -546,7 +546,7 @@ namespace Tests
         {
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };
-            var payload = new GooglePayloadModel
+            var payload = new GoogleAuthModel
             {
                 Email = "test@test.com",
                 GivenName = "Test",
@@ -586,7 +586,7 @@ namespace Tests
         {
             // Arrange
             var model = new SignInGoogleModel { Code = "test code" };
-            var payload = new GooglePayloadModel
+            var payload = new GoogleAuthModel
             {
                 Email = "test@test.com",
                 GivenName = "Test",

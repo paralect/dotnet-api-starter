@@ -6,6 +6,6 @@ namespace Api.Sql.Services.Interfaces
     public interface IGoogleService
     {
         string GetOAuthUrl();
-        Task<GooglePayloadModel> ExchangeCodeForTokenAsync(string code);
+        Task<GoogleAuthModel> ExchangeCodeForTokenAsync(string code);
     }
 }

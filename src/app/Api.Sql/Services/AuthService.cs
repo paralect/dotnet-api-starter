@@ -43,16 +43,6 @@ namespace Api.Sql.Services
             SetCookies(tokens);
         }
 
-        public void SetTokens(User user)
-        {
-            var tokens = GenerateTokens(user.Id);
-
-            var newTokens = user.Tokens.Concat(tokens);
-            user.Tokens = newTokens.ToList();
-
-            SetCookies(tokens);
-        }
-
         public async Task UnsetTokensAsync(long userId)
         {
             await _tokenRepository.DeleteManyAsync(new TokenFilter

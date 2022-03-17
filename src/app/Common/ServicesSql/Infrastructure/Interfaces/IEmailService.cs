@@ -1,10 +1,9 @@
 ﻿using Common.ServicesSql.Infrastructure.Email.Models;
 
-namespace Common.ServicesSql.Infrastructure.Interfaces
+namespace Common.ServicesSql.Infrastructure.Interfaces;
+
+public interface IEmailService
 {
-    public interface IEmailService
-    {
-        void SendSignUpWelcome(SignUpWelcomeModel model);
-        void SendForgotPassword(ForgotPasswordModel model);
-    }
+    void SendSignUpWelcome(SignUpWelcomeModel model);
+    void SendForgotPassword(ForgotPasswordModel model);
 }

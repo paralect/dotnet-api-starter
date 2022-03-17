@@ -116,14 +116,27 @@ namespace Api.NoSql
 
         private void ConfigureDI(IServiceCollection services)
         {
+            // replace with simpler version, if MongoDB DAL is removed from the solution:
+            // services.AddTransientByConvention(
+            //     typeof(IRepository<,>),
+            //     t => t.Name.EndsWith("Repository")
+            // );
+
+            // services.AddTransientByConvention(
+            //      new List<Type> { typeof(IAuthService), typeof(IUserService) },
+            //     t => t.Name.EndsWith("Service")
+            // );
+
             services.AddTransientByConvention(
-                typeof(IRepository<,>),
-                t => t.Name.EndsWith("Repository")
+                new List<Type> { typeof(IRepository<,>) },
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository"),
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository")
             );
 
             services.AddTransientByConvention(
-                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
-                t => t.Name.EndsWith("Service")
+                new List<Type> { typeof(IAuthService), typeof(IUserService) },
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
             );
 
             services.AddTransient<IDbContext, DbContext>();

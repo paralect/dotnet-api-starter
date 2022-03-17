@@ -26,13 +26,5 @@ public interface IRepository<TEntity, in TFilter>
 
     Task UpdateOneAsync(TEntity entity);
 
-    //Task UpdateOneAsync<TField>(string id, Expression<Func<TEntity, TField>> fieldSelector, TField value);
-    //Task UpdateOneAsync(string id, IUpdateOperator<TEntity> update);
-    //Task UpdateOneAsync(string id, IEnumerable<IUpdateOperator<TEntity>> updates);
-
-    //Task ReplaceOneAsync(string id, Action<TEntity> updater);
-    //Task ReplaceOneAsync(TEntity document, Action<TEntity> updater);
-    //Task ReplaceOneAsync(TEntity document);
-
     Task DeleteManyAsync(TFilter filter);
 }

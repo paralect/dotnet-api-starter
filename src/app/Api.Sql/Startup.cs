@@ -6,6 +6,7 @@ using Api.Sql.Settings;
 using Api.Sql.Utils;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
+using Common.ServicesSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -126,15 +127,21 @@ namespace Api.Sql
             //     t => t.Name.EndsWith("Repository")
             // );
 
+            // services.AddTransientByConvention(
+            //      new List<Type> { typeof(IAuthService), typeof(IUserService) },
+            //     t => t.Name.EndsWith("Service")
+            // );
+
             services.AddTransientByConvention(
                 new List<Type> { typeof(IRepository<,>) },
-                t => t.Namespace.StartsWith("Common.DalSql."),
+                t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository"),
                 t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository")
             );
 
             services.AddTransientByConvention(
-                typeof(IAuthService),
-                t => t.Name.EndsWith("Service")
+                new List<Type> { typeof(IAuthService), typeof(IUserService) },
+                t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Service")
             );
         }
 

@@ -9,161 +9,160 @@ using Common.ServicesSql.Infrastructure.Interfaces;
 using Common.ServicesSql.Infrastructure.Email.Models;
 using Common.DalSql.Interfaces;
 
-namespace Common.ServicesSql.Domain
+namespace Common.ServicesSql.Domain;
+
+public class UserService : BaseEntityService<User, UserFilter>, IUserService
 {
-    public class UserService : BaseEntityService<User, UserFilter>, IUserService
+    private readonly IEmailService _emailService;
+    private readonly IUserRepository _userRepository;
+
+    public UserService(
+        IEmailService emailService,
+        IUserRepository userRepository) : base(userRepository)
     {
-        private readonly IEmailService _emailService;
-        private readonly IUserRepository _userRepository;
+        _emailService = emailService;
+        _userRepository = userRepository;
+    }
 
-        public UserService(
-            IEmailService emailService,
-            IUserRepository userRepository): base(userRepository)
+    public async Task<User> FindByEmailAsync(string email)
+    {
+        return await FindOneAsync(new UserFilter
         {
-            _emailService = emailService;
-            _userRepository = userRepository;
-        }
+            Email = email
+        });
+    }
 
-        public async Task<User> FindByEmailAsync(string email)
+    public async Task<User> FindBySignupTokenAsync(string token)
+    {
+        return await FindOneAsync(new UserFilter
         {
-            return await FindOneAsync(new UserFilter
-            {
-                Email = email
-            });
-        }
+            SignupToken = token
+        });
+    }
 
-        public async Task<User> FindBySignupTokenAsync(string token)
+    public async Task<User> FindByResetPasswordTokenAsync(string token)
+    {
+        return await FindOneAsync(new UserFilter
         {
-            return await FindOneAsync(new UserFilter
-            {
-                SignupToken = token
-            });
-        }
+            ResetPasswordToken = token
+        });
+    }
 
-        public async Task<User> FindByResetPasswordTokenAsync(string token)
+    public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
+    {
+        var user = await FindOneAsync(new UserFilter
         {
-            return await FindOneAsync(new UserFilter
-            {
-                ResetPasswordToken = token
-            });
-        }
+            IdToExclude = userIdToExclude,
+            Email = email,
+            AsNoTracking = true
+        });
 
-        public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
+        return user != null;
+    }
+
+    public async Task<User> CreateUserAccountAsync(CreateUserModel model)
+    {
+        var signUpToken = SecurityUtils.GenerateSecureToken();
+
+        var user = new User
         {
-            var user = await FindOneAsync(new UserFilter
-            {
-                IdToExclude = userIdToExclude,
-                Email = email,
-                AsNoTracking = true
-            });
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            PasswordHash = model.Password.GetHash(),
+            Email = model.Email,
+            IsEmailVerified = false,
+            SignupToken = signUpToken,
+            CreatedOn = DateTime.UtcNow // TODO do in repository
+        };
 
-            return user != null;
-        }
+        await _userRepository.InsertAsync(user);
 
-        public async Task<User> CreateUserAccountAsync(CreateUserModel model)
+        _emailService.SendSignUpWelcome(new SignUpWelcomeModel
         {
-            var signUpToken = SecurityUtils.GenerateSecureToken();
+            Email = model.Email,
+            SignUpToken = signUpToken
+        });
 
-            var user = new User
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                PasswordHash = model.Password.GetHash(),
-                Email = model.Email,
-                IsEmailVerified = false,
-                SignupToken = signUpToken,
-                CreatedOn = DateTime.UtcNow // TODO do in repository
-            };
+        return user;
+    }
 
-            await _userRepository.InsertAsync(user);
+    public async Task VerifyEmailAsync(long id)
+    {
+        var user = await _userRepository.FindById(id);
+        user.IsEmailVerified = true;
+        user.LastRequest = DateTime.UtcNow;
 
-            _emailService.SendSignUpWelcome(new SignUpWelcomeModel
-            {
-                Email = model.Email,
-                SignUpToken = signUpToken
-            });
+        await _userRepository.UpdateOneAsync(user);
+    }
 
-            return user;
-        }
+    public async Task EnableGoogleAuthAsync(User user)
+    {
+        user.OAuthGoogle = true;
+        user.LastRequest = DateTime.UtcNow;
 
-        public async Task VerifyEmailAsync(long id)
+        await _userRepository.UpdateOneAsync(user);
+    }
+
+    public async Task SignInAsync(long id)
+    {
+        var user = await _userRepository.FindById(id);
+        user.LastRequest = DateTime.UtcNow;
+
+        await _userRepository.UpdateOneAsync(user);
+    }
+
+    public async Task UpdateResetPasswordTokenAsync(long id, string token)
+    {
+        var user = await _userRepository.FindById(id);
+        user.ResetPasswordToken = token;
+
+        await _userRepository.UpdateOneAsync(user);
+    }
+
+    public async Task<string> SetResetPasswordTokenAsync(long id)
+    {
+        var user = await _userRepository.FindById(id);
+        if (user.ResetPasswordToken.HasNoValue())
         {
-            var user = await _userRepository.FindById(id);
-            user.IsEmailVerified = true;
-            user.LastRequest = DateTime.UtcNow;
-
+            user.ResetPasswordToken = SecurityUtils.GenerateSecureToken();
             await _userRepository.UpdateOneAsync(user);
         }
 
-        public async Task EnableGoogleAuthAsync(User user)
+        return user.ResetPasswordToken;
+    }
+
+    public async Task UpdatePasswordAsync(long id, string newPassword)
+    {
+        var user = await _userRepository.FindById(id);
+        user.PasswordHash = newPassword.GetHash();
+        user.ResetPasswordToken = string.Empty;
+
+        await _userRepository.UpdateOneAsync(user);
+    }
+
+    public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
+    {
+        var user = await _userRepository.FindById(id);
+        user.Email = email;
+        user.FirstName = firstName;
+        user.LastName = lastName;
+
+        await _userRepository.UpdateOneAsync(user);
+    }
+
+    public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
+    {
+        var user = new User
         {
-            user.OAuthGoogle = true;
-            user.LastRequest = DateTime.UtcNow;
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            Email = model.Email,
+            IsEmailVerified = true,
+            OAuthGoogle = true
+        };
 
-            await _userRepository.UpdateOneAsync(user);
-        }
+        await _userRepository.InsertAsync(user);
 
-        public async Task SignInAsync(long id)
-        {
-            var user = await _userRepository.FindById(id);
-            user.LastRequest = DateTime.UtcNow;
-
-            await _userRepository.UpdateOneAsync(user);
-        }
-
-        public async Task UpdateResetPasswordTokenAsync(long id, string token)
-        {
-            var user = await _userRepository.FindById(id);
-            user.ResetPasswordToken = token;
-
-            await _userRepository.UpdateOneAsync(user);
-        }
-
-        public async Task<string> SetResetPasswordTokenAsync(long id)
-        {
-            var user = await _userRepository.FindById(id);
-            if (user.ResetPasswordToken.HasNoValue())
-            {
-                user.ResetPasswordToken = SecurityUtils.GenerateSecureToken();
-                await _userRepository.UpdateOneAsync(user);
-            }
-
-            return user.ResetPasswordToken;
-        }
-
-        public async Task UpdatePasswordAsync(long id, string newPassword)
-        {
-            var user = await _userRepository.FindById(id);
-            user.PasswordHash = newPassword.GetHash();
-            user.ResetPasswordToken = string.Empty;
-
-            await _userRepository.UpdateOneAsync(user);
-        }
-
-        public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
-        {
-            var user = await _userRepository.FindById(id);
-            user.Email = email;
-            user.FirstName = firstName;
-            user.LastName = lastName;
-
-            await _userRepository.UpdateOneAsync(user);
-        }
-
-        public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
-        {
-            var user = new User
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                IsEmailVerified = true,
-                OAuthGoogle = true
-            };
-
-            await _userRepository.InsertAsync(user);
-
-            return user;
-        }
+        return user;
     }
 }
