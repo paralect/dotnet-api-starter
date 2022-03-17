@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Common.DalSql.Entities;
 using Common.Enums;
 
 namespace Common.DalSql.Entities;
@@ -23,7 +22,6 @@ public class User : BaseEntity
     public string SignupToken { get; set; }
     public DateTime LastRequest { get; set; }
     public string ResetPasswordToken { get; set; }
-    public bool OAuthGoogle { get; set; }
 
     public ICollection<Token> Tokens { get; set; }
 }

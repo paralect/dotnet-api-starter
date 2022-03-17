@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Api.Sql.Mapping;
 using Api.Sql.Services.Interfaces;
-using Api.Sql.Settings;
 using Api.Sql.Utils;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
@@ -115,7 +114,6 @@ namespace Api.Sql
         {
             services.Configure<DbSettings>(options => { _configuration.GetSection("DBSql").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
-            services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 

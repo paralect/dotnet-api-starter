@@ -13,10 +13,8 @@ public interface IUserService : IEntityService<User, UserFilter>
     Task<bool> IsEmailInUseAsync(long idToExclude, string email);
 
     Task<User> CreateUserAccountAsync(CreateUserModel model);
-    Task<User> CreateUserAccountAsync(CreateUserGoogleModel model);
 
     Task VerifyEmailAsync(long id);
-    Task EnableGoogleAuthAsync(User user);
     Task SignInAsync(long id);
     Task UpdateResetPasswordTokenAsync(long id, string token);
     Task UpdatePasswordAsync(long id, string newPassword);

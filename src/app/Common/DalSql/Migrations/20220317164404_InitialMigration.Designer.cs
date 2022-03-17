@@ -12,14 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Common.DalSql.Migrations
 {
     [DbContext(typeof(ShipDbContext))]
-    [Migration("20220307151120_AddUserRole")]
-    partial class AddUserRole
+    [Migration("20220317164404_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -83,9 +83,6 @@ namespace Common.DalSql.Migrations
 
                     b.Property<DateTime>("LastRequest")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("OAuthGoogle")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

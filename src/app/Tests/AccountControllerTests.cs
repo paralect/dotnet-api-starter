@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Api.NoSql.Controllers;
 using Api.NoSql.Models.Account;
 using Api.NoSql.Services.Interfaces;
-using Api.NoSql.Services.Models;
 using AutoMapper;
 using Common;
 using Common.Dal.Documents.Token;
@@ -34,7 +33,6 @@ namespace Tests
         private readonly Mock<IAuthService> _authService;
         private readonly Mock<IWebHostEnvironment> _environment;
         private readonly Mock<IOptions<AppSettings>> _appSettingsOptions;
-        private readonly Mock<IGoogleService> _googleService;
         private readonly Mock<IMapper> _mapper;
         private readonly AppSettings _appSettings;
 
@@ -46,7 +44,6 @@ namespace Tests
             _authService = new Mock<IAuthService>();
             _environment = new Mock<IWebHostEnvironment>();
             _appSettingsOptions = new Mock<IOptions<AppSettings>>();
-            _googleService = new Mock<IGoogleService>();
             _mapper = new Mock<IMapper>();
 
             _appSettings = new AppSettings
@@ -471,156 +468,6 @@ namespace Tests
             Assert.IsType<OkResult>(result);
         }
 
-        [Fact]
-        public void GetOAuthUrlShouldReturnRedirect()
-        {
-            // Arrange
-            var url = "test.test";
-
-            _googleService.Setup(service => service.GetOAuthUrl())
-                .Returns(url);
-
-            var controller = CreateInstance();
-
-            // Act
-            var result = controller.GetOAuthUrl();
-
-            // Assert
-            Assert.True(result is RedirectResult redirectResult && redirectResult.Url == url);
-        }
-
-        [Fact]
-        public async Task SignInGoogleWithCodeShouldReturnNotFoundWhenPayloadIsNull()
-        {
-            // Arrange
-            var model = new SignInGoogleModel {Code = "test code"};
-            _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
-                .ReturnsAsync((GoogleAuthModel)null);
-
-            var controller = CreateInstance();
-
-            // Act
-            var result = await controller.SignInGoogleWithCodeAsync(model);
-
-            // Assert
-            Assert.IsType<NotFoundResult>(result);
-        }
-
-        [Fact]
-        public async Task SignInGoogleWithCodeShouldCreateUserWhenItDoesNotExist()
-        {
-            // Arrange
-            var model = new SignInGoogleModel { Code = "test code" };
-            var payload = new GoogleAuthModel
-            {
-                Email = "test@test.com",
-                GivenName = "Test",
-                FamilyName = "Tester"
-            };
-
-            _userService.Setup(service => service.FindByEmailAsync(payload.Email))
-                .ReturnsAsync((User)null);
-
-            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserGoogleModel>()))
-                .ReturnsAsync(new User());
-
-            _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
-                .ReturnsAsync(payload);
-
-            var controller = CreateInstance();
-
-            // Act
-            await controller.SignInGoogleWithCodeAsync(model);
-
-            // Assert
-            _userService.Verify(service => service.CreateUserAccountAsync(
-                It.Is<CreateUserGoogleModel>(m => m.Email == payload.Email &&  m.FirstName == payload.GivenName && m.LastName == payload.FamilyName)),
-                Times.Once
-            );
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task SignInGoogleWithCodeShouldShouldEnableGoogleAuthWhenItDoesNotEnabled(bool isEnabled)
-        {
-            // Arrange
-            var model = new SignInGoogleModel { Code = "test code" };
-            var payload = new GoogleAuthModel
-            {
-                Email = "test@test.com",
-                GivenName = "Test",
-                FamilyName = "Tester"
-            };
-            var user = new User
-            {
-                Id = "test id",
-                Email = payload.Email,
-                OAuth = new User.OAuthSettings
-                {
-                    Google = isEnabled
-                }
-            };
-
-            _userService.Setup(service => service.FindByEmailAsync(payload.Email))
-                .ReturnsAsync(user);
-
-            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserGoogleModel>()))
-                .ReturnsAsync(new User());
-
-            _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
-                .ReturnsAsync(payload);
-
-            var controller = CreateInstance();
-
-            // Act
-            await controller.SignInGoogleWithCodeAsync(model);
-
-            // Assert
-            _userService.Verify(service => service.CreateUserAccountAsync(It.IsAny<CreateUserGoogleModel>()), Times.Never);
-            _userService.Verify(service => service.EnableGoogleAuthAsync(user.Id), isEnabled ? Times.Never() : Times.Once());
-        }
-
-        [Fact]
-        public async Task SignInGoogleWithCodeShouldShouldSetTokenAndReturnRedirect()
-        {
-            // Arrange
-            var model = new SignInGoogleModel { Code = "test code" };
-            var payload = new GoogleAuthModel
-            {
-                Email = "test@test.com",
-                GivenName = "Test",
-                FamilyName = "Tester"
-            };
-            var user = new User
-            {
-                Id = "test id",
-                Email = payload.Email,
-                OAuth = new User.OAuthSettings
-                {
-                    Google = false
-                },
-                Role = UserRole.User
-            };
-
-            _userService.Setup(service => service.FindByEmailAsync(payload.Email))
-                .ReturnsAsync(user);
-
-            _googleService.Setup(service => service.ExchangeCodeForTokenAsync(model.Code))
-                .ReturnsAsync(payload);
-
-
-            var controller = CreateInstance();
-
-            // Act
-            var result = await controller.SignInGoogleWithCodeAsync(model);
-
-            // Assert
-            _userService.Verify(service => service.UpdateLastRequestAsync(user.Id), Times.Once);
-            _authService.Verify(service => service.SetTokensAsync(user.Id, user.Role), Times.Once);
-            Assert.True(result is RedirectResult redirectResult && redirectResult.Url == _appSettings.WebUrl);
-        }
-
         private AccountController CreateInstance()
         {
             _appSettingsOptions.Setup(options => options.Value)
@@ -631,7 +478,6 @@ namespace Tests
                 _userService.Object,
                 _tokenService.Object,
                 _authService.Object,
-                _googleService.Object,
                 _environment.Object,
                 _appSettingsOptions.Object,
                 _mapper.Object);

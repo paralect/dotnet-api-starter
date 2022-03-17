@@ -87,35 +87,10 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
         return user;
     }
 
-    public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
-    {
-        var user = new User
-        {
-            Role = UserRole.User,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Email = model.Email,
-            IsEmailVerified = true,
-            OAuthGoogle = true
-        };
-
-        await _userRepository.InsertAsync(user);
-
-        return user;
-    }
-
     public async Task VerifyEmailAsync(long id)
     {
         var user = await _userRepository.FindById(id);
         user.IsEmailVerified = true;
-        user.LastRequest = DateTime.UtcNow;
-
-        await _userRepository.UpdateOneAsync(user);
-    }
-
-    public async Task EnableGoogleAuthAsync(User user)
-    {
-        user.OAuthGoogle = true;
         user.LastRequest = DateTime.UtcNow;
 
         await _userRepository.UpdateOneAsync(user);

@@ -26,7 +26,6 @@ namespace Api.NoSql.Controllers
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
         private readonly IAuthService _authService;
-        private readonly IGoogleService _googleService;
 
         private readonly IWebHostEnvironment _environment;
         private readonly AppSettings _appSettings;
@@ -37,7 +36,6 @@ namespace Api.NoSql.Controllers
             IUserService userService,
             ITokenService tokenService,
             IAuthService authService,
-            IGoogleService googleService,
             IWebHostEnvironment environment,
             IOptions<AppSettings> appSettings,
             IMapper mapper)
@@ -46,7 +44,6 @@ namespace Api.NoSql.Controllers
             _userService = userService;
             _tokenService = tokenService;
             _authService = authService;
-            _googleService = googleService;
 
             _environment = environment;
             _appSettings = appSettings.Value;
@@ -207,46 +204,6 @@ namespace Api.NoSql.Controllers
             }
 
             return Ok();
-        }
-
-        [HttpGet("signin/google/auth")]
-        public IActionResult GetOAuthUrl()
-        {
-            var url = _googleService.GetOAuthUrl();
-
-            return Redirect(url);
-        }
-
-        [HttpGet("signin/google")]
-        public async Task<IActionResult> SignInGoogleWithCodeAsync([FromQuery] SignInGoogleModel model)
-        {
-            var payload = await _googleService.ExchangeCodeForTokenAsync(model.Code);
-            if (payload == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _userService.FindByEmailAsync(payload.Email);
-            if (user == null)
-            {
-                user = await _userService.CreateUserAccountAsync(new CreateUserGoogleModel
-                {
-                    Email = payload.Email,
-                    FirstName = payload.GivenName,
-                    LastName = payload.FamilyName
-                });
-            }
-            else if (!user.OAuth.Google)
-            {
-                await _userService.EnableGoogleAuthAsync(user.Id);
-            }
-
-            await Task.WhenAll(
-                _userService.UpdateLastRequestAsync(user.Id),
-                _authService.SetTokensAsync(user.Id, user.Role)
-            );
-
-            return Redirect(_appSettings.WebUrl);
         }
     }
 }

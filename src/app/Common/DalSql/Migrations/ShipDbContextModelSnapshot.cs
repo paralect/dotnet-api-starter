@@ -17,7 +17,7 @@ namespace Common.DalSql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -81,9 +81,6 @@ namespace Common.DalSql.Migrations
 
                     b.Property<DateTime>("LastRequest")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("OAuthGoogle")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

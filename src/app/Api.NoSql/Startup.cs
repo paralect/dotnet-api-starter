@@ -13,7 +13,6 @@ using Common.Dal.Interfaces;
 using Common.Dal;
 using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Utils;
-using Api.NoSql.Settings;
 using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
@@ -110,7 +109,6 @@ namespace Api.NoSql
         {
             services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
-            services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 
