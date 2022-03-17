@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.DalSql.Entities;
-using Common.DalSql.Filters;
 using Common.Enums;
 using Common.ServicesSql.Domain.Interfaces;
 using Common.Utils;
@@ -36,15 +32,7 @@ public class TokenAuthenticationMiddlewareSql
 
         if (accessToken.HasValue())
         {
-            var token = await tokenService.FindOneAsync(new TokenFilter
-            {
-                Value = accessToken,
-                AsNoTracking = true,
-                IncludeProperties = new List<Expression<Func<Token, object>>>
-                {
-                    x => x.User
-                }
-            });
+            var token = await tokenService.FindUserTokenByValueAsync(accessToken);
 
             if (token != null && !token.IsExpired())
             {
@@ -52,7 +40,7 @@ public class TokenAuthenticationMiddlewareSql
                     new GenericIdentity(token.UserId.ToString()),
                     new string[]
                     {
-                        Enum.GetName(typeof(UserRole), token.User.Role)
+                        Enum.GetName(typeof(UserRole), token.UserRole)
                     }
                 );
 
