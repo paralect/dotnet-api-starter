@@ -3,11 +3,11 @@
     "AccessTokenExpiresInHours": 1,
     "RefreshTokenExpiresInHours": 10
   },
-  "DB": {
+  "Db": {
     "ConnectionString": "mongodb://localhost:27017",
     "Database": "api-development"
   },
-  "DBSql": {
+  "DbSql": {
     "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd"
   },
   "App": {

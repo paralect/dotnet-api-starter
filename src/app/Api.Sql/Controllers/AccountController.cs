@@ -178,11 +178,7 @@ namespace Api.Sql.Controllers
 
             var token = await _tokenService.FindOneAsync(new TokenFilter
             {
-                Value = refreshToken,
-                IncludeProperties = new List<Expression<Func<Token, object>>>
-                {
-                    x => x.User
-                }
+                Value = refreshToken
             });
 
             if (token == null || token.IsExpired())

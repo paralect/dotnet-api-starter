@@ -35,7 +35,7 @@ namespace Api.Sql
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureSettings(services);
-            ConfigureDI(services);
+            ConfigureDi(services);
             ConfigureDb(services);
 
             services.AddHttpContextAccessor();
@@ -112,12 +112,12 @@ namespace Api.Sql
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("DBSql").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("DbSql").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 
-        private void ConfigureDI(IServiceCollection services)
+        private void ConfigureDi(IServiceCollection services)
         {
             // replace with simpler version, if MongoDB DAL is removed from the solution:
             // services.AddTransientByConvention(
@@ -153,7 +153,7 @@ namespace Api.Sql
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettingsSql();
-            _configuration.GetSection("DBSql").Bind(dbSettings);
+            _configuration.GetSection("DbSql").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }

@@ -36,7 +36,7 @@ namespace Api.NoSql
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureSettings(services);
-            ConfigureDI(services);
+            ConfigureDi(services);
             ConfigureDb(services);
 
             services.AddHttpContextAccessor();
@@ -107,12 +107,12 @@ namespace Api.NoSql
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("Db").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 
-        private void ConfigureDI(IServiceCollection services)
+        private void ConfigureDi(IServiceCollection services)
         {
             // replace with simpler version, if SQL DAL is removed from the solution:
             // services.AddTransientByConvention(
@@ -152,7 +152,7 @@ namespace Api.NoSql
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("DB").Bind(dbSettings);
+            _configuration.GetSection("Db").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }

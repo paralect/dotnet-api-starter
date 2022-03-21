@@ -90,7 +90,7 @@ namespace SignalR
 
             services.AddTransient<IUserHubContext, UserHubContext>();
 
-            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("Db").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }
@@ -98,7 +98,7 @@ namespace SignalR
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("DB").Bind(dbSettings);
+            _configuration.GetSection("Db").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }
