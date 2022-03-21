@@ -89,27 +89,24 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
 
     public async Task VerifyEmailAsync(long id)
     {
-        var user = await _userRepository.FindById(id);
-        user.IsEmailVerified = true;
-        user.LastRequest = DateTime.UtcNow;
-
-        await _userRepository.UpdateOneAsync(user);
+        await _userRepository.UpdateOneAsync(id, x => {
+            x.IsEmailVerified = true;
+            x.LastRequest = DateTime.UtcNow;
+        });
     }
 
     public async Task SignInAsync(long id)
     {
-        var user = await _userRepository.FindById(id);
-        user.LastRequest = DateTime.UtcNow;
-
-        await _userRepository.UpdateOneAsync(user);
+        await _userRepository.UpdateOneAsync(id, x => {
+            x.LastRequest = DateTime.UtcNow;
+        });
     }
 
     public async Task UpdateResetPasswordTokenAsync(long id, string token)
     {
-        var user = await _userRepository.FindById(id);
-        user.ResetPasswordToken = token;
-
-        await _userRepository.UpdateOneAsync(user);
+        await _userRepository.UpdateOneAsync(id, x => {
+            x.ResetPasswordToken = token;
+        });
     }
 
     public async Task<string> SetResetPasswordTokenAsync(long id)
@@ -117,8 +114,10 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
         var user = await _userRepository.FindById(id);
         if (user.ResetPasswordToken.HasNoValue())
         {
-            user.ResetPasswordToken = SecurityUtils.GenerateSecureToken();
-            await _userRepository.UpdateOneAsync(user);
+            await _userRepository.UpdateOneAsync(id, x =>
+            {
+                x.ResetPasswordToken = SecurityUtils.GenerateSecureToken();
+            });
         }
 
         return user.ResetPasswordToken;
@@ -126,20 +125,10 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
 
     public async Task UpdatePasswordAsync(long id, string newPassword)
     {
-        var user = await _userRepository.FindById(id);
-        user.PasswordHash = newPassword.GetHash();
-        user.ResetPasswordToken = string.Empty;
-
-        await _userRepository.UpdateOneAsync(user);
-    }
-
-    public async Task UpdateInfoAsync(long id, string email, string firstName, string lastName)
-    {
-        var user = await _userRepository.FindById(id);
-        user.Email = email;
-        user.FirstName = firstName;
-        user.LastName = lastName;
-
-        await _userRepository.UpdateOneAsync(user);
+        await _userRepository.UpdateOneAsync(id, x =>
+        {
+            x.PasswordHash = newPassword.GetHash();
+            x.ResetPasswordToken = null;
+        });
     }
 }

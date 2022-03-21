@@ -18,6 +18,5 @@ public interface IUserService : IEntityService<User, UserFilter>
     Task SignInAsync(long id);
     Task UpdateResetPasswordTokenAsync(long id, string token);
     Task UpdatePasswordAsync(long id, string newPassword);
-    Task UpdateInfoAsync(long id, string email, string firstName, string lastName);
     Task<string> SetResetPasswordTokenAsync(long id);
 }

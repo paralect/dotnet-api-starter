@@ -94,9 +94,12 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateOneAsync(TEntity entity)
+    public async Task UpdateOneAsync(long id, Action<TEntity> updater)
     {
-        table.Update(entity);
+        var entity = await FindById(id);
+
+        updater(entity);
+
         await dbContext.SaveChangesAsync();
     }
 

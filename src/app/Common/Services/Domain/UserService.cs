@@ -49,7 +49,7 @@ public class UserService : BaseDocumentService<User, UserFilter>, IUserService
     {
         await _userRepository.UpdateOneAsync(id, Updater<User>
             .Set(u => u.PasswordHash, newPassword.GetHash())
-            .Set(u => u.ResetPasswordToken, string.Empty));
+            .Set(u => u.ResetPasswordToken, null));
     }
 
     public async Task<User> CreateUserAccountAsync(CreateUserModel model)

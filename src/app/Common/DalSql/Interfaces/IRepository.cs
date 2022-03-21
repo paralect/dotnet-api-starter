@@ -24,7 +24,7 @@ public interface IRepository<TEntity, in TFilter>
     Task InsertAsync(TEntity entity);
     Task InsertManyAsync(IEnumerable<TEntity> entities);
 
-    Task UpdateOneAsync(TEntity entity);
+    Task UpdateOneAsync(long id, Action<TEntity> updater);
 
     Task DeleteManyAsync(TFilter filter);
 }
