@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Common.Enums;
 using Common.Services.Domain.Interfaces;
 using Common.Utils;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Middleware;
@@ -38,7 +37,13 @@ public class TokenAuthenticationMiddleware
             var token = await _tokenService.FindByValueAsync(accessToken);
             if (token != null && !token.IsExpired())
             {
-                var principal = new Principal(new GenericIdentity(token.UserId), new string[] { Enum.GetName(typeof(UserRole), token.UserRole) });
+                var principal = new Principal(
+                    new GenericIdentity(token.UserId),
+                    new string[]
+                    {
+                        Enum.GetName(typeof(UserRole), token.UserRole)
+                    }
+                );
 
                 Thread.CurrentPrincipal = principal;
                 context.User = principal;
@@ -46,13 +51,5 @@ public class TokenAuthenticationMiddleware
         }
 
         await _next(context);
-    }
-}
-
-public static class TokenAuthenticationMiddlewareExtensions
-{
-    public static IApplicationBuilder UseTokenAuthentication(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<TokenAuthenticationMiddleware>();
     }
 }

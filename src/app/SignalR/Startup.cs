@@ -1,6 +1,5 @@
 using Common.Dal.Interfaces;
 using Common.Dal;
-using Common.Middleware;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +11,8 @@ using SignalR.Hubs;
 using SignalR.Mapping;
 using SignalR.Services;
 using Common.Services.Domain.Interfaces;
+using System.Collections.Generic;
+using System;
 
 namespace SignalR
 {
@@ -61,22 +62,35 @@ namespace SignalR
 
         private void ConfigureDi(IServiceCollection services)
         {
-            services.AddTransientByConvention(
-                typeof(IRepository<,>),
-                t => t.Name.EndsWith("Repository")
-            ); // register repositories
+            // replace with simpler version, if SQL DAL is removed from the solution:
+            // services.AddTransientByConvention(
+            //     typeof(IRepository<,>),
+            //     t => t.Name.EndsWith("Repository")
+            // );
+
+            // services.AddTransientByConvention(
+            //     typeof(IUserService),
+            //     t => t.Name.EndsWith("Service")
+            // );
 
             services.AddTransientByConvention(
-                typeof(ITokenService),
-                t => t.Name.EndsWith("Service")
-            ); // register services
+                new List<Type> { typeof(IRepository<,>) },
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository"),
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository")
+            );
+
+            services.AddTransientByConvention(
+                new List<Type> { typeof(IUserService) },
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
+            );
 
             services.AddTransient<IDbContext, DbContext>();
             services.AddTransient<IIdGenerator, IdGenerator>();
 
             services.AddTransient<IUserHubContext, UserHubContext>();
 
-            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("Db").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
         }
@@ -84,7 +98,7 @@ namespace SignalR
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("DB").Bind(dbSettings);
+            _configuration.GetSection("Db").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }

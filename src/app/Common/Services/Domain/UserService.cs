@@ -49,7 +49,7 @@ public class UserService : BaseDocumentService<User, UserFilter>, IUserService
     {
         await _userRepository.UpdateOneAsync(id, Updater<User>
             .Set(u => u.PasswordHash, newPassword.GetHash())
-            .Set(u => u.ResetPasswordToken, string.Empty));
+            .Set(u => u.ResetPasswordToken, null));
     }
 
     public async Task<User> CreateUserAccountAsync(CreateUserModel model)
@@ -76,30 +76,6 @@ public class UserService : BaseDocumentService<User, UserFilter>, IUserService
         });
 
         return newUser;
-    }
-
-    public async Task<User> CreateUserAccountAsync(CreateUserGoogleModel model)
-    {
-        var newUser = new User
-        {
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Email = model.Email,
-            IsEmailVerified = true,
-            OAuth = new User.OAuthSettings
-            {
-                Google = true
-            }
-        };
-
-        await _userRepository.InsertAsync(newUser);
-
-        return newUser;
-    }
-
-    public async Task EnableGoogleAuthAsync(string id)
-    {
-        await _userRepository.UpdateOneAsync(id, u => u.OAuth.Google, true);
     }
 
     public async Task<bool> IsEmailInUseAsync(string userIdToExclude, string email)

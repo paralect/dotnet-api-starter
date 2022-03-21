@@ -31,27 +31,6 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
         collection = collectionProvider(this.dbContext);
     }
 
-    public async Task InsertAsync(TDocument document)
-    {
-        AddId(document);
-        AddCreatedOn(document);
-
-        await collection.InsertOneAsync(document);
-    }
-
-    public async Task InsertManyAsync(IEnumerable<TDocument> documents)
-    {
-        var documentsToInsert = documents.Select(d =>
-        {
-            AddId(d);
-            AddCreatedOn(d);
-
-            return d;
-        }).ToList();
-
-        await collection.InsertManyAsync(documentsToInsert);
-    }
-
     public async Task<TDocument> FindOneAsync(TFilter filter)
     {
         var result = await collection.FindAsync(BuildFilterQuery(filter, false));
@@ -70,9 +49,23 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
         return await collection.AggregateByPage(filterQuery, sortQuery, page, pageSize);
     }
 
-    public IMongoQueryable<TDocument> GetQueryable()
+    public async Task InsertAsync(TDocument document)
     {
-        return collection.AsQueryable();
+        AddId(document);
+        AddCreatedOn(document);
+
+        await collection.InsertOneAsync(document);
+    }
+
+    public async Task InsertManyAsync(IEnumerable<TDocument> documents)
+    {
+        foreach (var document in documents)
+        {
+            AddId(document);
+            AddCreatedOn(document);
+        }
+
+        await collection.InsertManyAsync(documents);
     }
 
     public async Task UpdateOneAsync<TField>(string id, Expression<Func<TDocument, TField>> fieldSelector, TField value)
@@ -91,23 +84,6 @@ public abstract class BaseRepository<TDocument, TFilter> : IRepository<TDocument
         var updateDefinition = Builders<TDocument>.Update.Combine(updates.Select(update => update.ToUpdateDefinition()));
 
         await collection.UpdateOneAsync(filterDefinition, updateDefinition);
-    }
-
-    public async Task ReplaceOneAsync(TDocument document)
-    {
-        await collection.ReplaceOneAsync(GetFilterById(document.Id), document);
-    }
-
-    public async Task ReplaceOneAsync(TDocument document, Action<TDocument> updater)
-    {
-        updater(document);
-        await ReplaceOneAsync(document);
-    }
-
-    public async Task ReplaceOneAsync(string id, Action<TDocument> updater)
-    {
-        var document = await FindOneAsync(new TFilter { Id = id });
-        await ReplaceOneAsync(document, updater);
     }
 
     public async Task DeleteManyAsync(TFilter filter)

@@ -1,5 +1,4 @@
-﻿using Common.Middleware;
-using Common.Settings;
+﻿using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,7 +13,6 @@ using Common.Dal.Interfaces;
 using Common.Dal;
 using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Utils;
-using Api.NoSql.Settings;
 using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
@@ -38,7 +36,7 @@ namespace Api.NoSql
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureSettings(services);
-            ConfigureDI(services);
+            ConfigureDi(services);
             ConfigureDb(services);
 
             services.AddHttpContextAccessor();
@@ -109,22 +107,41 @@ namespace Api.NoSql
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("DB").Bind(options); });
+            services.Configure<DbSettings>(options => { _configuration.GetSection("Db").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
-            services.Configure<GoogleSettings>(options => { _configuration.GetSection("Google").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }
 
-        private void ConfigureDI(IServiceCollection services)
+        private void ConfigureDi(IServiceCollection services)
         {
-            services.AddTransientByConvention(
-                typeof(IRepository<,>),
-                t => t.Name.EndsWith("Repository")
-            );
+            // replace with simpler version, if SQL DAL is removed from the solution:
+            // services.AddTransientByConvention(
+            //     typeof(IRepository<,>),
+            //     t => t.Name.EndsWith("Repository")
+            // );
+
+            // services.AddTransientByConvention(
+            //     new List<Type> { typeof(IAuthService), typeof(IUserService) },
+            //     t => t.Name.EndsWith("Service")
+            // );
 
             services.AddTransientByConvention(
-                new List<Type> { typeof(IAuthService), typeof(ITokenService) },
+                new List<Type> { typeof(IRepository<,>) },
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository"),
+                t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository")
+            );
+
+            // register services from Api project
+            services.AddTransientByConvention(
+                typeof(IAuthService),
                 t => t.Name.EndsWith("Service")
+            );
+
+            // register services from Common project
+            services.AddTransientByConvention(
+                new List<Type> { typeof(IUserService) },
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
             );
 
             services.AddTransient<IDbContext, DbContext>();
@@ -135,7 +152,7 @@ namespace Api.NoSql
         private void ConfigureDb(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
-            _configuration.GetSection("DB").Bind(dbSettings);
+            _configuration.GetSection("Db").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
         }
