@@ -4,11 +4,13 @@
     "RefreshTokenExpiresInHours": 10
   },
   "Db": {
-    "ConnectionString": "mongodb://localhost:27017",
+    "ConnectionString": "mongodb://localhost:27017", // local
+    // "ConnectionString": "mongodb://root:rootPassword@mongo:27017", // docker
     "Database": "api-development"
   },
   "DbSql": {
-    "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd"
+    "ConnectionString": "Host=localhost;Database=api-development;Username=postgres;Password=pwd", // local
+    // "ConnectionString": "Host=postgres;Database=api-development;Username=postgres;Password=pwd" // docker
   },
   "App": {
     "WebUrl": "http://localhost:3002",

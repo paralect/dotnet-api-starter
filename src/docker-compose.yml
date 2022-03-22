@@ -33,7 +33,7 @@ services:
     container_name: ship-api
     build:
       context: .
-      dockerfile: app/Api/Dockerfile
+      dockerfile: app/Api.NoSql/Dockerfile
     networks:
      - ship
     environment:
