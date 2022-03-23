@@ -1,11 +1,12 @@
-﻿namespace Api.Sql.Models.User;
+﻿using System.Text.Json.Serialization;
 
-public class UserSignInModel
+namespace Api.Views.Models.User;
+
+public class UserViewModel
 {
+    [JsonPropertyName("_id")]
     public long Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
-    public string PasswordHash { get; set; }
-    public bool IsEmailVerified { get; set; }
 }

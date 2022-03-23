@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using Api.NoSql.Controllers;
-using Api.NoSql.Models.Account;
 using Api.NoSql.Services.Interfaces;
+using Api.Views.Models.Account;
 using AutoMapper;
 using Common;
 using Common.Dal.Documents.Token;
@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using ForgotPasswordModel = Api.NoSql.Models.Account.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
 
 namespace Tests
 {

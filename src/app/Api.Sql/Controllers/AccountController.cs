@@ -7,17 +7,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Sql.Models.Account.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
 using EmailForgotPasswordModel = Common.ServicesSql.Infrastructure.Email.Models.ForgotPasswordModel;
-using Api.Sql.Models.Account;
 using Api.Sql.Services.Interfaces;
-using Api.Sql.Models.User;
 using Common.ServicesSql.Domain.Interfaces;
 using Common.ServicesSql.Infrastructure.Interfaces;
 using Common.ServicesSql.Domain.Models;
 using Common.DalSql.Filters;
-using Api.Sql.Security;
 using Common.ServicesSql.Infrastructure.Email.Models;
+using Api.Views.Security;
+using Api.Views.Models.Account;
+using Api.Views.Models.User;
+using Common.DalSql.Entities;
 
 namespace Api.Sql.Controllers
 {
@@ -58,7 +59,7 @@ namespace Api.Sql.Controllers
                 Email = model.Email,
                 AsNoTracking = true
             },
-            x => new UserSignInModel
+            x => new User
             {
                 Id = x.Id,
                 FirstName = x.FirstName,
@@ -233,7 +234,7 @@ namespace Api.Sql.Controllers
                 Value = tokenValue,
                 AsNoTracking = true
             },
-            x => new RefreshTokenModel
+            x => new Token
             {
                 UserId = x.UserId,
                 ExpireAt = x.ExpireAt

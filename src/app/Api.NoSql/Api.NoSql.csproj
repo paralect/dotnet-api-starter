@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Api.Views\Api.Views.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 

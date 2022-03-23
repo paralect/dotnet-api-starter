@@ -8,15 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
-using ValidationAttribute = Api.NoSql.Security.ValidationAttribute;
+using ValidationAttribute = Api.Views.Security.ValidationAttribute;
 using Common.Dal.Interfaces;
 using Common.Dal;
 using Api.NoSql.Services.Interfaces;
-using Api.NoSql.Utils;
 using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
 using Common.Services.Domain.Interfaces;
+using Api.Views.Utils;
 
 namespace Api.NoSql
 {

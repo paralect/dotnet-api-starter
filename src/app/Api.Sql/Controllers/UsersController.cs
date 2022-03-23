@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Sql.Models;
-using Api.Sql.Models.User;
+using Api.Views.Models;
+using Api.Views.Models.User;
+using Api.Views.Security;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Sql.Controllers
 {
-    [Security.Authorize]
+    [Authorize]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;

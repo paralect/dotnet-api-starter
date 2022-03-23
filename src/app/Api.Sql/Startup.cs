@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using Api.Sql.Mapping;
 using Api.Sql.Services.Interfaces;
-using Api.Sql.Utils;
+using Api.Views.Security;
+using Api.Views.Utils;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
 using Common.ServicesSql.Domain.Interfaces;
@@ -15,7 +16,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using ValidationAttribute = Api.Sql.Security.ValidationAttribute;
 
 namespace Api.Sql
 {

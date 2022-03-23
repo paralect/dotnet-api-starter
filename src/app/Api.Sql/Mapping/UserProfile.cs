@@ -1,5 +1,6 @@
-﻿using Api.Sql.Models.User;
+﻿using Api.Views.Models.User;
 using AutoMapper;
+using Common.DalSql.Entities;
 
 namespace Api.Sql.Mapping
 {
@@ -7,7 +8,7 @@ namespace Api.Sql.Mapping
     {
         public UserProfile()
         {
-            CreateMap<UserSignInModel, UserViewModel>();
+            CreateMap<User, UserViewModel>();
         }
     }
 }

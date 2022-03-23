@@ -22,6 +22,8 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose-sql", "docker-compose-sql.dcproj", "{786985B1-6FAB-4039-A5E0-614C126D8555}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Views", "app\Api.Views\Api.Views.csproj", "{F0E22671-E75C-496B-A8FB-335B459D816F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{786985B1-6FAB-4039-A5E0-614C126D8555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{786985B1-6FAB-4039-A5E0-614C126D8555}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{786985B1-6FAB-4039-A5E0-614C126D8555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0E22671-E75C-496B-A8FB-335B459D816F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0E22671-E75C-496B-A8FB-335B459D816F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0E22671-E75C-496B-A8FB-335B459D816F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0E22671-E75C-496B-A8FB-335B459D816F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

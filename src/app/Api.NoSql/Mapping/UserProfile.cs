@@ -1,5 +1,5 @@
-﻿using Api.NoSql.Models;
-using Api.NoSql.Models.User;
+﻿using Api.Views.Models;
+using Api.Views.Models.User;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Documents.User;

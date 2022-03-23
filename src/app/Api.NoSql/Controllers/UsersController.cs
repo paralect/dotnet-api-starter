@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Api.NoSql.Models;
-using Api.NoSql.Models.User;
-using Api.NoSql.Security;
+using Api.Views.Models;
+using Api.Views.Models.User;
+using Api.Views.Security;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Repositories;

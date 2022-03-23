@@ -11,12 +11,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.NoSql.Models.Account.ForgotPasswordModel;
 using Api.NoSql.Services.Interfaces;
-using Api.NoSql.Models.Account;
-using Api.NoSql.Models.User;
-using Api.NoSql.Security;
 using Common.Services.Infrastructure.Email.Models;
+using Api.Views.Security;
+using Api.Views.Models.Account;
+using Api.Views.Models.User;
+using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
+using EmailForgotPasswordModel = Common.Services.Infrastructure.Email.Models.ForgotPasswordModel;
 
 namespace Api.NoSql.Controllers
 {
@@ -138,7 +139,7 @@ namespace Api.NoSql.Controllers
                 await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
-            _emailService.SendForgotPassword(new Common.Services.Infrastructure.Email.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new EmailForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
