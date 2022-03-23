@@ -14,6 +14,7 @@ public interface IEntityService<TEntity, in TFilter>
 {
     Task<TEntity> FindByIdAsync(long id);
     Task<TEntity> FindOneAsync(TFilter filter);
+    Task<TResultModel> FindOneAsync<TResultModel>(TFilter filter, Expression<Func<TEntity, TResultModel>> map);
     Task<Page<TResultModel>> FindPageAsync<TResultModel>(
         TFilter filter,
         ICollection<SortField> sortFields,
@@ -21,4 +22,5 @@ public interface IEntityService<TEntity, in TFilter>
         int pageSize,
         Expression<Func<TEntity, TResultModel>> map
     );
+    Task<bool> AnyAsync(TFilter filter);
 }

@@ -8,16 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ForgotPasswordModel = Api.Sql.Models.Account.ForgotPasswordModel;
+using EmailForgotPasswordModel = Common.ServicesSql.Infrastructure.Email.Models.ForgotPasswordModel;
 using Api.Sql.Models.Account;
 using Api.Sql.Services.Interfaces;
 using Api.Sql.Models.User;
 using Common.ServicesSql.Domain.Interfaces;
 using Common.ServicesSql.Infrastructure.Interfaces;
 using Common.ServicesSql.Domain.Models;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System;
-using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 using Api.Sql.Security;
 using Common.ServicesSql.Infrastructure.Email.Models;
@@ -56,7 +53,21 @@ namespace Api.Sql.Controllers
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                Email = model.Email,
+                AsNoTracking = true
+            },
+            x => new UserSignInModel
+            {
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email,
+                PasswordHash = x.PasswordHash,
+                IsEmailVerified = x.IsEmailVerified,
+            });
+
             if (user == null || !model.Password.IsHashEqual(user.PasswordHash))
             {
                 return BadRequest("Credentials", "Incorrect email or password.");
@@ -76,8 +87,11 @@ namespace Api.Sql.Controllers
         [HttpPost("sign-up")]
         public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
-            if (user != null)
+            var doesUserExist = await _userService.AnyAsync(new UserFilter
+            {
+                Email = model.Email
+            });
+            if (doesUserExist)
             {
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
@@ -106,7 +120,16 @@ namespace Api.Sql.Controllers
                 return BadRequest("Token", "Token is required.");
             }
 
-            var user = await _userService.FindBySignupTokenAsync(token);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                SignupToken = token,
+                AsNoTracking = true
+            },
+            x => new
+            {
+                x.Id
+            });
+
             if (user == null)
             {
                 return BadRequest("Token", "Token is invalid.");
@@ -121,7 +144,18 @@ namespace Api.Sql.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                Email = model.Email,
+                AsNoTracking = true
+            },
+            x => new
+            {
+                x.Id,
+                x.Email,
+                x.FirstName
+            });
+
             if (user == null)
             {
                 return BadRequest(nameof(model.Email),
@@ -130,7 +164,7 @@ namespace Api.Sql.Controllers
 
             var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
 
-            _emailService.SendForgotPassword(new Common.ServicesSql.Infrastructure.Email.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new EmailForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
@@ -143,7 +177,16 @@ namespace Api.Sql.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var user = await _userService.FindByResetPasswordTokenAsync(model.Token);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                ResetPasswordToken = model.Token,
+                AsNoTracking = true
+            },
+            x => new
+            {
+                x.Id
+            });
+
             if (user == null)
             {
                 return BadRequest(nameof(model.Token), "Password reset link has expired or invalid.");
@@ -157,7 +200,16 @@ namespace Api.Sql.Controllers
         [HttpPost("resend")]
         public async Task<IActionResult> ResendVerificationAsync([FromBody] ResendVerificationModel model)
         {
-            var user = await _userService.FindByEmailAsync(model.Email);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                Email = model.Email,
+                AsNoTracking = true
+            },
+            x => new
+            {
+                x.SignupToken
+            });
+
             if (user != null)
             {
                 _emailService.SendSignUpWelcome(new SignUpWelcomeModel
@@ -174,11 +226,17 @@ namespace Api.Sql.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshTokenAsync()
         {
-            var refreshToken = Request.Cookies[Constants.CookieNames.RefreshToken];
+            var tokenValue = Request.Cookies[Constants.CookieNames.RefreshToken];
 
             var token = await _tokenService.FindOneAsync(new TokenFilter
             {
-                Value = refreshToken
+                Value = tokenValue,
+                AsNoTracking = true
+            },
+            x => new RefreshTokenModel
+            {
+                UserId = x.UserId,
+                ExpireAt = x.ExpireAt
             });
 
             if (token == null || token.IsExpired())

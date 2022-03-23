@@ -13,6 +13,7 @@ public interface IRepository<TEntity, in TFilter>
 {
     Task<TEntity> FindById(long id);
     Task<TEntity> FindOneAsync(TFilter filter);
+    Task<TResultModel> FindOneAsync<TResultModel>(TFilter filter, Expression<Func<TEntity, TResultModel>> map);
     Task<Page<TResultModel>> FindPageAsync<TResultModel>(
         TFilter filter,
         ICollection<SortField> sortFields,
@@ -20,6 +21,7 @@ public interface IRepository<TEntity, in TFilter>
         int pageSize,
         Expression<Func<TEntity, TResultModel>> map
     );
+    Task<bool> AnyAsync(TFilter filter);
 
     Task InsertAsync(TEntity entity);
     Task InsertManyAsync(IEnumerable<TEntity> entities);

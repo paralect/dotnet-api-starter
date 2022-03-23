@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Api.Sql.Models;
 using Api.Sql.Models.User;
-using AutoMapper;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
@@ -17,14 +16,10 @@ namespace Api.Sql.Controllers
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
-        private readonly IMapper _mapper;
 
-        public UsersController(
-            IUserService userService,
-            IMapper mapper)
+        public UsersController(IUserService userService)
         {
             _userService = userService;
-            _mapper = mapper;
         }
 
         [HttpGet]
@@ -48,12 +43,12 @@ namespace Api.Sql.Controllers
                 AsNoTracking = true
             };
 
-            Expression<Func<User, UserViewModel>> map = u => new UserViewModel
+            Expression<Func<User, UserViewModel>> map = x => new UserViewModel
             {
-                Id = u.Id,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Email = u.Email
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email
             };
 
             var page = await _userService.FindPageAsync(filter, sort, model.Page, model.PerPage, map);
@@ -64,10 +59,20 @@ namespace Api.Sql.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _userService.FindByIdAsync(CurrentUserId!.Value);
-            var viewModel = _mapper.Map<UserViewModel>(user);
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                Id = CurrentUserId!.Value,
+                AsNoTracking = true
+            },
+            x => new UserViewModel
+            {
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email
+            });
 
-            return Ok(viewModel);
+            return Ok(user);
         }
 
         // TODO change to PUT on client side and here
@@ -78,15 +83,21 @@ namespace Api.Sql.Controllers
 
             await _userService.UpdatePasswordAsync(userId, model.Password);
 
-            var user = await _userService.FindByIdAsync(userId);
-            return Ok(new
+            var user = await _userService.FindOneAsync(new UserFilter
+            {
+                Id = userId,
+                AsNoTracking = true
+            },
+            x => new
             {
                 userId,
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                user.IsEmailVerified
+                x.FirstName,
+                x.LastName,
+                x.Email,
+                x.IsEmailVerified
             });
+
+            return Ok(user);
         }
     }
 }

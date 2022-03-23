@@ -40,6 +40,11 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
         return await BuildFilterQuery(filter, false).FirstOrDefaultAsync();
     }
 
+    public async Task<TResultModel> FindOneAsync<TResultModel>(TFilter filter, Expression<Func<TEntity, TResultModel>> map)
+    {
+        return await BuildFilterQuery(filter, false).Select(map).FirstOrDefaultAsync();
+    }
+
     public async Task<Page<TResultModel>> FindPageAsync<TResultModel>(
         TFilter filter,
         ICollection<SortField> sort,
@@ -73,6 +78,11 @@ public abstract class BaseRepository<TEntity, TFilter> : IRepository<TEntity, TF
             Count = count,
             Items = items
         };
+    }
+
+    public async Task<bool> AnyAsync(TFilter filter)
+    {
+        return await BuildFilterQuery(filter, false).AnyAsync();
     }
 
     public async Task InsertAsync(TEntity entity)

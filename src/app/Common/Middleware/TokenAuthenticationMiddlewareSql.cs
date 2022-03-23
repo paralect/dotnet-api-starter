@@ -2,8 +2,10 @@
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.DalSql.Filters;
 using Common.Enums;
 using Common.ServicesSql.Domain.Interfaces;
+using Common.ServicesSql.Domain.Models;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
 
@@ -32,7 +34,17 @@ public class TokenAuthenticationMiddlewareSql
 
         if (accessToken.HasValue())
         {
-            var token = await tokenService.FindUserTokenByValueAsync(accessToken);
+            var token = await tokenService.FindOneAsync(new TokenFilter
+            {
+                Value = accessToken,
+                AsNoTracking = true
+            },
+            x => new UserTokenModel
+            {
+                UserId = x.UserId,
+                UserRole = x.User.Role,
+                ExpireAt = x.ExpireAt
+            });
 
             if (token != null && !token.IsExpired())
             {

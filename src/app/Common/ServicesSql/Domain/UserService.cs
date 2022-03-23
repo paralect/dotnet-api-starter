@@ -25,42 +25,6 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User> FindByEmailAsync(string email)
-    {
-        return await FindOneAsync(new UserFilter
-        {
-            Email = email
-        });
-    }
-
-    public async Task<User> FindBySignupTokenAsync(string token)
-    {
-        return await FindOneAsync(new UserFilter
-        {
-            SignupToken = token
-        });
-    }
-
-    public async Task<User> FindByResetPasswordTokenAsync(string token)
-    {
-        return await FindOneAsync(new UserFilter
-        {
-            ResetPasswordToken = token
-        });
-    }
-
-    public async Task<bool> IsEmailInUseAsync(long userIdToExclude, string email)
-    {
-        var user = await FindOneAsync(new UserFilter
-        {
-            IdToExclude = userIdToExclude,
-            Email = email,
-            AsNoTracking = true
-        });
-
-        return user != null;
-    }
-
     public async Task<User> CreateUserAccountAsync(CreateUserModel model)
     {
         var signUpToken = SecurityUtils.GenerateSecureToken();
@@ -102,16 +66,17 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
         });
     }
 
-    public async Task UpdateResetPasswordTokenAsync(long id, string token)
-    {
-        await _userRepository.UpdateOneAsync(id, x => {
-            x.ResetPasswordToken = token;
-        });
-    }
-
     public async Task<string> SetResetPasswordTokenAsync(long id)
     {
-        var user = await _userRepository.FindById(id);
+        var user = await _userRepository.FindOneAsync(new UserFilter
+        {
+            Id = id
+        },
+        x => new
+        {
+            x.ResetPasswordToken
+        });
+
         if (user.ResetPasswordToken.HasNoValue())
         {
             await _userRepository.UpdateOneAsync(id, x =>

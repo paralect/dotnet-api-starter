@@ -31,6 +31,11 @@ public class BaseEntityService<TEntity, TFilter> : IEntityService<TEntity, TFilt
         return await _repository.FindOneAsync(filter);
     }
 
+    public async Task<TResultModel> FindOneAsync<TResultModel>(TFilter filter, Expression<Func<TEntity, TResultModel>> map)
+    {
+        return await _repository.FindOneAsync(filter, map);
+    }
+
     public async Task<Page<TResultModel>> FindPageAsync<TResultModel>(
         TFilter filter,
         ICollection<SortField> sortFields,
@@ -40,5 +45,10 @@ public class BaseEntityService<TEntity, TFilter> : IEntityService<TEntity, TFilt
     )
     {
         return await _repository.FindPageAsync(filter, sortFields, page, pageSize, map);
+    }
+
+    public async Task<bool> AnyAsync(TFilter filter)
+    {
+        return await _repository.AnyAsync(filter);
     }
 }
