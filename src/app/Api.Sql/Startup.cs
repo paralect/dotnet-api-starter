@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using Api.Sql.Mapping;
 using Api.Sql.Services.Interfaces;
-using Api.Views.Security;
-using Api.Views.Utils;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
+using Common.Security;
 using Common.ServicesSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;

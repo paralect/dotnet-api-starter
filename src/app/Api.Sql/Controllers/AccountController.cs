@@ -15,10 +15,10 @@ using Common.ServicesSql.Infrastructure.Interfaces;
 using Common.ServicesSql.Domain.Models;
 using Common.DalSql.Filters;
 using Common.ServicesSql.Infrastructure.Email.Models;
-using Api.Views.Security;
 using Api.Views.Models.Account;
 using Api.Views.Models.User;
 using Common.DalSql.Entities;
+using Common.Security;
 
 namespace Api.Sql.Controllers
 {

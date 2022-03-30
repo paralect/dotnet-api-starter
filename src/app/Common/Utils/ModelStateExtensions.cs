@@ -1,7 +1,7 @@
-﻿using Common.Utils;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Api.Views.Utils;
+namespace Common.Utils;
 
 public static class ModelStateExtensions
 {

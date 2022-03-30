@@ -1,8 +1,8 @@
-﻿using Api.Views.Utils;
+﻿using Common.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Views.Security;
+namespace Common.Security;
 
 public class ValidationAttribute : ActionFilterAttribute
 {

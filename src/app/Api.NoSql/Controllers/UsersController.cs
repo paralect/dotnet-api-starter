@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Api.Views.Models;
 using Api.Views.Models.User;
-using Api.Views.Security;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Repositories;
+using Common.Security;
 using Common.Services.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

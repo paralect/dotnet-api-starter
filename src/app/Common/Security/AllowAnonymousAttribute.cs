@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System;
+using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Views.Security;
+namespace Common.Security;
 
 public class AllowAnonymousAttribute : Attribute, IAuthorizationFilter
 {

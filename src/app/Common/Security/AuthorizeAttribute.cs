@@ -1,9 +1,11 @@
-﻿using Common.Enums;
+﻿using System;
+using System.Linq;
+using Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Api.Views.Security;
+namespace Common.Security;
 
 public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 {

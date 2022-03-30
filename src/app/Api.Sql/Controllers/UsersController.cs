@@ -4,10 +4,10 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Api.Views.Models;
 using Api.Views.Models.User;
-using Api.Views.Security;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
+using Common.Security;
 using Common.ServicesSql.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

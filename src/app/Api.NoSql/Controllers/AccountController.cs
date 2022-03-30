@@ -13,11 +13,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Api.NoSql.Services.Interfaces;
 using Common.Services.Infrastructure.Email.Models;
-using Api.Views.Security;
 using Api.Views.Models.Account;
 using Api.Views.Models.User;
 using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
 using EmailForgotPasswordModel = Common.Services.Infrastructure.Email.Models.ForgotPasswordModel;
+using Common.Security;
 
 namespace Api.NoSql.Controllers
 {
