@@ -220,3 +220,6 @@ dotnet_naming_rule.everything_else_naming.style                            = cam
 dotnet_naming_symbols.everything_else.applicable_kinds                     = *
 dotnet_naming_symbols.everything_else.applicable_accessibilities           = *
 csharp_style_namespace_declarations=file_scoped:silent
+
+[*.{cs,vb}]
+end_of_line=lf
