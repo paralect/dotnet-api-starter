@@ -77,8 +77,8 @@ namespace SignalR
 
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
+                t => t.Namespace.StartsWith("Common.Services.Services.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.Services.") && t.Name.EndsWith("Service")
             );
 
             services.AddTransient<IDbContext, DbContext>();

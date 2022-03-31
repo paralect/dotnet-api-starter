@@ -46,7 +46,7 @@ namespace Api.Sql.Controllers
 
             Expression<Func<User, UserViewModel>> map = x => new UserViewModel
             {
-                Id = x.Id,
+                Id = x.Id.ToString(),
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email
@@ -67,7 +67,7 @@ namespace Api.Sql.Controllers
             },
             x => new UserViewModel
             {
-                Id = x.Id,
+                Id = x.Id.ToString(),
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email
