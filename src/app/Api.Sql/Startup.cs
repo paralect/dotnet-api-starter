@@ -23,13 +23,9 @@ namespace Api.Sql
     {
         private readonly IConfiguration _configuration;
 
-        public Startup(IWebHostEnvironment env, IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .AddConfiguration(configuration)
-                .AddJsonFile($"common.{env.EnvironmentName}.json");
-
-            _configuration = builder.Build();
+            _configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)

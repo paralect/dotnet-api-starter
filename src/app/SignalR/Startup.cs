@@ -20,13 +20,9 @@ namespace SignalR
     {
         private readonly IConfiguration _configuration;
 
-        public Startup(IWebHostEnvironment env, IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .AddConfiguration(configuration)
-                .AddJsonFile($"common.{env.EnvironmentName}.json");
-
-            _configuration = builder.Build();
+            _configuration = configuration;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
