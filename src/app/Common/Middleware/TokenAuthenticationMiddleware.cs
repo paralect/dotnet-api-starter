@@ -2,8 +2,9 @@
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Dal.Interfaces;
+using Common.Dal.Repositories;
 using Common.Enums;
-using Common.Services.Domain.Interfaces;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
 
@@ -12,12 +13,12 @@ namespace Common.Middleware;
 public class TokenAuthenticationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ITokenService _tokenService;
+    private readonly ITokenRepository _tokenRepository;
 
-    public TokenAuthenticationMiddleware(RequestDelegate next, ITokenService tokenService)
+    public TokenAuthenticationMiddleware(RequestDelegate next, ITokenRepository tokenRepository)
     {
         _next = next;
-        _tokenService = tokenService;
+        _tokenRepository = tokenRepository;
     }
 
     public async Task Invoke(HttpContext context)
@@ -34,7 +35,11 @@ public class TokenAuthenticationMiddleware
 
         if (accessToken.HasValue())
         {
-            var token = await _tokenService.FindByValueAsync(accessToken);
+            var token = await _tokenRepository.FindOneAsync(new TokenFilter
+            {
+                Value = accessToken
+            });
+
             if (token != null && !token.IsExpired())
             {
                 var principal = new Principal(

@@ -3,9 +3,8 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.DalSql.Filters;
+using Common.DalSql.Interfaces;
 using Common.Enums;
-using Common.ServicesSql.Domain.Interfaces;
-using Common.ServicesSql.Domain.Models;
 using Common.Utils;
 using Microsoft.AspNetCore.Http;
 
@@ -20,7 +19,7 @@ public class TokenAuthenticationMiddlewareSql
         _next = next;
     }
 
-    public async Task Invoke(HttpContext context, ITokenService tokenService)
+    public async Task Invoke(HttpContext context, ITokenRepository tokenRepository)
     {
         var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
         if (accessToken.HasNoValue())
@@ -34,7 +33,7 @@ public class TokenAuthenticationMiddlewareSql
 
         if (accessToken.HasValue())
         {
-            var token = await tokenService.FindOneAsync(new TokenFilter
+            var token = await tokenRepository.FindOneAsync(new TokenFilter
             {
                 Value = accessToken,
                 AsNoTracking = true
@@ -63,4 +62,11 @@ public class TokenAuthenticationMiddlewareSql
 
         await _next(context);
     }
+}
+
+public class UserTokenModel : IExpirable
+{
+    public long UserId { get; set; }
+    public UserRole UserRole { get; set; }
+    public DateTime ExpireAt { get; set; }
 }

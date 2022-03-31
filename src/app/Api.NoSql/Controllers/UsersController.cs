@@ -1,12 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Api.Views.Models;
-using Api.Views.Models.User;
+using Api.Views.Models.View;
+using Api.Views.Models.View.User;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Repositories;
 using Common.Security;
-using Common.Services.Domain.Interfaces;
+using Common.Services.Services.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.NoSql.Controllers

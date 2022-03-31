@@ -15,7 +15,7 @@ using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
-using Common.Services.Domain.Interfaces;
+using Common.Services.Services.Domain.Interfaces;
 
 namespace Api.NoSql
 {
@@ -132,11 +132,11 @@ namespace Api.NoSql
                 t => t.Name.EndsWith("Service")
             );
 
-            // register services from Common project
+            // register services from Common.Services project
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
+                t => t.Namespace.StartsWith("Common.Services.Services.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.Services.") && t.Name.EndsWith("Service")
             );
 
             services.AddTransient<IDbContext, DbContext>();

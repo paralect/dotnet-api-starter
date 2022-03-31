@@ -1,5 +1,5 @@
-﻿using Api.Views.Models;
-using Api.Views.Models.User;
+﻿using Api.Views.Models.View;
+using Api.Views.Models.View.User;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Documents.User;

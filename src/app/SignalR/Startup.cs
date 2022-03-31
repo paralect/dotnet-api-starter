@@ -10,7 +10,7 @@ using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
 using SignalR.Mapping;
 using SignalR.Services;
-using Common.Services.Domain.Interfaces;
+using Common.Services.Services.Domain.Interfaces;
 using System.Collections.Generic;
 using System;
 

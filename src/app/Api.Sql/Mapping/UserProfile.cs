@@ -1,4 +1,4 @@
-﻿using Api.Views.Models.User;
+﻿using Api.Views.Models.View.User;
 using AutoMapper;
 using Common.DalSql.Entities;
 

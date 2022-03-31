@@ -7,18 +7,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
-using EmailForgotPasswordModel = Common.ServicesSql.Infrastructure.Email.Models.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
+using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
 using Api.Sql.Services.Interfaces;
-using Common.ServicesSql.Domain.Interfaces;
-using Common.ServicesSql.Infrastructure.Interfaces;
-using Common.ServicesSql.Domain.Models;
+using Common.Services.ServicesSql.Domain.Interfaces;
+using Common.Services.ServicesSql.Infrastructure.Interfaces;
 using Common.DalSql.Filters;
-using Common.ServicesSql.Infrastructure.Email.Models;
-using Api.Views.Models.Account;
-using Api.Views.Models.User;
 using Common.DalSql.Entities;
 using Common.Security;
+using Api.Views.Models.View.User;
+using Api.Views.Models.View.Account;
+using Api.Views.Models.Domain;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.Sql.Controllers
 {
@@ -86,7 +86,7 @@ namespace Api.Sql.Controllers
         }
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] CreateUserModel model)
         {
             var doesUserExist = await _userService.AnyAsync(new UserFilter
             {
@@ -97,13 +97,7 @@ namespace Api.Sql.Controllers
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            var newUser = await _userService.CreateUserAccountAsync(new CreateUserModel
-            {
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Password = model.Password
-            });
+            var newUser = await _userService.CreateUserAccountAsync(model);
 
             if (_environment.IsDevelopment())
             {

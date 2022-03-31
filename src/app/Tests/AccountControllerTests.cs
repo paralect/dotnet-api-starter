@@ -2,17 +2,17 @@ using System;
 using System.Threading.Tasks;
 using Api.NoSql.Controllers;
 using Api.NoSql.Services.Interfaces;
-using Api.Views.Models.Account;
+using Api.Views.Models.Domain;
+using Api.Views.Models.Infrastructure.Email;
+using Api.Views.Models.View.Account;
 using AutoMapper;
 using Common;
 using Common.Dal.Documents.Token;
 using Common.Dal.Documents.User;
 using Common.Dal.Repositories;
 using Common.Enums;
-using Common.Services.Domain.Interfaces;
-using Common.Services.Domain.Models;
-using Common.Services.Infrastructure.Email.Models;
-using Common.Services.Infrastructure.Interfaces;
+using Common.Services.Services.Domain.Interfaces;
+using Common.Services.Services.Infrastructure.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
 
 namespace Tests
 {
@@ -57,7 +57,7 @@ namespace Tests
         public async Task SignUpShouldReturnBadRequestWhenUserAlreadyExist()
         {
             // Arrange
-            var model = new SignUpModel
+            var model = new CreateUserModel
             {
                 Email = "sample@sample.com"
             };
@@ -82,7 +82,7 @@ namespace Tests
         {
             // Arrange
             var expectedResult = environmentName == "Development" ? typeof(OkObjectResult) : typeof(OkResult);
-            var model = new SignUpModel
+            var model = new CreateUserModel
             {
                 Email = "sample@sample.com"
             };
@@ -309,7 +309,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
             _emailService.Verify(service => service.SendForgotPassword(
-                It.Is<Common.Services.Infrastructure.Email.Models.ForgotPasswordModel>(m => m.Email == user.Email))
+                It.Is<Api.Views.Models.Infrastructure.Email.ForgotPasswordModel>(m => m.Email == user.Email))
             );
 
             Assert.IsType<OkResult>(result);

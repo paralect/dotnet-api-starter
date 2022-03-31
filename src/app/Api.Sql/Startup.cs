@@ -5,7 +5,7 @@ using Api.Sql.Services.Interfaces;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
 using Common.Security;
-using Common.ServicesSql.Domain.Interfaces;
+using Common.Services.ServicesSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -137,11 +137,11 @@ namespace Api.Sql
                 t => t.Name.EndsWith("Service")
             );
 
-            // register services from Common project
+            // register services from Common.Services project
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.ServicesSql.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.ServicesSql.") && t.Name.EndsWith("Service")
+                t => t.Namespace.StartsWith("Common.Services.ServicesSql.") && t.Name.EndsWith("Service"),
+                t => t.Namespace.StartsWith("Common.Services.ServicesSql.") && t.Name.EndsWith("Service")
             );
         }
 

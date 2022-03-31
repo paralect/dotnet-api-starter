@@ -2,9 +2,8 @@
 using AutoMapper;
 using Common;
 using Common.Dal.Repositories;
-using Common.Services.Domain.Interfaces;
-using Common.Services.Domain.Models;
-using Common.Services.Infrastructure.Interfaces;
+using Common.Services.Services.Domain.Interfaces;
+using Common.Services.Services.Infrastructure.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -12,12 +11,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Api.NoSql.Services.Interfaces;
-using Common.Services.Infrastructure.Email.Models;
-using Api.Views.Models.Account;
-using Api.Views.Models.User;
-using ForgotPasswordModel = Api.Views.Models.Account.ForgotPasswordModel;
-using EmailForgotPasswordModel = Common.Services.Infrastructure.Email.Models.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
+using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
 using Common.Security;
+using Api.Views.Models.View.User;
+using Api.Views.Models.View.Account;
+using Api.Views.Models.Domain;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.NoSql.Controllers
 {
@@ -52,7 +52,7 @@ namespace Api.NoSql.Controllers
         }
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] CreateUserModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
@@ -60,13 +60,7 @@ namespace Api.NoSql.Controllers
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            user = await _userService.CreateUserAccountAsync(new CreateUserModel
-            {
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Password = model.Password
-            });
+            user = await _userService.CreateUserAccountAsync(model);
 
             if (_environment.IsDevelopment())
             {
