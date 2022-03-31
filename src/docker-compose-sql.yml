@@ -4,13 +4,8 @@ services:
   postgres:
     image: postgres:14.2
     container_name: ship-postgres
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=pwd
     networks:
       - ship
-    ports:
-      - "5433:5432"
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
@@ -25,11 +20,6 @@ services:
       dockerfile: app/Api.Sql/Dockerfile
     networks:
       - ship
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:3001
-    ports:
-      - "3001:3001"
     depends_on:
       postgres:
         condition: service_healthy

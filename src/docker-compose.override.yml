@@ -6,7 +6,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=rootPassword
     ports:
-      - "27017:27017"
+      - "27018:27017"
   replicator:
     environment:
       - MONGO_HOST=mongo

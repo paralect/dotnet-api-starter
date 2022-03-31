@@ -3,16 +3,17 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>17e5c63c-cfdd-4bab-8035-37829c272a1d</ProjectGuid>
+    <ProjectGuid>786985b1-6fab-4039-a5e0-614c126d8555</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>api</DockerServiceName>
+	<DockerComposeBaseFilePath>docker-compose-sql</DockerComposeBaseFilePath>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="docker-compose.override.yml">
-      <DependentUpon>docker-compose.yml</DependentUpon>
-    </None>
-    <None Include="docker-compose.yml" />
+	<None Include="docker-compose-sql.override.yml">
+	  <DependentUpon>docker-compose-sql.yml</DependentUpon>
+	</None>
+    <None Include="docker-compose-sql.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>
 </Project>
