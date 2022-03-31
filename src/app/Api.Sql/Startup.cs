@@ -108,7 +108,7 @@ namespace Api.Sql
 
         private void ConfigureSettings(IServiceCollection services)
         {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("DbSql").Bind(options); });
+            services.Configure<DbSettingsSql>(options => { _configuration.GetSection("DbSql").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
         }

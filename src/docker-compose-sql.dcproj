@@ -7,12 +7,12 @@
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>api</DockerServiceName>
-	<DockerComposeBaseFilePath>docker-compose-sql</DockerComposeBaseFilePath>
+	  <DockerComposeBaseFilePath>docker-compose-sql</DockerComposeBaseFilePath>
   </PropertyGroup>
   <ItemGroup>
-	<None Include="docker-compose-sql.override.yml">
-	  <DependentUpon>docker-compose-sql.yml</DependentUpon>
-	</None>
+    <None Include="docker-compose-sql.override.yml">
+      <DependentUpon>docker-compose-sql.yml</DependentUpon>
+    </None>
     <None Include="docker-compose-sql.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>
