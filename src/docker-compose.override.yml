@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mongo:
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootPassword
+    ports:
+      - "27017:27017"
+  replicator:
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_LOGIN=root
+      - MONGO_PASSWORD=rootPassword
+      - REPLICA_NAME=ship-rs
+  api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3001
+    ports:
+      - "3001:3001"
+  signal-r:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8082
+      - WAIT_FOR_HOST=api
+      - WAIT_FOR_PORT=3001
+    ports:
+      - "8082:8082"
