@@ -19,4 +19,6 @@ public static class Constants
     }
 
     public static readonly Collation DefaultCollation = new Collation("en", strength: CollationStrength.Primary);
+
+    public static string HealthcheckPath = "/health";
 }

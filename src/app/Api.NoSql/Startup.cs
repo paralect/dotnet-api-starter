@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System;
 using Common.Services.NoSql.Domain.Interfaces;
 using Common.Services.NoSql.Api.Interfaces;
+using Serilog;
+using Common;
 
 namespace Api.NoSql
 {
@@ -70,7 +72,10 @@ namespace Api.NoSql
             });
 
             services.AddAuthorization();
+
             services.AddAutoMapper(typeof(UserProfile));
+
+            services.AddHealthChecks();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -87,6 +92,8 @@ namespace Api.NoSql
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSerilogRequestLogging();
+
             app.UseRouting();
 
             app.UseCors("AllowSpecificOrigin");
@@ -97,6 +104,7 @@ namespace Api.NoSql
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks(Constants.HealthcheckPath);
             });
         }
 

@@ -13,6 +13,8 @@ using SignalR.Services;
 using System.Collections.Generic;
 using System;
 using Common.Services.NoSql.Domain.Interfaces;
+using Common;
+using Serilog;
 
 namespace SignalR
 {
@@ -35,6 +37,7 @@ namespace SignalR
             services.AddSignalR();
             services.AddHostedService<ChangeStreamBackgroundService>();
             services.AddAutoMapper(typeof(UserProfile));
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,14 +48,17 @@ namespace SignalR
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("AllowSpecificOrigin");
+            app.UseSerilogRequestLogging();
+
             app.UseRouting();
+            app.UseCors("AllowSpecificOrigin");
             app.UseTokenAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<UserHub>("");
+                endpoints.MapHealthChecks(Constants.HealthcheckPath);
             });
         }
 

@@ -12,9 +12,9 @@ public static class HostEnvironmentExtensions
         new LoggerConfiguration()
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
+            .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
             .Enrich.FromLogContext()
-            .Filter.ByExcluding("RequestPath = '/health' and StatusCode = 200")
+            .Filter.ByExcluding($"RequestPath = '{Constants.HealthcheckPath}' and StatusCode = 200")
             .WriteTo.Logger(lc =>
             {
                 if (hostEnvironment.IsDevelopment())

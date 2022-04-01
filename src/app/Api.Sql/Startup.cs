@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Api.Sql.Mapping;
+using Api.Sql.Services.Interfaces;
+using Api.Sql.Utils;
+using Common;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
 using Common.Security;
@@ -15,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using ValidationAttribute = Api.Sql.Security.ValidationAttribute;
 
 namespace Api.Sql
 {
@@ -69,7 +74,10 @@ namespace Api.Sql
             });
 
             services.AddAuthorization();
+
             services.AddAutoMapper(typeof(UserProfile));
+
+            services.AddHealthChecks();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -85,6 +93,8 @@ namespace Api.Sql
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 
@@ -102,6 +112,7 @@ namespace Api.Sql
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks(Constants.HealthcheckPath);
             });
         }
 
