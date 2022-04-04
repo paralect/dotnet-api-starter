@@ -1,8 +1,8 @@
 ﻿using Api.Views.Models.Infrastructure.Email;
-using Common.Services.ServicesSql.Infrastructure.Interfaces;
+using Common.Services.Infrastructure.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Services.ServicesSql.Infrastructure.Email;
+namespace Common.Services.Infrastructure.Email;
 
 public class EmailService : IEmailService
 {

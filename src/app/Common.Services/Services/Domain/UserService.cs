@@ -4,10 +4,10 @@ using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
 using Common.Enums;
 using Common.Services.Services.Domain.Interfaces;
-using Common.Services.Services.Infrastructure.Interfaces;
 using Common.Utils;
 using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
+using Common.Services.Infrastructure.Interfaces;
 
 namespace Common.Services.Services.Domain;
 

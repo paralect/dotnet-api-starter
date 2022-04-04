@@ -3,7 +3,6 @@ using AutoMapper;
 using Common;
 using Common.Dal.Repositories;
 using Common.Services.Services.Domain.Interfaces;
-using Common.Services.Services.Infrastructure.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +17,7 @@ using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
 using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
+using Common.Services.Infrastructure.Interfaces;
 
 namespace Api.NoSql.Controllers
 {
