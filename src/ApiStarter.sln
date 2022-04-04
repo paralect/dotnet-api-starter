@@ -14,15 +14,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "app\Common\Common
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR", "app\SignalR\SignalR.csproj", "{6740BAD9-50EA-4D0D-9DA5-9878628C1447}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{486C84F4-35ED-498C-9369-8F90996B87DE}"
-	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
-		docker-compose.yml = docker-compose.yml
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.NoSql", "app\Api.NoSql\Api.NoSql.csproj", "{28D35E61-43B2-4D4A-BAF3-2D691B0C7054}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Sql", "app\Api.Sql\Api.Sql.csproj", "{0920ED0E-6C20-4661-BEB4-E9FED92C183D}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{17E5C63C-CFDD-4BAB-8035-37829C272A1D}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose-sql", "docker-compose-sql.dcproj", "{786985B1-6FAB-4039-A5E0-614C126D8555}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +48,14 @@ Global
 		{0920ED0E-6C20-4661-BEB4-E9FED92C183D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0920ED0E-6C20-4661-BEB4-E9FED92C183D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0920ED0E-6C20-4661-BEB4-E9FED92C183D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17E5C63C-CFDD-4BAB-8035-37829C272A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17E5C63C-CFDD-4BAB-8035-37829C272A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17E5C63C-CFDD-4BAB-8035-37829C272A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17E5C63C-CFDD-4BAB-8035-37829C272A1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{786985B1-6FAB-4039-A5E0-614C126D8555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{786985B1-6FAB-4039-A5E0-614C126D8555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{786985B1-6FAB-4039-A5E0-614C126D8555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{786985B1-6FAB-4039-A5E0-614C126D8555}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

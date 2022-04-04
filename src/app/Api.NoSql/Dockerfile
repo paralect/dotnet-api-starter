@@ -1,23 +1,22 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["app/Api/Api.csproj", "app/Api/"]
+COPY ["app/Api.NoSql/Api.NoSql.csproj", "app/Api.NoSql/"]
 COPY ["app/Common/Common.csproj", "app/Common/"]
-RUN dotnet restore "app/Api/Api.csproj"
+RUN dotnet restore "app/Api.NoSql/Api.NoSql.csproj"
 COPY . .
-WORKDIR "/src/app/Api"
-RUN dotnet build "Api.csproj" -c Release -o /app/build
+WORKDIR "/src/app/Api.NoSql"
+RUN dotnet build "Api.NoSql.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Api.csproj" -c Release -o /app/publish
+RUN dotnet publish "Api.NoSql.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-
-ENTRYPOINT ["dotnet", "Api.dll"]
+ENTRYPOINT ["dotnet", "Api.NoSql.dll"]
