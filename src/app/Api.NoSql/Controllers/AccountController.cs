@@ -132,17 +132,17 @@ namespace Api.NoSql.Controllers
                 await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
-            _emailService.SendForgotPassword(new EmailForgotPasswordModel
+            await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
             {
                 Email = user.Email,
-                ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
+                ResetPasswordUrl = $"{_appSettings.WebUrl}/reset-password?token={resetPasswordToken}",
                 FirstName = user.FirstName
             });
 
             return Ok();
         }
 
-        [HttpPost("reset-password")]
+        [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
             var user = await _userService.FindOneAsync(new UserFilter { ResetPasswordToken = model.Token });
@@ -162,9 +162,10 @@ namespace Api.NoSql.Controllers
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                _emailService.SendSignUpWelcome(new SignUpWelcomeModel
+                await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
                 {
                     Email = model.Email,
+                    FirstName = user.FirstName,
                     SignUpToken = user.SignupToken
                 });
             }

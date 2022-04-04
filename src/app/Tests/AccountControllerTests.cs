@@ -307,7 +307,7 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
-            _emailService.Verify(service => service.SendForgotPassword(
+            _emailService.Verify(service => service.SendForgotPasswordAsync(
                 It.Is<Api.Views.Models.Infrastructure.Email.ForgotPasswordModel>(m => m.Email == user.Email))
             );
 
@@ -372,6 +372,7 @@ namespace Tests
             };
             var user = new User
             {
+                FirstName = "firstName",
                 SignupToken = "test token"
             };
 
@@ -384,8 +385,12 @@ namespace Tests
             var result = await controller.ResendVerificationAsync(model);
 
             // Assert
-            _emailService.Verify(service => service.SendSignUpWelcome(
-                It.Is<SignUpWelcomeModel>(m => m.Email == model.Email && m.SignUpToken == user.SignupToken))
+            _emailService.Verify(service => service.SendSignUpWelcomeAsync(
+                It.Is<SignUpWelcomeModel>(m =>
+                    m.Email == model.Email &&
+                    m.SignUpToken == user.SignupToken &&
+                    m.FirstName == user.FirstName
+                ))
             );
             Assert.IsType<OkResult>(result);
         }

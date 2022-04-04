@@ -40,9 +40,10 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
 
         await _userRepository.InsertAsync(user);
 
-        _emailService.SendSignUpWelcome(new SignUpWelcomeModel
+        await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
         {
             Email = model.Email,
+            FirstName = model.FirstName,
             SignUpToken = signUpToken
         });
 

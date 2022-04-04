@@ -158,7 +158,7 @@ namespace Api.Sql.Controllers
 
             var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
 
-            _emailService.SendForgotPassword(new EmailForgotPasswordModel
+            await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
@@ -201,14 +201,16 @@ namespace Api.Sql.Controllers
             },
             x => new
             {
+                x.FirstName,
                 x.SignupToken
             });
 
             if (user != null)
             {
-                _emailService.SendSignUpWelcome(new SignUpWelcomeModel
+                await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
                 {
                     Email = model.Email,
+                    FirstName = user.FirstName,
                     SignUpToken = user.SignupToken
                 });
             }
