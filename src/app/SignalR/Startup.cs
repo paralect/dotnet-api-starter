@@ -13,6 +13,9 @@ using SignalR.Services;
 using System.Collections.Generic;
 using System;
 using Common.Services.NoSql.Domain.Interfaces;
+using Common;
+using Serilog;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace SignalR
 {
@@ -30,6 +33,7 @@ namespace SignalR
         {
             ConfigureDi(services);
             ConfigureDb(services);
+            ConfigureHealthChecks(services);
             ConfigureCors(services);
 
             services.AddSignalR();
@@ -45,14 +49,20 @@ namespace SignalR
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("AllowSpecificOrigin");
+            app.UseSerilogRequestLogging();
+
             app.UseRouting();
+            app.UseCors("AllowSpecificOrigin");
             app.UseTokenAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<UserHub>("");
+                endpoints.MapHealthChecks(Constants.HealthcheckPath, new HealthCheckOptions
+                {
+                    AllowCachingResponses = false
+                });
             });
         }
 
@@ -104,6 +114,14 @@ namespace SignalR
             _configuration.GetSection("Db").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+        }
+
+        private void ConfigureHealthChecks(IServiceCollection services)
+        {
+            var dbSettings = new DbSettings();
+            _configuration.GetSection("Db").Bind(dbSettings);
+
+            services.ConfigureHealthChecks(dbSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)

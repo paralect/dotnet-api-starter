@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using Api.Sql.Mapping;
+using Common;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
-using Common.Security;
-using Common.Services.Sql.Api.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using ValidationAttribute = Common.Security.ValidationAttribute;
 
 namespace Api.Sql
 {
@@ -32,23 +34,9 @@ namespace Api.Sql
             ConfigureSettings(services);
             ConfigureDi(services);
             ConfigureDb(services);
+            ConfigureCors(services);
 
             services.AddHttpContextAccessor();
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowSpecificOrigin", builder =>
-                {
-                    var appSettings = new AppSettings();
-                    _configuration.GetSection("App").Bind(appSettings);
-
-                    builder
-                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
 
             services
                 .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
@@ -69,7 +57,12 @@ namespace Api.Sql
             });
 
             services.AddAuthorization();
+
             services.AddAutoMapper(typeof(UserProfile));
+
+            services
+                .AddHealthChecks()
+                .AddDbContextCheck<ShipDbContext>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -85,6 +78,8 @@ namespace Api.Sql
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 
@@ -102,6 +97,10 @@ namespace Api.Sql
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks(Constants.HealthcheckPath, new HealthCheckOptions
+                {
+                    AllowCachingResponses = false
+                });
             });
         }
 
@@ -158,6 +157,24 @@ namespace Api.Sql
             _configuration.GetSection("DbSql").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+        }
+
+        private void ConfigureCors(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    var appSettings = new AppSettings();
+                    _configuration.GetSection("App").Bind(appSettings);
+
+                    builder
+                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }

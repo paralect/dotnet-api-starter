@@ -15,7 +15,9 @@ using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
 using Common.Services.NoSql.Domain.Interfaces;
-using Common.Services.NoSql.Api.Interfaces;
+using Serilog;
+using Common;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Api.NoSql
 {
@@ -33,23 +35,10 @@ namespace Api.NoSql
             ConfigureSettings(services);
             ConfigureDi(services);
             ConfigureDb(services);
+            ConfigureHealthChecks(services);
+            ConfigureCors(services);
 
             services.AddHttpContextAccessor();
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowSpecificOrigin", builder =>
-                {
-                    var appSettings = new AppSettings();
-                    _configuration.GetSection("App").Bind(appSettings);
-
-                    builder
-                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
 
             services
                 .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
@@ -70,6 +59,7 @@ namespace Api.NoSql
             });
 
             services.AddAuthorization();
+
             services.AddAutoMapper(typeof(UserProfile));
         }
 
@@ -87,6 +77,8 @@ namespace Api.NoSql
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSerilogRequestLogging();
+
             app.UseRouting();
 
             app.UseCors("AllowSpecificOrigin");
@@ -97,6 +89,10 @@ namespace Api.NoSql
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks(Constants.HealthcheckPath, new HealthCheckOptions
+                {
+                    AllowCachingResponses = false
+                });
             });
         }
 
@@ -150,6 +146,32 @@ namespace Api.NoSql
             _configuration.GetSection("Db").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+        }
+
+        private void ConfigureHealthChecks(IServiceCollection services)
+        {
+            var dbSettings = new DbSettings();
+            _configuration.GetSection("Db").Bind(dbSettings);
+
+            services.ConfigureHealthChecks(dbSettings);
+        }
+
+        private void ConfigureCors(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    var appSettings = new AppSettings();
+                    _configuration.GetSection("App").Bind(appSettings);
+
+                    builder
+                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }
