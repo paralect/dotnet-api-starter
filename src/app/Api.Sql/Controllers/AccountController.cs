@@ -7,17 +7,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Sql.Models.Account.ForgotPasswordModel;
-using EmailForgotPasswordModel = Common.ServicesSql.Infrastructure.Email.Models.ForgotPasswordModel;
-using Api.Sql.Models.Account;
-using Api.Sql.Services.Interfaces;
-using Api.Sql.Models.User;
-using Common.ServicesSql.Domain.Interfaces;
-using Common.ServicesSql.Infrastructure.Interfaces;
-using Common.ServicesSql.Domain.Models;
+using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
+using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
 using Common.DalSql.Filters;
-using Api.Sql.Security;
-using Common.ServicesSql.Infrastructure.Email.Models;
+using Common.DalSql.Entities;
+using Common.Security;
+using Api.Views.Models.View.User;
+using Api.Views.Models.View.Account;
+using Api.Views.Models.Infrastructure.Email;
+using Common.Services.Infrastructure.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
+using Common.Services.Sql.Api.Interfaces;
 
 namespace Api.Sql.Controllers
 {
@@ -58,7 +58,7 @@ namespace Api.Sql.Controllers
                 Email = model.Email,
                 AsNoTracking = true
             },
-            x => new UserSignInModel
+            x => new User
             {
                 Id = x.Id,
                 FirstName = x.FirstName,
@@ -96,13 +96,7 @@ namespace Api.Sql.Controllers
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            var newUser = await _userService.CreateUserAccountAsync(new CreateUserModel
-            {
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Password = model.Password
-            });
+            var newUser = await _userService.CreateUserAccountAsync(model);
 
             if (_environment.IsDevelopment())
             {
@@ -233,7 +227,7 @@ namespace Api.Sql.Controllers
                 Value = tokenValue,
                 AsNoTracking = true
             },
-            x => new RefreshTokenModel
+            x => new Token
             {
                 UserId = x.UserId,
                 ExpireAt = x.ExpireAt

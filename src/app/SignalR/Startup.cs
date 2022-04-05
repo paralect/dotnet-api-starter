@@ -10,9 +10,9 @@ using Microsoft.Extensions.Hosting;
 using SignalR.Hubs;
 using SignalR.Mapping;
 using SignalR.Services;
-using Common.Services.Domain.Interfaces;
 using System.Collections.Generic;
 using System;
+using Common.Services.NoSql.Domain.Interfaces;
 
 namespace SignalR
 {
@@ -75,10 +75,17 @@ namespace SignalR
                 t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository")
             );
 
+            Predicate<Type> predicate = t =>
+                (
+                    t.Namespace.StartsWith("Common.Services.NoSql.") ||
+                    t.Namespace.StartsWith("Common.Services.Infrastructure.")
+                )
+                && t.Name.EndsWith("Service");
+
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.Services.") && t.Name.EndsWith("Service")
+                predicate,
+                predicate
             );
 
             services.AddTransient<IDbContext, DbContext>();

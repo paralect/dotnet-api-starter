@@ -2,21 +2,21 @@
 using AutoMapper;
 using Common;
 using Common.Dal.Repositories;
-using Common.Services.Domain.Interfaces;
-using Common.Services.Domain.Models;
-using Common.Services.Infrastructure.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.NoSql.Models.Account.ForgotPasswordModel;
-using Api.NoSql.Services.Interfaces;
-using Api.NoSql.Models.Account;
-using Api.NoSql.Models.User;
-using Api.NoSql.Security;
-using Common.Services.Infrastructure.Email.Models;
+using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
+using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
+using Common.Security;
+using Api.Views.Models.View.User;
+using Api.Views.Models.View.Account;
+using Api.Views.Models.Infrastructure.Email;
+using Common.Services.Infrastructure.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
+using Common.Services.NoSql.Api.Interfaces;
 
 namespace Api.NoSql.Controllers
 {
@@ -59,13 +59,7 @@ namespace Api.NoSql.Controllers
                 return BadRequest(nameof(model.Email), "User with this email is already registered.");
             }
 
-            user = await _userService.CreateUserAccountAsync(new CreateUserModel
-            {
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Password = model.Password
-            });
+            user = await _userService.CreateUserAccountAsync(model);
 
             if (_environment.IsDevelopment())
             {
@@ -138,7 +132,7 @@ namespace Api.NoSql.Controllers
                 await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
             }
 
-            _emailService.SendForgotPassword(new Common.Services.Infrastructure.Email.Models.ForgotPasswordModel
+            _emailService.SendForgotPassword(new EmailForgotPasswordModel
             {
                 Email = user.Email,
                 ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",

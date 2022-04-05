@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Api.Sql.Mapping;
-using Api.Sql.Services.Interfaces;
-using Api.Sql.Utils;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
-using Common.ServicesSql.Domain.Interfaces;
+using Common.Security;
+using Common.Services.Sql.Api.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using ValidationAttribute = Api.Sql.Security.ValidationAttribute;
 
 namespace Api.Sql
 {
@@ -132,17 +131,24 @@ namespace Api.Sql
                 t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository")
             );
 
-            // register services from Api project
-            services.AddTransientByConvention(
-                typeof(IAuthService),
-                t => t.Name.EndsWith("Service")
-            );
+            Predicate<Type> predicate = t =>
+                (
+                    t.Namespace.StartsWith("Common.Services.Sql.") ||
+                    t.Namespace.StartsWith("Common.Services.Infrastructure.")
+                )
+                && t.Name.EndsWith("Service");
 
-            // register services from Common project
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.ServicesSql.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.ServicesSql.") && t.Name.EndsWith("Service")
+                predicate,
+                predicate
+            );
+
+            // register services from Common.Services project
+            services.AddTransientByConvention(
+                new List<Type> { typeof(IUserService) },
+                predicate,
+                predicate
             );
         }
 

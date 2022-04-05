@@ -2,17 +2,18 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Api.Sql.Models;
-using Api.Sql.Models.User;
+using Api.Views.Models.View;
+using Api.Views.Models.View.User;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
-using Common.ServicesSql.Domain.Interfaces;
+using Common.Security;
+using Common.Services.Sql.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Sql.Controllers
 {
-    [Security.Authorize]
+    [Authorize]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
@@ -45,7 +46,7 @@ namespace Api.Sql.Controllers
 
             Expression<Func<User, UserViewModel>> map = x => new UserViewModel
             {
-                Id = x.Id,
+                Id = x.Id.ToString(),
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email
@@ -66,7 +67,7 @@ namespace Api.Sql.Controllers
             },
             x => new UserViewModel
             {
-                Id = x.Id,
+                Id = x.Id.ToString(),
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email

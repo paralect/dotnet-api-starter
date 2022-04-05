@@ -1,18 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using Api.NoSql.Controllers;
-using Api.NoSql.Models.Account;
-using Api.NoSql.Services.Interfaces;
+using Api.Views.Models.Infrastructure.Email;
+using Api.Views.Models.View.Account;
 using AutoMapper;
 using Common;
 using Common.Dal.Documents.Token;
 using Common.Dal.Documents.User;
 using Common.Dal.Repositories;
 using Common.Enums;
-using Common.Services.Domain.Interfaces;
-using Common.Services.Domain.Models;
-using Common.Services.Infrastructure.Email.Models;
 using Common.Services.Infrastructure.Interfaces;
+using Common.Services.NoSql.Api.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using ForgotPasswordModel = Api.NoSql.Models.Account.ForgotPasswordModel;
+using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
 
 namespace Tests
 {
@@ -90,7 +89,7 @@ namespace Tests
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
                 .ReturnsAsync((User)null);
 
-            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserModel>()))
+            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<SignUpModel>()))
                 .ReturnsAsync(new User());
 
             _environment.Setup(environment => environment.EnvironmentName).Returns(environmentName);
@@ -309,7 +308,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
             _emailService.Verify(service => service.SendForgotPassword(
-                It.Is<Common.Services.Infrastructure.Email.Models.ForgotPasswordModel>(m => m.Email == user.Email))
+                It.Is<Api.Views.Models.Infrastructure.Email.ForgotPasswordModel>(m => m.Email == user.Email))
             );
 
             Assert.IsType<OkResult>(result);
