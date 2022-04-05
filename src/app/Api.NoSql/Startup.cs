@@ -15,7 +15,6 @@ using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
 using Common.Services.NoSql.Domain.Interfaces;
-using Common.Services.NoSql.Api.Interfaces;
 using Serilog;
 using Common;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
