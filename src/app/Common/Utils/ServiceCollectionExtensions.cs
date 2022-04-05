@@ -11,20 +11,20 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddTransientByConvention(
         this IServiceCollection services,
         Type assemblyMarkerType,
-        Func<Type, bool> predicate)
+        Predicate<Type> predicate)
         => services.AddTransientByConvention(new List<Type> { assemblyMarkerType }, predicate);
 
     public static IServiceCollection AddTransientByConvention(
         this IServiceCollection services,
         IEnumerable<Type> assemblyMarkerTypes,
-        Func<Type, bool> predicate)
+        Predicate<Type> predicate)
         => services.AddTransientByConvention(assemblyMarkerTypes, predicate, predicate);
 
     public static IServiceCollection AddTransientByConvention(
         this IServiceCollection services,
         IEnumerable<Type> assemblyMarkerTypes,
-        Func<Type, bool> interfacePredicate,
-        Func<Type, bool> implementationPredicate)
+        Predicate<Type> interfacePredicate,
+        Predicate<Type> implementationPredicate)
     {
         var assemblies = assemblyMarkerTypes.Select(Assembly.GetAssembly).ToList();
 

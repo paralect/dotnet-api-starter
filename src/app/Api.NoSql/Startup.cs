@@ -11,11 +11,11 @@ using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
 using ValidationAttribute = Common.Security.ValidationAttribute;
 using Common.Dal.Interfaces;
 using Common.Dal;
-using Api.NoSql.Services.Interfaces;
 using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
-using Common.Services.Services.Domain.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
+using Common.Services.NoSql.Api.Interfaces;
 
 namespace Api.NoSql
 {
@@ -126,17 +126,17 @@ namespace Api.NoSql
                 t => t.Namespace.StartsWith("Common.Dal.") && t.Name.EndsWith("Repository")
             );
 
-            // register services from Api project
-            services.AddTransientByConvention(
-                typeof(IAuthService),
-                t => t.Name.EndsWith("Service")
-            );
+            Predicate<Type> predicate = t =>
+                (
+                    t.Namespace.StartsWith("Common.Services.NoSql.") ||
+                    t.Namespace.StartsWith("Common.Services.Infrastructure.")
+                )
+                && t.Name.EndsWith("Service");
 
-            // register services from Common.Services project
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.Services.Services.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.Services.Services.") && t.Name.EndsWith("Service")
+                predicate,
+                predicate
             );
 
             services.AddTransient<IDbContext, DbContext>();

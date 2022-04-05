@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Api.Sql.Mapping;
-using Api.Sql.Services.Interfaces;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
 using Common.Security;
-using Common.Services.ServicesSql.Domain.Interfaces;
+using Common.Services.Sql.Api.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
@@ -131,17 +131,24 @@ namespace Api.Sql
                 t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository")
             );
 
-            // register services from Api project
+            Predicate<Type> predicate = t =>
+                (
+                    t.Namespace.StartsWith("Common.Services.Sql.") ||
+                    t.Namespace.StartsWith("Common.Services.Infrastructure.")
+                )
+                && t.Name.EndsWith("Service");
+
             services.AddTransientByConvention(
-                typeof(IAuthService),
-                t => t.Name.EndsWith("Service")
+                new List<Type> { typeof(IUserService) },
+                predicate,
+                predicate
             );
 
             // register services from Common.Services project
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
-                t => t.Namespace.StartsWith("Common.Services.ServicesSql.") && t.Name.EndsWith("Service"),
-                t => t.Namespace.StartsWith("Common.Services.ServicesSql.") && t.Name.EndsWith("Service")
+                predicate,
+                predicate
             );
         }
 

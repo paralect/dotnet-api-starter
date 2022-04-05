@@ -6,7 +6,7 @@ using AutoMapper;
 using Common.Dal;
 using Common.Dal.Repositories;
 using Common.Security;
-using Common.Services.Services.Domain.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.NoSql.Controllers

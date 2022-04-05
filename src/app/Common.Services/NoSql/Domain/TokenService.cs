@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using Common.Dal.Documents.Token;
+﻿using Common.Dal.Documents.Token;
 using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
-using Common.Services.Services.Domain.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
 
-namespace Common.Services.Services.Domain;
+namespace Common.Services.NoSql.Domain;
 
 public class TokenService : BaseDocumentService<Token, TokenFilter>, ITokenService
 {

@@ -9,8 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
 using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
-using Api.Sql.Services.Interfaces;
-using Common.Services.ServicesSql.Domain.Interfaces;
 using Common.DalSql.Filters;
 using Common.DalSql.Entities;
 using Common.Security;
@@ -19,6 +17,8 @@ using Api.Views.Models.View.Account;
 using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
+using Common.Services.Sql.Api.Interfaces;
 
 namespace Api.Sql.Controllers
 {

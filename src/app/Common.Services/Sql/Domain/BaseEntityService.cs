@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 using Common.DalSql.Interfaces;
-using Common.Services.ServicesSql.Domain.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
 
-namespace Common.Services.ServicesSql.Domain;
+namespace Common.Services.Sql.Domain;
 
 public class BaseEntityService<TEntity, TFilter> : IEntityService<TEntity, TFilter>
     where TEntity : BaseEntity

@@ -2,7 +2,7 @@
 using Common.Dal.Documents.Token;
 using Common.Dal.Repositories;
 
-namespace Common.Services.Services.Domain.Interfaces;
+namespace Common.Services.NoSql.Domain.Interfaces;
 
 public interface ITokenService : IDocumentService<Token, TokenFilter>
 {

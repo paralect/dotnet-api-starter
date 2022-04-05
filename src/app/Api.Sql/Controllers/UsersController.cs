@@ -8,7 +8,7 @@ using Common.DalSql;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 using Common.Security;
-using Common.Services.ServicesSql.Domain.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Sql.Controllers

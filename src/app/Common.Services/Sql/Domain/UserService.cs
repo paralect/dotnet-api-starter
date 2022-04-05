@@ -3,12 +3,12 @@ using Common.DalSql.Filters;
 using Common.Utils;
 using Common.DalSql.Interfaces;
 using Common.Enums;
-using Common.Services.ServicesSql.Domain.Interfaces;
 using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
 
-namespace Common.Services.ServicesSql.Domain;
+namespace Common.Services.Sql.Domain;
 
 public class UserService : BaseEntityService<User, UserFilter>, IUserService
 {

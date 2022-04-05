@@ -1,9 +1,9 @@
 ﻿using Common.Dal;
 using Common.Dal.Documents;
 using Common.Dal.Interfaces;
-using Common.Services.Services.Domain.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
 
-namespace Common.Services.Services.Domain;
+namespace Common.Services.NoSql.Domain;
 
 public class BaseDocumentService<TDocument, TFilter> : IDocumentService<TDocument, TFilter>
     where TDocument : BaseDocument

@@ -3,7 +3,7 @@ using Api.Views.Models.Domain;
 using Common.Dal.Documents.User;
 using Common.Dal.Repositories;
 
-namespace Common.Services.Services.Domain.Interfaces;
+namespace Common.Services.NoSql.Domain.Interfaces;
 
 public interface IUserService : IDocumentService<User, UserFilter>
 {

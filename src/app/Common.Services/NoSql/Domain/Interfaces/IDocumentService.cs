@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Common.Dal;
 using Common.Dal.Documents;
 
-namespace Common.Services.Services.Domain.Interfaces;
+namespace Common.Services.NoSql.Domain.Interfaces;
 
 public interface IDocumentService<TDocument, in TFilter>
     where TDocument : BaseDocument
