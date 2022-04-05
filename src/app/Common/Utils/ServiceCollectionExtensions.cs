@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Common.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Common.Utils;
@@ -49,5 +50,15 @@ public static class ServiceCollectionExtensions
         }
 
         return services;
+    }
+
+    public static void ConfigureHealthChecks(this IServiceCollection services, DbSettings dbSettings)
+    {
+        services
+            .AddHealthChecks()
+            .AddMongoDb(
+                mongodbConnectionString: dbSettings.ConnectionString,
+                mongoDatabaseName: dbSettings.Database
+            );
     }
 }

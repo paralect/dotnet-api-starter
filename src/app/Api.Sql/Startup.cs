@@ -12,6 +12,7 @@ using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -37,23 +38,9 @@ namespace Api.Sql
             ConfigureSettings(services);
             ConfigureDi(services);
             ConfigureDb(services);
+            ConfigureCors(services);
 
             services.AddHttpContextAccessor();
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowSpecificOrigin", builder =>
-                {
-                    var appSettings = new AppSettings();
-                    _configuration.GetSection("App").Bind(appSettings);
-
-                    builder
-                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
 
             services
                 .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
@@ -77,7 +64,9 @@ namespace Api.Sql
 
             services.AddAutoMapper(typeof(UserProfile));
 
-            services.AddHealthChecks();
+            services
+                .AddHealthChecks()
+                .AddDbContextCheck<ShipDbContext>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -112,7 +101,10 @@ namespace Api.Sql
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks(Constants.HealthcheckPath);
+                endpoints.MapHealthChecks(Constants.HealthcheckPath, new HealthCheckOptions
+                {
+                    AllowCachingResponses = false
+                });
             });
         }
 
@@ -169,6 +161,24 @@ namespace Api.Sql
             _configuration.GetSection("DbSql").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+        }
+
+        private void ConfigureCors(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    var appSettings = new AppSettings();
+                    _configuration.GetSection("App").Bind(appSettings);
+
+                    builder
+                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }
