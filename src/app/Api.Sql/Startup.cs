@@ -143,20 +143,6 @@ namespace Api.Sql
                 predicate,
                 predicate
             );
-
-            Func<Type, bool> predicate = t =>
-                (
-                    t.Namespace.StartsWith("Common.Services.ServicesSql.") ||
-                    t.Namespace.StartsWith("Common.Services.Infrastructure.")
-                )
-                && t.Name.EndsWith("Service");
-
-            // register services from Common.Services project
-            services.AddTransientByConvention(
-                new List<Type> { typeof(IUserService) },
-                predicate,
-                predicate
-            );
         }
 
         private void ConfigureDb(IServiceCollection services)

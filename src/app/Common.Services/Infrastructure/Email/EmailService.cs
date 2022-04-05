@@ -47,8 +47,7 @@ public class EmailService : IEmailService
     {
         if (_emailSettings.UseMock)
         {
-            // TODO structured logging with Serilog
-            _logger.LogInformation("Email sending omitted. {Data}.", JsonSerializer.Serialize(model));
+            _logger.LogInformation("Email sending omitted. {@Data}.", model);
             return;
         }
 
@@ -74,11 +73,11 @@ public class EmailService : IEmailService
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
 
-                _logger.LogDebug("Email is sent. {Data}.", JsonSerializer.Serialize(model));
+                _logger.LogDebug("Email is sent. {@Data}.", model);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Email failed to send. {Data}.", JsonSerializer.Serialize(model));
+                _logger.LogError(e, "Email failed to send. {@Data}.", model);
             }
         }
     }
