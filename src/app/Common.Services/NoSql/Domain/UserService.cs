@@ -4,10 +4,10 @@ using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
 using Common.Enums;
 using Common.Utils;
-using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
+using Api.Views.Models.View.Account;
 
 namespace Common.Services.NoSql.Domain;
 
@@ -50,7 +50,7 @@ public class UserService : BaseDocumentService<User, UserFilter>, IUserService
             .Set(u => u.ResetPasswordToken, null));
     }
 
-    public async Task<User> CreateUserAccountAsync(CreateUserModel model)
+    public async Task<User> CreateUserAccountAsync(SignUpModel model)
     {
         var signUpToken = SecurityUtils.GenerateSecureToken();
 

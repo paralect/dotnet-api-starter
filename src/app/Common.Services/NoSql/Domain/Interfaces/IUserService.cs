@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Api.Views.Models.Domain;
+﻿using Api.Views.Models.View.Account;
 using Common.Dal.Documents.User;
 using Common.Dal.Repositories;
 
@@ -10,7 +9,7 @@ public interface IUserService : IDocumentService<User, UserFilter>
     Task<User> FindByEmailAsync(string email);
     Task<bool> IsEmailInUseAsync(string userIdToExclude, string email);
 
-    Task<User> CreateUserAccountAsync(CreateUserModel model);
+    Task<User> CreateUserAccountAsync(SignUpModel model);
 
     Task UpdateLastRequestAsync(string id);
     Task UpdateResetPasswordTokenAsync(string id, string token);

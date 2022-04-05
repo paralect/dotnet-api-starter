@@ -1,4 +1,4 @@
-﻿using Api.Views.Models.Domain;
+﻿using Api.Views.Models.View.Account;
 using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 
@@ -6,7 +6,7 @@ namespace Common.Services.Sql.Domain.Interfaces;
 
 public interface IUserService : IEntityService<User, UserFilter>
 {
-    Task<User> CreateUserAccountAsync(CreateUserModel model);
+    Task<User> CreateUserAccountAsync(SignUpModel model);
 
     Task VerifyEmailAsync(long id);
     Task SignInAsync(long id);

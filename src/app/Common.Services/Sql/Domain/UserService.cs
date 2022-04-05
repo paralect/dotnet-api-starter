@@ -3,10 +3,10 @@ using Common.DalSql.Filters;
 using Common.Utils;
 using Common.DalSql.Interfaces;
 using Common.Enums;
-using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
+using Api.Views.Models.View.Account;
 
 namespace Common.Services.Sql.Domain;
 
@@ -23,7 +23,7 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User> CreateUserAccountAsync(CreateUserModel model)
+    public async Task<User> CreateUserAccountAsync(SignUpModel model)
     {
         var signUpToken = SecurityUtils.GenerateSecureToken();
 

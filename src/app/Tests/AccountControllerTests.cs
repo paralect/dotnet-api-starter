@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Api.NoSql.Controllers;
-using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
 using AutoMapper;
@@ -57,7 +56,7 @@ namespace Tests
         public async Task SignUpShouldReturnBadRequestWhenUserAlreadyExist()
         {
             // Arrange
-            var model = new CreateUserModel
+            var model = new SignUpModel
             {
                 Email = "sample@sample.com"
             };
@@ -82,7 +81,7 @@ namespace Tests
         {
             // Arrange
             var expectedResult = environmentName == "Development" ? typeof(OkObjectResult) : typeof(OkResult);
-            var model = new CreateUserModel
+            var model = new SignUpModel
             {
                 Email = "sample@sample.com"
             };
@@ -90,7 +89,7 @@ namespace Tests
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
                 .ReturnsAsync((User)null);
 
-            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<CreateUserModel>()))
+            _userService.Setup(service => service.CreateUserAccountAsync(It.IsAny<SignUpModel>()))
                 .ReturnsAsync(new User());
 
             _environment.Setup(environment => environment.EnvironmentName).Returns(environmentName);

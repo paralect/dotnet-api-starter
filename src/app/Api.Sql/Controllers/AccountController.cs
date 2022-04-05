@@ -14,7 +14,6 @@ using Common.DalSql.Entities;
 using Common.Security;
 using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
-using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
@@ -86,7 +85,7 @@ namespace Api.Sql.Controllers
         }
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> SignUpAsync([FromBody] CreateUserModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
             var doesUserExist = await _userService.AnyAsync(new UserFilter
             {

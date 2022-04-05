@@ -13,7 +13,6 @@ using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPas
 using Common.Security;
 using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
-using Api.Views.Models.Domain;
 using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
@@ -52,7 +51,7 @@ namespace Api.NoSql.Controllers
         }
 
         [HttpPost("sign-up")]
-        public async Task<IActionResult> SignUpAsync([FromBody] CreateUserModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] SignUpModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)

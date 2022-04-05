@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Views.Models.Domain;
+namespace Api.Views.Models.View.Account;
 
-public class CreateUserModel
+public class SignUpModel
 {
     [Required(ErrorMessage = "Email is required.")]
     [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
