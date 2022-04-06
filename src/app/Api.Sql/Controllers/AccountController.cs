@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
-using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
-using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 using Common.DalSql.Filters;
 using Common.DalSql.Entities;
 using Common.Security;
@@ -18,6 +15,7 @@ using Api.Views.Models.View.Account;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
 using Common.Services.Sql.Api.Interfaces;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.Sql.Controllers
 {
@@ -154,7 +152,7 @@ namespace Api.Sql.Controllers
             {
                 var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
 
-                await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
+                await _emailService.SendForgotPasswordAsync(new ForgotPasswordEmailModel
                 {
                     Email = user.Email,
                     ResetPasswordToken = resetPasswordToken,
@@ -204,7 +202,7 @@ namespace Api.Sql.Controllers
 
             if (user != null)
             {
-                await _emailService.SendSignUpWelcomeAsync(new EmailSignUpModel
+                await _emailService.SendSignUpAsync(new SignUpEmailModel
                 {
                     Email = model.Email,
                     FirstName = user.FirstName,

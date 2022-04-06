@@ -19,9 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
-using SignUpModel = Api.Views.Models.View.Account.SignUpModel;
-using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Tests
 {
@@ -309,7 +307,7 @@ namespace Tests
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
             _emailService.Verify(service => service.SendForgotPasswordAsync(
-                It.Is<Api.Views.Models.Infrastructure.Email.ForgotPasswordModel>(m => m.Email == user.Email))
+                It.Is<ForgotPasswordEmailModel>(m => m.Email == user.Email))
             );
 
             Assert.IsType<OkResult>(result);
@@ -386,8 +384,8 @@ namespace Tests
             var result = await controller.ResendVerificationAsync(model);
 
             // Assert
-            _emailService.Verify(service => service.SendSignUpWelcomeAsync(
-                It.Is<EmailSignUpModel>(m =>
+            _emailService.Verify(service => service.SendSignUpAsync(
+                It.Is<SignUpEmailModel>(m =>
                     m.Email == model.Email &&
                     m.SignUpToken == user.SignupToken &&
                     m.FirstName == user.FirstName

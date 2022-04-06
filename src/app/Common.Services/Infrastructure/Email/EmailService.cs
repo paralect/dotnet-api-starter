@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Api.Views.Models.Infrastructure.Email;
+﻿using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Settings;
 using Common.Utils;
@@ -26,7 +25,7 @@ public class EmailService : IEmailService
         _appSettings = appSettings.Value;
     }
 
-    public async Task SendSignUpWelcomeAsync(SignUpModel model)
+    public async Task SendSignUpAsync(SignUpEmailModel model)
     {
         await SendEmailAsync(new EmailModel
         {
@@ -37,7 +36,7 @@ public class EmailService : IEmailService
         });
     }
 
-    public async Task SendForgotPasswordAsync(ForgotPasswordModel model)
+    public async Task SendForgotPasswordAsync(ForgotPasswordEmailModel model)
     {
         await SendEmailAsync(new EmailModel
         {

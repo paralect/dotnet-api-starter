@@ -8,15 +8,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
-using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
-using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 using Common.Security;
 using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
 using Common.Services.NoSql.Api.Interfaces;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.NoSql.Controllers
 {
@@ -129,7 +127,7 @@ namespace Api.NoSql.Controllers
                     await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
                 }
 
-                await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
+                await _emailService.SendForgotPasswordAsync(new ForgotPasswordEmailModel
                 {
                     Email = user.Email,
                     ResetPasswordToken = resetPasswordToken,
@@ -160,7 +158,7 @@ namespace Api.NoSql.Controllers
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                await _emailService.SendSignUpWelcomeAsync(new EmailSignUpModel
+                await _emailService.SendSignUpAsync(new SignUpEmailModel
                 {
                     Email = model.Email,
                     FirstName = user.FirstName,
