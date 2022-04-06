@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
 
-namespace Tests
+namespace Tests.NoSql
 {
     public class UsersControllerTests
     {
