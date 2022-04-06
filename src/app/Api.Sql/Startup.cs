@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Api.Sql.Mapping;
+using Api.Views.MappingsSql;
+using Api.Views.Validators.Account;
 using Common;
 using Common.DalSql;
 using Common.DalSql.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -63,6 +65,8 @@ namespace Api.Sql
             services
                 .AddHealthChecks()
                 .AddDbContextCheck<ShipDbContext>();
+
+            services.AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
