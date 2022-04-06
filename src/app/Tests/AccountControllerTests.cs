@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Api.NoSql.Controllers;
-using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
 using AutoMapper;
 using Common;
@@ -20,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Tests
 {
@@ -307,8 +306,8 @@ namespace Tests
 
             // Assert
             _userService.Verify(service => service.UpdateResetPasswordTokenAsync(user.Id, It.IsAny<string>()), Times.Once);
-            _emailService.Verify(service => service.SendForgotPassword(
-                It.Is<Api.Views.Models.Infrastructure.Email.ForgotPasswordModel>(m => m.Email == user.Email))
+            _emailService.Verify(service => service.SendForgotPasswordAsync(
+                It.Is<ForgotPasswordEmailModel>(m => m.Email == user.Email))
             );
 
             Assert.IsType<OkResult>(result);
@@ -372,6 +371,7 @@ namespace Tests
             };
             var user = new User
             {
+                FirstName = "firstName",
                 SignupToken = "test token"
             };
 
@@ -384,8 +384,12 @@ namespace Tests
             var result = await controller.ResendVerificationAsync(model);
 
             // Assert
-            _emailService.Verify(service => service.SendSignUpWelcome(
-                It.Is<SignUpWelcomeModel>(m => m.Email == model.Email && m.SignUpToken == user.SignupToken))
+            _emailService.Verify(service => service.SendSignUpAsync(
+                It.Is<SignUpEmailModel>(m =>
+                    m.Email == model.Email &&
+                    m.SignUpToken == user.SignupToken &&
+                    m.FirstName == user.FirstName
+                ))
             );
             Assert.IsType<OkResult>(result);
         }

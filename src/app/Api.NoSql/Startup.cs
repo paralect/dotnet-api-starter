@@ -101,6 +101,7 @@ namespace Api.NoSql
             services.Configure<DbSettings>(options => { _configuration.GetSection("Db").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
+            services.Configure<EmailSettings>(options => { _configuration.GetSection("Email").Bind(options); });
         }
 
         private void ConfigureDi(IServiceCollection services)

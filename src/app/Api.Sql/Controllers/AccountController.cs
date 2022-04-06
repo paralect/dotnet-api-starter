@@ -7,17 +7,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
-using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
 using Common.DalSql.Filters;
 using Common.DalSql.Entities;
 using Common.Security;
 using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
-using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
 using Common.Services.Sql.Api.Interfaces;
+using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.Sql.Controllers
 {
@@ -150,20 +148,17 @@ namespace Api.Sql.Controllers
                 x.FirstName
             });
 
-            if (user == null)
+            if (user != null)
             {
-                return BadRequest(nameof(model.Email),
-                    $"Couldn't find account associated with ${model.Email}. Please try again.");
+                var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
+
+                await _emailService.SendForgotPasswordAsync(new ForgotPasswordEmailModel
+                {
+                    Email = user.Email,
+                    ResetPasswordToken = resetPasswordToken,
+                    FirstName = user.FirstName
+                });
             }
-
-            var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
-
-            _emailService.SendForgotPassword(new EmailForgotPasswordModel
-            {
-                Email = user.Email,
-                ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
-                FirstName = user.FirstName
-            });
 
             return Ok();
         }
@@ -201,14 +196,16 @@ namespace Api.Sql.Controllers
             },
             x => new
             {
+                x.FirstName,
                 x.SignupToken
             });
 
             if (user != null)
             {
-                _emailService.SendSignUpWelcome(new SignUpWelcomeModel
+                await _emailService.SendSignUpAsync(new SignUpEmailModel
                 {
                     Email = model.Email,
+                    FirstName = user.FirstName,
                     SignUpToken = user.SignupToken
                 });
             }

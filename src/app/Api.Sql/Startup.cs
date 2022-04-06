@@ -109,6 +109,7 @@ namespace Api.Sql
             services.Configure<DbSettingsSql>(options => { _configuration.GetSection("DbSql").Bind(options); });
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
+            services.Configure<EmailSettings>(options => { _configuration.GetSection("Email").Bind(options); });
         }
 
         private void ConfigureDi(IServiceCollection services)
@@ -137,13 +138,6 @@ namespace Api.Sql
                 )
                 && t.Name.EndsWith("Service");
 
-            services.AddTransientByConvention(
-                new List<Type> { typeof(IUserService) },
-                predicate,
-                predicate
-            );
-
-            // register services from Common.Services project
             services.AddTransientByConvention(
                 new List<Type> { typeof(IUserService) },
                 predicate,
