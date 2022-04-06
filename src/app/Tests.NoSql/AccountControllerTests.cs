@@ -21,7 +21,7 @@ using Moq;
 using Xunit;
 using Api.Views.Models.Infrastructure.Email;
 
-namespace Tests
+namespace Tests.NoSql
 {
     public class AccountControllerTests
     {
@@ -262,7 +262,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task ForgotPasswordShouldReturnBadRequestWhenUserDoesNotExist()
+        public async Task ForgotPasswordShouldReturnOkWhenUserDoesNotExist()
         {
             // Arrange
             var model = new ForgotPasswordModel
@@ -279,7 +279,7 @@ namespace Tests
             var result = await controller.ForgotPasswordAsync(model);
 
             // Assert
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact]
