@@ -2,7 +2,7 @@
 using AutoMapper;
 using Common.DalSql.Entities;
 
-namespace Api.Sql.Mapping;
+namespace Api.Views.MappingsSql;
 
 public class UserProfile : Profile
 {

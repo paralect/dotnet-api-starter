@@ -11,13 +11,15 @@ using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
 using ValidationAttribute = Common.Security.ValidationAttribute;
 using Common.Dal.Interfaces;
 using Common.Dal;
-using Api.NoSql.Mapping;
 using System.Collections.Generic;
 using System;
 using Common.Services.NoSql.Domain.Interfaces;
 using Serilog;
 using Common;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using FluentValidation.AspNetCore;
+using Api.Views.Mappings;
+using Api.Views.Validators.Account;
 
 namespace Api.NoSql
 {
@@ -61,6 +63,8 @@ namespace Api.NoSql
             services.AddAuthorization();
 
             services.AddAutoMapper(typeof(UserProfile));
+
+            services.AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

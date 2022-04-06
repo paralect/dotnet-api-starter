@@ -4,7 +4,7 @@ using AutoMapper;
 using Common.Dal;
 using Common.Dal.Documents.User;
 
-namespace Api.NoSql.Mapping;
+namespace Api.Views.Mappings;
 
 public class UserProfile : Profile
 {
