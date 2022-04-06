@@ -9,12 +9,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
 using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
+using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 using Common.DalSql.Filters;
 using Common.DalSql.Entities;
 using Common.Security;
 using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
-using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
 using Common.Services.Sql.Api.Interfaces;
@@ -150,20 +150,17 @@ namespace Api.Sql.Controllers
                 x.FirstName
             });
 
-            if (user == null)
+            if (user != null)
             {
-                return BadRequest(nameof(model.Email),
-                    $"Couldn't find account associated with ${model.Email}. Please try again.");
+                var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
+
+                await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
+                {
+                    Email = user.Email,
+                    ResetPasswordToken = resetPasswordToken,
+                    FirstName = user.FirstName
+                });
             }
-
-            var resetPasswordToken = await _userService.SetResetPasswordTokenAsync(user.Id);
-
-            await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
-            {
-                Email = user.Email,
-                ResetPasswordUrl = $"{_appSettings.LandingUrl}/reset-password?token={resetPasswordToken}",
-                FirstName = user.FirstName
-            });
 
             return Ok();
         }
@@ -207,7 +204,7 @@ namespace Api.Sql.Controllers
 
             if (user != null)
             {
-                await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
+                await _emailService.SendSignUpWelcomeAsync(new EmailSignUpModel
                 {
                     Email = model.Email,
                     FirstName = user.FirstName,

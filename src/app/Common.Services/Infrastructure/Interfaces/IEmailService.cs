@@ -4,6 +4,6 @@ namespace Common.Services.Infrastructure.Interfaces;
 
 public interface IEmailService
 {
-    Task SendSignUpWelcomeAsync(SignUpWelcomeModel model);
+    Task SendSignUpWelcomeAsync(SignUpModel model);
     Task SendForgotPasswordAsync(ForgotPasswordModel model);
 }

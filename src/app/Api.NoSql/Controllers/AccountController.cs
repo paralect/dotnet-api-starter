@@ -10,10 +10,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
 using EmailForgotPasswordModel = Api.Views.Models.Infrastructure.Email.ForgotPasswordModel;
+using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 using Common.Security;
 using Api.Views.Models.View.User;
 using Api.Views.Models.View.Account;
-using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
 using Common.Services.NoSql.Api.Interfaces;
@@ -120,24 +120,22 @@ namespace Api.NoSql.Controllers
         public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordModel model)
         {
             var user = await _userService.FindByEmailAsync(model.Email);
-            if (user == null)
+            if (user != null)
             {
-                return BadRequest(nameof(model.Email), $"Couldn't find account associated with ${model.Email}. Please try again.");
-            }
+                var resetPasswordToken = user.ResetPasswordToken;
+                if (resetPasswordToken.HasNoValue())
+                {
+                    resetPasswordToken = SecurityUtils.GenerateSecureToken();
+                    await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
+                }
 
-            var resetPasswordToken = user.ResetPasswordToken;
-            if (resetPasswordToken.HasNoValue())
-            {
-                resetPasswordToken = SecurityUtils.GenerateSecureToken();
-                await _userService.UpdateResetPasswordTokenAsync(user.Id, resetPasswordToken);
+                await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
+                {
+                    Email = user.Email,
+                    ResetPasswordToken = resetPasswordToken,
+                    FirstName = user.FirstName
+                });
             }
-
-            await _emailService.SendForgotPasswordAsync(new EmailForgotPasswordModel
-            {
-                Email = user.Email,
-                ResetPasswordUrl = $"{_appSettings.WebUrl}/reset-password?token={resetPasswordToken}",
-                FirstName = user.FirstName
-            });
 
             return Ok();
         }
@@ -162,7 +160,7 @@ namespace Api.NoSql.Controllers
             var user = await _userService.FindByEmailAsync(model.Email);
             if (user != null)
             {
-                await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
+                await _emailService.SendSignUpWelcomeAsync(new EmailSignUpModel
                 {
                     Email = model.Email,
                     FirstName = user.FirstName,

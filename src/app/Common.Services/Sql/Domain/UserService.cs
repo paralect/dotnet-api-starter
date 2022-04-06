@@ -3,10 +3,10 @@ using Common.DalSql.Filters;
 using Common.Utils;
 using Common.DalSql.Interfaces;
 using Common.Enums;
-using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
-using Api.Views.Models.View.Account;
+using SignUpModel = Api.Views.Models.View.Account.SignUpModel;
+using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 
 namespace Common.Services.Sql.Domain;
 
@@ -40,7 +40,7 @@ public class UserService : BaseEntityService<User, UserFilter>, IUserService
 
         await _userRepository.InsertAsync(user);
 
-        await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
+        await _emailService.SendSignUpWelcomeAsync(new EmailSignUpModel
         {
             Email = model.Email,
             FirstName = model.FirstName,

@@ -14,21 +14,26 @@ public class EmailService : IEmailService
 {
     private readonly ILogger _logger;
     private readonly EmailSettings _emailSettings;
+    private readonly AppSettings _appSettings;
 
-    public EmailService(ILogger<EmailService> logger, IOptions<EmailSettings> emailSettings)
+    public EmailService(
+        ILogger<EmailService> logger,
+        IOptions<EmailSettings> emailSettings,
+        IOptions<AppSettings> appSettings)
     {
         _logger = logger;
         _emailSettings = emailSettings.Value;
+        _appSettings = appSettings.Value;
     }
 
-    public async Task SendSignUpWelcomeAsync(SignUpWelcomeModel model)
+    public async Task SendSignUpWelcomeAsync(SignUpModel model)
     {
         await SendEmailAsync(new EmailModel
         {
             ToEmail = model.Email,
             ToName = model.FirstName,
             Subject = "Sign Up",
-            Body = $"<a href=http://localhost:3001/account/verify-email?token={model.SignUpToken}>Link</a> to verify email." // TODO replace host
+            Body = $"<a href={_appSettings.ApiUrl}/account/verify-email?token={model.SignUpToken}>Link</a> to verify email."
         });
     }
 
@@ -39,7 +44,7 @@ public class EmailService : IEmailService
             ToEmail = model.Email,
             ToName = model.FirstName,
             Subject = "Forgot Password",
-            Body = $"<a href={model.ResetPasswordUrl}>Link</a> to reset password."
+            Body = $"<a href={_appSettings.WebUrl}/reset-password?token={model.ResetPasswordToken}>Link</a> to reset password."
         });
     }
 

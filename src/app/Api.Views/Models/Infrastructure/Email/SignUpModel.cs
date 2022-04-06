@@ -1,6 +1,6 @@
 ﻿namespace Api.Views.Models.Infrastructure.Email;
 
-public class SignUpWelcomeModel
+public class SignUpModel
 {
     public string Email { get; set; }
     public string FirstName { get; set; }

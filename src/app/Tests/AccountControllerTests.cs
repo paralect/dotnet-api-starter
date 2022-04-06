@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Api.NoSql.Controllers;
-using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
 using AutoMapper;
 using Common;
@@ -21,6 +20,8 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using ForgotPasswordModel = Api.Views.Models.View.Account.ForgotPasswordModel;
+using SignUpModel = Api.Views.Models.View.Account.SignUpModel;
+using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 
 namespace Tests
 {
@@ -386,7 +387,7 @@ namespace Tests
 
             // Assert
             _emailService.Verify(service => service.SendSignUpWelcomeAsync(
-                It.Is<SignUpWelcomeModel>(m =>
+                It.Is<EmailSignUpModel>(m =>
                     m.Email == model.Email &&
                     m.SignUpToken == user.SignupToken &&
                     m.FirstName == user.FirstName

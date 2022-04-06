@@ -4,10 +4,10 @@ using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
 using Common.Enums;
 using Common.Utils;
-using Api.Views.Models.Infrastructure.Email;
 using Common.Services.Infrastructure.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
-using Api.Views.Models.View.Account;
+using SignUpModel = Api.Views.Models.View.Account.SignUpModel;
+using EmailSignUpModel = Api.Views.Models.Infrastructure.Email.SignUpModel;
 
 namespace Common.Services.NoSql.Domain;
 
@@ -67,7 +67,7 @@ public class UserService : BaseDocumentService<User, UserFilter>, IUserService
 
         await _userRepository.InsertAsync(newUser);
 
-        await _emailService.SendSignUpWelcomeAsync(new SignUpWelcomeModel
+        await _emailService.SendSignUpWelcomeAsync(new EmailSignUpModel
         {
             Email = model.Email,
             FirstName = model.FirstName,
