@@ -1,54 +1,57 @@
-﻿//using System.Threading.Tasks;
-//using Api.Sql.Controllers;
-//using AutoMapper;
-//using Common.Dal.Documents.User;
-//using Common.Services.NoSql.Domain.Interfaces;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Moq;
-//using Xunit;
+﻿using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Api.Sql.Controllers;
+using Api.Views.Models.View.User;
+using Common.DalSql.Entities;
+using Common.DalSql.Filters;
+using Common.Services.Sql.Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Xunit;
 
-//namespace Tests.Sql
-//{
-//    public class UsersControllerTests
-//    {
-//        private readonly Mock<IUserService> _userService;
-//        private readonly Mock<IMapper> _mapper;
+namespace Tests.Sql
+{
+    public class UsersControllerTests
+    {
+        private readonly Mock<IUserService> _userService;
 
-//        public UsersControllerTests()
-//        {
-//            _userService = new Mock<IUserService>();
-//            _mapper = new Mock<IMapper>();
-//        }
+        public UsersControllerTests()
+        {
+            _userService = new Mock<IUserService>();
+        }
 
-//        [Fact]
-//        public async Task GetCurrentShouldReturnOkObjectResult()
-//        {
-//            // Arrange
-//            var currentUserId = "test user id";
-//            var controller = CreateInstance(currentUserId);
+        [Fact]
+        public async Task GetCurrentShouldReturnOkObjectResult()
+        {
+            // Arrange
+            var currentUserId = 1;
+            var controller = CreateInstance(currentUserId);
 
-//            _userService.Setup(service => service.FindByIdAsync(currentUserId))
-//                .ReturnsAsync(new User());
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Id == currentUserId && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<User, UserViewModel>>>()))
+                .ReturnsAsync(new UserViewModel());
 
-//            // Act
-//            var result = await controller.GetCurrentAsync();
+            // Act
+            var result = await controller.GetCurrentAsync();
 
-//            // Assert
-//            Assert.IsType<OkObjectResult>(result);
-//        }
+            // Assert
+            Assert.IsType<OkObjectResult>(result);
+        }
 
-//        private UsersController CreateInstance(string currentUserId)
-//        {
-//            var instance = new UsersController(_userService.Object);
+        private UsersController CreateInstance(long currentUserId)
+        {
+            var instance = new UsersController(_userService.Object);
 
-//            var httpContext = new Mock<HttpContext>();
-//            httpContext.Setup(context => context.User.Identity.Name).Returns(currentUserId);
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(context => context.User.Identity.Name).Returns(currentUserId.ToString());
 
-//            var controllerContext = new ControllerContext { HttpContext = httpContext.Object };
-//            instance.ControllerContext = controllerContext;
+            var controllerContext = new ControllerContext { HttpContext = httpContext.Object };
+            instance.ControllerContext = controllerContext;
 
-//            return instance;
-//        }
-//    }
-//}
+            return instance;
+        }
+    }
+}

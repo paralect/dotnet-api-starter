@@ -60,9 +60,10 @@ namespace Tests.Sql
                 Email = "sample@sample.com"
             };
 
-            _userService.Setup(service => service.AnyAsync(It.Is<UserFilter>(filter => filter.Email == model.Email)))
+            _userService.Setup(service => service.AnyAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email)
+                ))
                 .ReturnsAsync(true);
-
 
             var controller = CreateInstance();
 
@@ -140,7 +141,8 @@ namespace Tests.Sql
             var token = "sample";
             var userId = 1;
 
-            _userService.Setup(service => service.FindOneAsync(It.IsAny<UserFilter>(), It.IsAny<Expression<Func<User, It.IsAnyType>>>()))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.IsAny<UserFilter>(), It.IsAny<Expression<Func<User, It.IsAnyType>>>()))
                 .ReturnsAsync(new It.IsAnyType());
 
             var controller = CreateInstance();
@@ -163,7 +165,8 @@ namespace Tests.Sql
                 Email = "test@test.com"
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking == true)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync((User)null);
 
             var controller = CreateInstance();
@@ -185,7 +188,8 @@ namespace Tests.Sql
                 Password = "sample2"
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking == true)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync(new User { PasswordHash = "sample".GetHash() });
 
             var controller = CreateInstance();
@@ -213,7 +217,8 @@ namespace Tests.Sql
                 Password = password
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking == true)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -245,7 +250,8 @@ namespace Tests.Sql
                 Password = password
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking == true)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -268,7 +274,8 @@ namespace Tests.Sql
                 Email = "test@test.com"
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking == true)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync((User)null);
 
             var controller = CreateInstance();
@@ -294,7 +301,8 @@ namespace Tests.Sql
                 Email = user.Email
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking == true)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -310,7 +318,7 @@ namespace Tests.Sql
 
             Assert.IsType<OkResult>(result);
         }
-/*
+
         [Fact]
         public async Task ResetPasswordShouldReturnBadRequestWhenTokenIsInvalid()
         {
@@ -320,7 +328,8 @@ namespace Tests.Sql
                 Token = "test token"
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
                 .ReturnsAsync((User)null);
 
             var controller = CreateInstance();
@@ -332,7 +341,7 @@ namespace Tests.Sql
             Assert.IsType<BadRequestResult>(result);
         }
 
-        [Fact]
+        [Fact(Skip = "Need to mock anonymous type")]
         public async Task ResetPasswordShouldUpdatePassword()
         {
             // Arrange
@@ -343,10 +352,11 @@ namespace Tests.Sql
             };
             var user = new User
             {
-                Id = "user id"
+                Id = 1
             };
 
-            _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -359,7 +369,7 @@ namespace Tests.Sql
             Assert.IsType<OkResult>(result);
         }
 
-        [Fact]
+        [Fact(Skip = "Need to mock anonymous type")]
         public async Task ResendVerificationShouldSendSignUpEmail()
         {
             // Arrange
@@ -370,10 +380,11 @@ namespace Tests.Sql
             var user = new User
             {
                 FirstName = "firstName",
-                SignUpToken = "test token"
+                SignupToken = "test token"
             };
 
-            _userService.Setup(service => service.FindByEmailAsync(model.Email))
+            _userService.Setup(service => service.FindOneAsync(
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -385,7 +396,7 @@ namespace Tests.Sql
             _emailService.Verify(service => service.SendSignUpAsync(
                 It.Is<SignUpEmailModel>(m =>
                     m.Email == model.Email &&
-                    m.SignUpToken == user.SignUpToken &&
+                    m.SignUpToken == user.SignupToken &&
                     m.FirstName == user.FirstName
                 ))
             );
@@ -403,7 +414,8 @@ namespace Tests.Sql
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindByValueAsync(refreshToken))
+            _tokenService.Setup(service => service.FindOneAsync(
+                    It.Is<TokenFilter>(filter => filter.Value == refreshToken && filter.AsNoTracking)))
                 .ReturnsAsync((Token)null);
 
             var controller = CreateInstance();
@@ -420,8 +432,7 @@ namespace Tests.Sql
         public async Task RefreshTokenShouldSetToken()
         {
             // Arrange
-            var userId = "user id";
-            var userRole = UserRole.User;
+            var userId = 1;
             var refreshToken = "refresh token";
             var contextMock = new Mock<HttpContext>();
             contextMock.Setup(context => context.Request.Cookies[Constants.CookieNames.RefreshToken])
@@ -429,11 +440,12 @@ namespace Tests.Sql
 
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
-            _tokenService.Setup(service => service.FindByValueAsync(refreshToken))
+            _tokenService.Setup(service => service.FindOneAsync(
+                    It.Is<TokenFilter>(filter => filter.Value == refreshToken && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<Token, Token>>>()))
                 .ReturnsAsync(new Token
                 {
                     UserId = userId,
-                    UserRole = userRole,
                     ExpireAt = DateTime.UtcNow.AddYears(1)
                 });
 
@@ -444,7 +456,7 @@ namespace Tests.Sql
             var result = await controller.RefreshTokenAsync();
 
             // Assert
-            _authService.Verify(service => service.SetTokensAsync(userId, userRole), Times.Once);
+            _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
             Assert.IsType<OkResult>(result);
         }
 
@@ -453,9 +465,9 @@ namespace Tests.Sql
         {
             // Arrange
             var contextMock = new Mock<HttpContext>();
-            var currentUserId = "user id";
+            var currentUserId = 1;
 
-            contextMock.Setup(context => context.User.Identity.Name).Returns(currentUserId);
+            contextMock.Setup(context => context.User.Identity.Name).Returns(currentUserId.ToString());
             var controllerContext = new ControllerContext { HttpContext = contextMock.Object };
 
             var controller = CreateInstance();
@@ -467,7 +479,7 @@ namespace Tests.Sql
             // Assert
             _authService.Verify(service => service.UnsetTokensAsync(currentUserId), Times.Once);
             Assert.IsType<OkResult>(result);
-        }*/
+        }
 
         private AccountController CreateInstance()
         {
