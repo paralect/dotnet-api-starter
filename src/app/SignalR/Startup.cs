@@ -36,6 +36,8 @@ namespace SignalR
             ConfigureHealthChecks(services);
             ConfigureCors(services);
 
+            services.AddHttpContextAccessor();
+
             services.AddSignalR();
             services.AddHostedService<ChangeStreamBackgroundService>();
             services.AddAutoMapper(typeof(UserProfile));
