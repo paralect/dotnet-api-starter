@@ -1,5 +1,7 @@
 version: '3.8'
 
+# NoSQL version
+
 services:
   mongo:
     environment:
@@ -28,3 +30,19 @@ services:
       - WAIT_FOR_PORT=3001
     ports:
       - "8082:8082"
+
+# SQL version
+
+#services:
+#  postgres:
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=pwd
+#    ports:
+#      - "5433:5432"
+#  api:
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Development
+#      - ASPNETCORE_URLS=http://+:3001
+#    ports:
+#      - "3001:3001"
