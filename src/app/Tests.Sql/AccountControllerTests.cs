@@ -133,16 +133,25 @@ namespace Tests.Sql
             Assert.IsType<BadRequestResult>(result);
         }
 
-        [Fact(Skip = "Need to mock asynchronous type")]
+        [Fact]
         public async Task VerifyEmailShouldMarkEmailAsVerifiedAndReturnRedirectToMainPage()
         {
             // Arrange
             var token = "sample";
             var userId = 1;
 
-            _userService.Setup(service => service.FindOneAsync(It.IsAny<UserFilter>(), It.IsAny<Expression<Func<User, It.IsAnyType>>>()))
-                .ReturnsAsync(new It.IsAnyType());
+            SetupReturnSomething(new { Id = (long) 1 });
 
+            var result2 = await _userService.Object.FindOneAsync(new UserFilter
+                {
+                    SignupToken = token,
+                    AsNoTracking = true
+                },
+                x => new
+                {
+                    Id = x.Id
+                });
+            
             var controller = CreateInstance();
 
             // Act
@@ -482,6 +491,14 @@ namespace Tests.Sql
                 _environment.Object,
                 _appSettingsOptions.Object,
                 _mapper.Object);
+        }
+        
+        void SetupReturnSomething<T>(T anonymous)
+        {
+            _userService.Setup(foo => foo.FindOneAsync(
+                    It.IsAny<UserFilter>(),
+                    It.IsAny<Expression<Func<User, T>>>()))
+                .ReturnsAsync(anonymous);
         }
     }
 }
