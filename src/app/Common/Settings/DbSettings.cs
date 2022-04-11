@@ -2,6 +2,12 @@
 
 public class DbSettings
 {
-    public string ConnectionString { get; set; }
-    public string Database { get; set; }
+    public ConnectionStrings ConnectionStrings { get; set; }
+    public string ApiDatabase { get; set; }
+}
+
+public class ConnectionStrings
+{
+    public string Api { get; set; }
+    public string Scheduler { get; set; }
 }
