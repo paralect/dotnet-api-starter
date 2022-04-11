@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using FluentValidation.AspNetCore;
 using Api.Views.Mappings;
 using Api.Views.Validators.Account;
+using Common.Caching.Interfaces;
+using Common.Caching;
 
 namespace Api.NoSql
 {
@@ -39,6 +41,7 @@ namespace Api.NoSql
             ConfigureDb(services);
             ConfigureHealthChecks(services);
             ConfigureCors(services);
+            ConfigureCache(services);
 
             services.AddHttpContextAccessor();
 
@@ -106,6 +109,7 @@ namespace Api.NoSql
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<EmailSettings>(options => { _configuration.GetSection("Email").Bind(options); });
+            services.Configure<CacheSettings>(options => { _configuration.GetSection("Cache").Bind(options); });
         }
 
         private void ConfigureDi(IServiceCollection services)
@@ -177,6 +181,20 @@ namespace Api.NoSql
                         .AllowCredentials();
                 });
             });
+        }
+
+        private void ConfigureCache(IServiceCollection services)
+        {
+            var cacheSettings = new CacheSettings();
+            _configuration.GetSection("Cache").Bind(cacheSettings);
+
+            services.AddStackExchangeRedisCache(options => options.Configuration = cacheSettings.ConnectionString);
+
+            services.AddScoped<ICache, Cache>();
+
+            services
+                .AddHealthChecks()
+                .AddRedis(cacheSettings.ConnectionString);
         }
     }
 }
