@@ -18,10 +18,6 @@ public static class Constants
         public const string RefreshToken = "refresh_token";
     }
 
-    public static readonly Collation DefaultCollation = new Collation("en", strength: CollationStrength.Primary);
-
-    public static string HealthcheckPath = "/health";
-
     public static class Swagger
     {
         public const string Url = "/swagger/v1/swagger.json";
@@ -33,4 +29,8 @@ public static class Constants
     {
         public const string AllowSpecificOrigin = "AllowSpecificOrigin";
     }
+
+    public static readonly Collation DefaultCollation = new Collation("en", strength: CollationStrength.Primary);
+    public static string HealthcheckPath = "/health";
+    public static string HangfireDashboardPath = "/hangfire";
 }
