@@ -52,23 +52,14 @@ IHostBuilder createHostBuilder(string[] args) =>
 
             services.AddHangfire(config =>
             {
+                var connectionString = dbSettings.ConnectionStrings.Scheduler;
                 switch (schedulerSettings.Storage)
                 {
                     case HangfireStorage.MongoDb:
-                        config.UseMongoStorage(dbSettings.ConnectionStrings.Scheduler, new MongoStorageOptions
-                        {
-                            MigrationOptions = new MongoMigrationOptions
-                            {
-                                MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                                BackupStrategy = new CollectionMongoBackupStrategy()
-                            },
-                            CheckConnection = true,
-                            // set to Watch for envs with replica sets
-                            CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection
-                        });
+                        config.ConfigureHangfireWithMongoStorage(connectionString);
                         break;
                     case HangfireStorage.PostgreSql:
-                        config.UsePostgreSqlStorage(dbSettings.ConnectionStrings.Scheduler);
+                        config.ConfigureHangfireWithPostgresStorage(connectionString);
                         break;
                     default:
                         throw new InvalidOperationException(nameof(schedulerSettings.Storage));

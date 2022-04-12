@@ -33,6 +33,9 @@ services:
       - WAIT_FOR_PORT=3001
     ports:
       - "8082:8082"
+  scheduler:
+    environment:
+      - DOTNET_ENVIRONMENT=Development
 
 # SQL version
 

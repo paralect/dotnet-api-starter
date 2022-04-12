@@ -49,6 +49,17 @@ services:
       - "api"
     links:
       - "api"
+  scheduler:
+    container_name: ship-scheduler
+    build:
+      context: .
+      dockerfile: app/Scheduler/Dockerfile
+    networks:
+      - ship
+    depends_on:
+      - "api"
+    links:
+      - "api"
 networks:
   ship:
     name: ship_network
