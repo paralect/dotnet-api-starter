@@ -2,7 +2,7 @@
 
 namespace Common.Jobs;
 
-public interface ISchedulerRecurringJob : ISchedulerJob
+public interface ISchedulerRecurringJob
 {
-    Task Execute();
+    Task ExecuteAsync();
 }

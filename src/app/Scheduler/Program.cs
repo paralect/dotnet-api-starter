@@ -47,7 +47,7 @@ IHostBuilder createHostBuilder(string[] args) =>
         .UseSerilog()
         .ConfigureServices((context, services) =>
         {
-            var dbSettings = context.Configuration.GetSection("Db").Get<DbSettings>();
+            var dbSettings = context.Configuration.GetDbSettings();
             var schedulerSettings = context.Configuration.GetSection("Scheduler").Get<SchedulerSettings>();
 
             services.AddHangfire(config =>
@@ -63,7 +63,8 @@ IHostBuilder createHostBuilder(string[] args) =>
                                 BackupStrategy = new CollectionMongoBackupStrategy()
                             },
                             CheckConnection = true,
-                            CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection // TODO set to Watch for envs with replica sets
+                            // set to Watch for envs with replica sets
+                            CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection
                         });
                         break;
                     case HangfireStorage.PostgreSql:
@@ -76,7 +77,7 @@ IHostBuilder createHostBuilder(string[] args) =>
 
             services.AddTransientByConvention(
                 new List<Type> { typeof(IHelloWorldJob), typeof(HelloWorldJob) },
-                t => t.Name.EndsWith("Job") && t != typeof(ISchedulerJob));
+                t => t.Name.EndsWith("Job") && t != typeof(ISchedulerRecurringJob));
         });
 
 ILogger buildLogger()
@@ -111,5 +112,5 @@ void scheduleRecurringJob<T>(BaseJobConfig jobConfig)
     where T : ISchedulerRecurringJob
 {
     var recurringJobManager = host.Services.GetRequiredService<IRecurringJobManager>();
-    recurringJobManager.AddOrUpdate<T>(jobConfig.Name, j => j.Execute(), jobConfig.Schedule);
+    recurringJobManager.AddOrUpdate<T>(jobConfig.Name, j => j.ExecuteAsync(), jobConfig.Schedule);
 }
