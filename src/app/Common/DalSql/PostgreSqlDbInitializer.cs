@@ -6,9 +6,9 @@ namespace Common.DalSql;
 
 public static class PostgreSqlDbInitializer
 {
-    public static void InitializeDb(this IServiceCollection services, DbSettingsSql settings)
+    public static void InitializeDb(this IServiceCollection services, DbSettings settings)
     {
         services.AddDbContext<ShipDbContext>(options =>
-            options.UseNpgsql(settings.ConnectionString));
+            options.UseNpgsql(settings.ConnectionStrings.Api));
     }
 }

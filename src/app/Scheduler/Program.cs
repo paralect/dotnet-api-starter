@@ -5,6 +5,7 @@ using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
+using Hangfire.PostgreSql;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,11 +22,7 @@ var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
 
 Log.Logger = buildLogger();
 
-var recurringJobManager = host.Services.GetRequiredService<IRecurringJobManager>();
-
-var configuration = host.Services.GetRequiredService<IConfiguration>();
-var schedulerSettings = configuration.GetSection("Scheduler").Get<SchedulerSettings>();
-scheduleRecurringJobs(schedulerSettings.Jobs);
+scheduleRecurringJobs();
 
 try
 {
@@ -51,22 +48,30 @@ IHostBuilder createHostBuilder(string[] args) =>
         .ConfigureServices((context, services) =>
         {
             var dbSettings = context.Configuration.GetSection("Db").Get<DbSettings>();
+            var schedulerSettings = context.Configuration.GetSection("Scheduler").Get<SchedulerSettings>();
 
             services.AddHangfire(config =>
             {
-                config.UseMongoStorage(dbSettings.ConnectionStrings.Scheduler, new MongoStorageOptions
+                switch (schedulerSettings.Storage)
                 {
-                    // https://github.com/sergeyzwezdin/Hangfire.Mongo#migration
-                    // be careful with migration strategy when updating Hangfire.Mongo package
-                    // Note: migration from first to the last version across a few running instances of Scheduler and API can throw exception
-                    MigrationOptions = new MongoMigrationOptions
-                    {
-                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                        BackupStrategy = new CollectionMongoBackupStrategy()
-                    },
-                    CheckConnection = true,
-                    CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection // TODO set to Watch for envs with replica sets
-                });
+                    case HangfireStorage.MongoDb:
+                        config.UseMongoStorage(dbSettings.ConnectionStrings.Scheduler, new MongoStorageOptions
+                        {
+                            MigrationOptions = new MongoMigrationOptions
+                            {
+                                MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                                BackupStrategy = new CollectionMongoBackupStrategy()
+                            },
+                            CheckConnection = true,
+                            CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection // TODO set to Watch for envs with replica sets
+                        });
+                        break;
+                    case HangfireStorage.PostgreSql:
+                        config.UsePostgreSqlStorage(dbSettings.ConnectionStrings.Scheduler);
+                        break;
+                    default:
+                        throw new InvalidOperationException(nameof(schedulerSettings.Storage));
+                }
             });
 
             services.AddTransientByConvention(
@@ -95,13 +100,16 @@ ILogger buildLogger()
     return loggerConfig.CreateLogger();
 }
 
-void scheduleRecurringJobs(Jobs jobs)
+void scheduleRecurringJobs()
 {
+    var configuration = host.Services.GetRequiredService<IConfiguration>();
+    var jobs = configuration.GetSection("Scheduler").Get<SchedulerSettings>().Jobs;
     scheduleRecurringJob<IHelloWorldJob>(jobs.HelloWorld);
 }
 
 void scheduleRecurringJob<T>(BaseJobConfig jobConfig)
     where T : ISchedulerRecurringJob
 {
+    var recurringJobManager = host.Services.GetRequiredService<IRecurringJobManager>();
     recurringJobManager.AddOrUpdate<T>(jobConfig.Name, j => j.Execute(), jobConfig.Schedule);
 }
