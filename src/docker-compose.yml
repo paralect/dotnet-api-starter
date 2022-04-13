@@ -11,6 +11,11 @@ services:
       - ship
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  redis:
+    image: redis:6.2.6
+    container_name: ship-redis
+    networks:
+      - ship
   replicator:
     container_name: ship-replicator
     build: ./replicator
@@ -64,6 +69,11 @@ networks:
 #      interval: 10s
 #      timeout: 5s
 #      retries: 5
+#  redis:
+#    image: redis:6.2.6
+#    container_name: ship-redis
+#    networks:
+#      - ship
 #  api:
 #    container_name: ship-api
 #    build:

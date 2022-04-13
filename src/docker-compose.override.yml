@@ -9,6 +9,9 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=rootPassword
     ports:
       - "27018:27017"
+  redis:
+    ports:
+      - "6379:6379"
   replicator:
     environment:
       - MONGO_HOST=mongo
@@ -40,6 +43,9 @@ services:
 #      - POSTGRES_PASSWORD=pwd
 #    ports:
 #      - "5433:5432"
+#  redis:
+#    ports:
+#      - "6379:6379"
 #  api:
 #    environment:
 #      - ASPNETCORE_ENVIRONMENT=Development
