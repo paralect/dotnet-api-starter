@@ -134,16 +134,20 @@ namespace Tests.Sql
             Assert.IsType<BadRequestResult>(result);
         }
 
-        [Fact(Skip = "Need to mock anonymous type")]
+        [Fact]
         public async Task VerifyEmailShouldMarkEmailAsVerifiedAndReturnRedirectToMainPage()
         {
             // Arrange
             var token = "sample";
-            var userId = 1;
+            var user = new User
+            {
+                Id = 1
+            };
 
             _userService.Setup(service => service.FindOneAsync(
-                    It.IsAny<UserFilter>(), It.IsAny<Expression<Func<User, It.IsAnyType>>>()))
-                .ReturnsAsync(new It.IsAnyType());
+                    It.Is<UserFilter>(filter => filter.SignupToken == token && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<User, User>>>()))
+                .ReturnsAsync(user);
 
             var controller = CreateInstance();
 
@@ -151,8 +155,8 @@ namespace Tests.Sql
             var result = await controller.VerifyEmailAsync(token);
 
             // Assert
-            _userService.Verify(service => service.VerifyEmailAsync(userId), Times.Once);
-            _authService.Verify(service => service.SetTokensAsync(userId), Times.Once);
+            _userService.Verify(service => service.VerifyEmailAsync(user.Id), Times.Once);
+            _authService.Verify(service => service.SetTokensAsync(user.Id), Times.Once);
             Assert.True((result as RedirectResult)?.Url == _appSettings.WebUrl);
         }
 
@@ -230,7 +234,7 @@ namespace Tests.Sql
             Assert.IsType<BadRequestResult>(result);
         }
 
-        [Fact(Skip = "Need to mock anonymous type")]
+        [Fact]
         public async Task SignInShouldReturnOkObjectResult()
         {
             // Arrange
@@ -251,7 +255,8 @@ namespace Tests.Sql
             };
 
             _userService.Setup(service => service.FindOneAsync(
-                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
+                    It.Is<UserFilter>(filter =>filter.Email == model.Email && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<User, User>>>()))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -287,7 +292,7 @@ namespace Tests.Sql
             Assert.IsType<OkResult>(result);
         }
 
-        [Fact(Skip = "Need to mock anonymous type")]
+        [Fact]
         public async Task ForgotPasswordShouldGenerateAndSendResetPasswordToken()
         {
             // Arrange
@@ -302,7 +307,8 @@ namespace Tests.Sql
             };
 
             _userService.Setup(service => service.FindOneAsync(
-                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<User, User>>>()))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -341,7 +347,7 @@ namespace Tests.Sql
             Assert.IsType<BadRequestResult>(result);
         }
 
-        [Fact(Skip = "Need to mock anonymous type")]
+        [Fact]
         public async Task ResetPasswordShouldUpdatePassword()
         {
             // Arrange
@@ -356,7 +362,8 @@ namespace Tests.Sql
             };
 
             _userService.Setup(service => service.FindOneAsync(
-                    It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token)))
+                    It.Is<UserFilter>(filter => filter.ResetPasswordToken == model.Token && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<User, User>>>()))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
@@ -369,7 +376,7 @@ namespace Tests.Sql
             Assert.IsType<OkResult>(result);
         }
 
-        [Fact(Skip = "Need to mock anonymous type")]
+        [Fact]
         public async Task ResendVerificationShouldSendSignUpEmail()
         {
             // Arrange
@@ -384,7 +391,8 @@ namespace Tests.Sql
             };
 
             _userService.Setup(service => service.FindOneAsync(
-                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking)))
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking),
+                    It.IsAny<Expression<Func<User, User>>>()))
                 .ReturnsAsync(user);
 
             var controller = CreateInstance();
