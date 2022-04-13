@@ -124,7 +124,7 @@ namespace SignalR
             var dbSettings = new DbSettings();
             _configuration.GetSection("Db").Bind(dbSettings);
 
-            services.ConfigureHealthChecks(dbSettings);
+            services.ConfigureHealthChecks(dbSettings, new CacheSettings { IsEnabled = false });
         }
 
         private void ConfigureCors(IServiceCollection services)

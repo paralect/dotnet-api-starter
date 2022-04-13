@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 using Api.Views.Models.View;
 using Api.Views.Models.View.User;
 using AutoMapper;
-using Common.Caching.Interfaces;
 using Common.Dal;
-using Common.Dal.Documents.User;
 using Common.Dal.Repositories;
 using Common.Security;
 using Common.Services.NoSql.Domain.Interfaces;
@@ -18,15 +16,11 @@ namespace Api.NoSql.Controllers
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
-        private readonly ICache _cache;
 
-        public UsersController(IUserService userService,
-            ICache cache,
-            IMapper mapper)
+        public UsersController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
-            _cache = cache;
         }
 
         [HttpGet]
@@ -54,14 +48,7 @@ namespace Api.NoSql.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var user = await _cache.GetAsync<User>(CurrentUserId);
-
-            if (user == null)
-            {
-                user = await _userService.FindByIdAsync(CurrentUserId);
-                await _cache.SetAsync(CurrentUserId, user);
-            }
-
+            var user = await _userService.FindByIdAsync(CurrentUserId);
             var viewModel = _mapper.Map<UserViewModel>(user);
 
             return Ok(viewModel);

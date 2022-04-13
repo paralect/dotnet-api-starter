@@ -9,27 +9,30 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Common.Caching;
+
 public class Cache : ICache
 {
-    private readonly IDistributedCache _cache;
+    private readonly IDistributedCache _distributedCache;
     private readonly ILogger<Cache> _logger;
     private readonly CacheSettings _cacheSettings;
 
     public Cache(
-        IDistributedCache cache,
+        IDistributedCache distributedCache,
         ILogger<Cache> logger,
         IOptions<CacheSettings> cacheSettings)
     {
-        _cache = cache;
+        _distributedCache = distributedCache;
         _logger = logger;
         _cacheSettings = cacheSettings.Value;
     }
 
     public async Task<T> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
+        if (!_cacheSettings.IsEnabled) return default;
+
         try
         {
-            var json = await _cache.GetAsync(key, cancellationToken);
+            var json = await _distributedCache.GetAsync(key, cancellationToken);
 
             return json != null
                 ? JsonSerializer.Deserialize<T>(json)
@@ -37,14 +40,12 @@ public class Cache : ICache
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex,
-                "Cache read error ({@ConnectionString}). Key: {@Key}",
-                _cacheSettings.ConnectionString,
-                key);
+            _logger.LogWarning(ex, "Cache read error. Key: {@Key}", key);
 
             return default;
         }
     }
+
     public async Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) =>
         await SetAsync(key, value, null, null, cancellationToken);
 
@@ -54,11 +55,13 @@ public class Cache : ICache
         TimeSpan? slidingExpiration,
         CancellationToken cancellationToken = default)
     {
+        if (!_cacheSettings.IsEnabled) return;
+
         try
         {
             var json = JsonSerializer.Serialize(value);
 
-            await _cache.SetStringAsync(key,
+            await _distributedCache.SetStringAsync(key,
                 json,
                 new DistributedCacheEntryOptions
                 {
@@ -72,8 +75,7 @@ public class Cache : ICache
         catch (Exception ex)
         {
             _logger.LogWarning(ex,
-                "Cache write error ({@ConnectionString}). Key: {@Key}. ValueType: {@ValueType}",
-                _cacheSettings.ConnectionString,
+                "Cache write error. Key: {@Key}. ValueType: {@ValueType}",
                 key,
                 value.GetType());
         }

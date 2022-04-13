@@ -20,8 +20,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using FluentValidation.AspNetCore;
 using Api.Views.Mappings;
 using Api.Views.Validators.Account;
-using Common.Caching.Interfaces;
-using Common.Caching;
 
 namespace Api.NoSql
 {
@@ -39,9 +37,9 @@ namespace Api.NoSql
             ConfigureSettings(services);
             ConfigureDi(services);
             ConfigureDb(services);
+            ConfigureCache(services);
             ConfigureHealthChecks(services);
             ConfigureCors(services);
-            ConfigureCache(services);
 
             services.AddHttpContextAccessor();
 
@@ -157,12 +155,23 @@ namespace Api.NoSql
             services.InitializeDb(dbSettings);
         }
 
+        private void ConfigureCache(IServiceCollection services)
+        {
+            var cacheSettings = new CacheSettings();
+            _configuration.GetSection("Cache").Bind(cacheSettings);
+
+            services.ConfigureCache(cacheSettings);
+        }
+
         private void ConfigureHealthChecks(IServiceCollection services)
         {
             var dbSettings = new DbSettings();
             _configuration.GetSection("Db").Bind(dbSettings);
 
-            services.ConfigureHealthChecks(dbSettings);
+            var cacheSettings = new CacheSettings();
+            _configuration.GetSection("Cache").Bind(cacheSettings);
+
+            services.ConfigureHealthChecks(dbSettings, cacheSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)
@@ -181,20 +190,6 @@ namespace Api.NoSql
                         .AllowCredentials();
                 });
             });
-        }
-
-        private void ConfigureCache(IServiceCollection services)
-        {
-            var cacheSettings = new CacheSettings();
-            _configuration.GetSection("Cache").Bind(cacheSettings);
-
-            services.AddStackExchangeRedisCache(options => options.Configuration = cacheSettings.ConnectionString);
-
-            services.AddScoped<ICache, Cache>();
-
-            services
-                .AddHealthChecks()
-                .AddRedis(cacheSettings.ConnectionString);
         }
     }
 }
