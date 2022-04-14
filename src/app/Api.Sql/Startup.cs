@@ -63,10 +63,6 @@ namespace Api.Sql
 
             services.AddAutoMapper(typeof(UserProfile));
 
-            services
-                .AddHealthChecks()
-                .AddDbContextCheck<ShipDbContext>();
-
             services.AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator)));
         }
 

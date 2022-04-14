@@ -34,7 +34,6 @@ namespace SignalR
             ConfigureDi(services);
             ConfigureDb(services);
             ConfigureCache(services);
-            ConfigureHealthChecks(services);
             ConfigureCors(services);
 
             services.AddHttpContextAccessor();
@@ -126,17 +125,6 @@ namespace SignalR
             _configuration.GetSection("Cache").Bind(cacheSettings);
 
             services.ConfigureCache(cacheSettings);
-        }
-
-        private void ConfigureHealthChecks(IServiceCollection services)
-        {
-            var dbSettings = new DbSettings();
-            _configuration.GetSection("Db").Bind(dbSettings);
-
-            var cacheSettings = new CacheSettings();
-            _configuration.GetSection("Cache").Bind(cacheSettings);
-
-            services.ConfigureHealthChecks(dbSettings, cacheSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)

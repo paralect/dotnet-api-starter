@@ -21,42 +21,45 @@ public class TokenAuthenticationMiddlewareSql
 
     public async Task Invoke(HttpContext context, ITokenRepository tokenRepository)
     {
-        var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
-        if (accessToken.HasNoValue())
+        if (!context.Request.Path.Equals(Constants.HealthcheckPath))
         {
-            var authorization = context.Request.Headers["Authorization"].ToString();
-            if (authorization.HasValue())
+            var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
+            if (accessToken.HasNoValue())
             {
-                accessToken = authorization.Replace("Bearer", "").Trim();
+                var authorization = context.Request.Headers["Authorization"].ToString();
+                if (authorization.HasValue())
+                {
+                    accessToken = authorization.Replace("Bearer", "").Trim();
+                }
             }
-        }
 
-        if (accessToken.HasValue())
-        {
-            var token = await tokenRepository.FindOneAsync(new TokenFilter
+            if (accessToken.HasValue())
             {
-                Value = accessToken,
-                AsNoTracking = true
-            },
-            x => new UserTokenModel
-            {
-                UserId = x.UserId,
-                UserRole = x.User.Role,
-                ExpireAt = x.ExpireAt
-            });
+                var token = await tokenRepository.FindOneAsync(new TokenFilter
+                {
+                    Value = accessToken,
+                    AsNoTracking = true
+                },
+                x => new UserTokenModel
+                {
+                    UserId = x.UserId,
+                    UserRole = x.User.Role,
+                    ExpireAt = x.ExpireAt
+                });
 
-            if (token != null && !token.IsExpired())
-            {
-                var principal = new Principal(
-                    new GenericIdentity(token.UserId.ToString()),
-                    new string[]
-                    {
+                if (token != null && !token.IsExpired())
+                {
+                    var principal = new Principal(
+                        new GenericIdentity(token.UserId.ToString()),
+                        new string[]
+                        {
                         Enum.GetName(typeof(UserRole), token.UserRole)
-                    }
-                );
+                        }
+                    );
 
-                Thread.CurrentPrincipal = principal;
-                context.User = principal;
+                    Thread.CurrentPrincipal = principal;
+                    context.User = principal;
+                }
             }
         }
 

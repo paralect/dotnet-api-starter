@@ -54,24 +54,17 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static void ConfigureHealthChecks(this IServiceCollection services, DbSettings dbSettings, CacheSettings cacheSettings)
-    {
-        var builder = services.AddHealthChecks();
-
-        builder.AddMongoDb(
-            mongodbConnectionString: dbSettings.ConnectionString,
-            mongoDatabaseName: dbSettings.Database);
-
-        if (cacheSettings.IsEnabled)
-        {
-            builder.AddRedis(cacheSettings.ConnectionString);
-        }
-    }
-
     public static void ConfigureCache(this IServiceCollection services, CacheSettings cacheSettings)
     {
         services.AddStackExchangeRedisCache(options => options.Configuration = cacheSettings.ConnectionString);
 
-        services.AddScoped<ICache, Cache>();
+        services.AddTransient<ICache, Cache>();
+
+        if (cacheSettings.IsEnabled)
+        {
+            services
+                .AddHealthChecks()
+                .AddRedis(cacheSettings.ConnectionString);
+        }
     }
 }

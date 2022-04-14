@@ -10,5 +10,9 @@ public static class PostgreSqlDbInitializer
     {
         services.AddDbContext<ShipDbContext>(options =>
             options.UseNpgsql(settings.ConnectionString));
+
+        services
+            .AddHealthChecks()
+            .AddDbContextCheck<ShipDbContext>();
     }
 }
