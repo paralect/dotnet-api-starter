@@ -37,7 +37,7 @@ namespace Api.NoSql
             ConfigureSettings(services);
             ConfigureDi(services);
             ConfigureDb(services);
-            ConfigureHealthChecks(services);
+            ConfigureCache(services);
             ConfigureCors(services);
 
             services.AddHttpContextAccessor();
@@ -106,6 +106,7 @@ namespace Api.NoSql
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<EmailSettings>(options => { _configuration.GetSection("Email").Bind(options); });
+            services.Configure<CacheSettings>(options => { _configuration.GetSection("Cache").Bind(options); });
         }
 
         private void ConfigureDi(IServiceCollection services)
@@ -153,12 +154,12 @@ namespace Api.NoSql
             services.InitializeDb(dbSettings);
         }
 
-        private void ConfigureHealthChecks(IServiceCollection services)
+        private void ConfigureCache(IServiceCollection services)
         {
-            var dbSettings = new DbSettings();
-            _configuration.GetSection("Db").Bind(dbSettings);
+            var cacheSettings = new CacheSettings();
+            _configuration.GetSection("Cache").Bind(cacheSettings);
 
-            services.ConfigureHealthChecks(dbSettings);
+            services.ConfigureCache(cacheSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)

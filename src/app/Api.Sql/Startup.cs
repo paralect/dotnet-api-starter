@@ -36,6 +36,7 @@ namespace Api.Sql
             ConfigureSettings(services);
             ConfigureDi(services);
             ConfigureDb(services);
+            ConfigureCache(services);
             ConfigureCors(services);
 
             services.AddHttpContextAccessor();
@@ -61,10 +62,6 @@ namespace Api.Sql
             services.AddAuthorization();
 
             services.AddAutoMapper(typeof(UserProfile));
-
-            services
-                .AddHealthChecks()
-                .AddDbContextCheck<ShipDbContext>();
 
             services.AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator)));
         }
@@ -114,6 +111,7 @@ namespace Api.Sql
             services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
             services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
             services.Configure<EmailSettings>(options => { _configuration.GetSection("Email").Bind(options); });
+            services.Configure<CacheSettings>(options => { _configuration.GetSection("Cache").Bind(options); });
         }
 
         private void ConfigureDi(IServiceCollection services)
@@ -155,6 +153,14 @@ namespace Api.Sql
             _configuration.GetSection("DbSql").Bind(dbSettings);
 
             services.InitializeDb(dbSettings);
+        }
+
+        private void ConfigureCache(IServiceCollection services)
+        {
+            var cacheSettings = new CacheSettings();
+            _configuration.GetSection("Cache").Bind(cacheSettings);
+
+            services.ConfigureCache(cacheSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)

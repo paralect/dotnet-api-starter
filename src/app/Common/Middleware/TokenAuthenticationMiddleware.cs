@@ -23,35 +23,38 @@ public class TokenAuthenticationMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
-        if (accessToken.HasNoValue())
+        if (!context.Request.Path.Equals(Constants.HealthcheckPath))
         {
-            var authorization = context.Request.Headers["Authorization"].ToString();
-            if (authorization.HasValue())
+            var accessToken = context.Request.Cookies[Constants.CookieNames.AccessToken];
+            if (accessToken.HasNoValue())
             {
-                accessToken = authorization.Replace("Bearer", "").Trim();
+                var authorization = context.Request.Headers["Authorization"].ToString();
+                if (authorization.HasValue())
+                {
+                    accessToken = authorization.Replace("Bearer", "").Trim();
+                }
             }
-        }
 
-        if (accessToken.HasValue())
-        {
-            var token = await _tokenRepository.FindOneAsync(new TokenFilter
+            if (accessToken.HasValue())
             {
-                Value = accessToken
-            });
+                var token = await _tokenRepository.FindOneAsync(new TokenFilter
+                {
+                    Value = accessToken
+                });
 
-            if (token != null && !token.IsExpired())
-            {
-                var principal = new Principal(
-                    new GenericIdentity(token.UserId),
-                    new string[]
-                    {
+                if (token != null && !token.IsExpired())
+                {
+                    var principal = new Principal(
+                        new GenericIdentity(token.UserId),
+                        new string[]
+                        {
                         Enum.GetName(typeof(UserRole), token.UserRole)
-                    }
-                );
+                        }
+                    );
 
-                Thread.CurrentPrincipal = principal;
-                context.User = principal;
+                    Thread.CurrentPrincipal = principal;
+                    context.User = principal;
+                }
             }
         }
 

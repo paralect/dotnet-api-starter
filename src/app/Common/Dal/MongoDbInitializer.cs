@@ -29,6 +29,8 @@ public static class MongoDbInitializer
         BsonSerializer.RegisterSerializer(typeof(TokenType), new EnumSerializer<TokenType>());
 
         InitializeCollections(services, dbSettings);
+
+        AddHealthCheck(services, dbSettings);
     }
 
     private static void InitializeCollections(IServiceCollection services, DbSettings dbSettings)
@@ -84,6 +86,15 @@ public static class MongoDbInitializer
 
             services.AddSingleton(collectionType, collection);
         }
+    }
+
+    private static void AddHealthCheck(IServiceCollection services, DbSettings dbSettings)
+    {
+        services
+            .AddHealthChecks()
+            .AddMongoDb(
+                mongodbConnectionString: dbSettings.ConnectionString,
+                mongoDatabaseName: dbSettings.Database);
     }
 }
 

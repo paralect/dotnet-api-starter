@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Common.Caching;
+using Common.Caching.Interfaces;
 using Common.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -52,13 +54,17 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static void ConfigureHealthChecks(this IServiceCollection services, DbSettings dbSettings)
+    public static void ConfigureCache(this IServiceCollection services, CacheSettings cacheSettings)
     {
-        services
-            .AddHealthChecks()
-            .AddMongoDb(
-                mongodbConnectionString: dbSettings.ConnectionString,
-                mongoDatabaseName: dbSettings.Database
-            );
+        services.AddStackExchangeRedisCache(options => options.Configuration = cacheSettings.ConnectionString);
+
+        services.AddTransient<ICache, Cache>();
+
+        if (cacheSettings.IsEnabled)
+        {
+            services
+                .AddHealthChecks()
+                .AddRedis(cacheSettings.ConnectionString);
+        }
     }
 }

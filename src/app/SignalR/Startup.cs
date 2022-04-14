@@ -33,7 +33,7 @@ namespace SignalR
         {
             ConfigureDi(services);
             ConfigureDb(services);
-            ConfigureHealthChecks(services);
+            ConfigureCache(services);
             ConfigureCors(services);
 
             services.AddHttpContextAccessor();
@@ -119,12 +119,12 @@ namespace SignalR
             services.InitializeDb(dbSettings);
         }
 
-        private void ConfigureHealthChecks(IServiceCollection services)
+        private void ConfigureCache(IServiceCollection services)
         {
-            var dbSettings = new DbSettings();
-            _configuration.GetSection("Db").Bind(dbSettings);
+            var cacheSettings = new CacheSettings();
+            _configuration.GetSection("Cache").Bind(cacheSettings);
 
-            services.ConfigureHealthChecks(dbSettings);
+            services.ConfigureCache(cacheSettings);
         }
 
         private void ConfigureCors(IServiceCollection services)
