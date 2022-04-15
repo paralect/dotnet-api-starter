@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Api.Views.Models.View;
+﻿namespace Api.Views.Models.View;
 
 public class PageModel<TModel>
 {

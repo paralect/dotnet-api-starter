@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Common.Enums;
+﻿using Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

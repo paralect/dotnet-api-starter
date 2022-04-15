@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Common.Dal;
+﻿namespace Common.Dal;
 
 public class Page<TModel>
 {

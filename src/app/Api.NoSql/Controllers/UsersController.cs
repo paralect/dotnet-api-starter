@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Api.Views.Models.View;
+﻿using Api.Views.Models.View;
 using Api.Views.Models.View.User;
 using AutoMapper;
 using Common.Dal;

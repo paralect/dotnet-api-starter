@@ -1,25 +1,18 @@
-﻿using Common.Settings;
+﻿using Api.Views.Mappings;
+using Api.Views.Validators.Account;
+using Common;
+using Common.Dal;
+using Common.Dal.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
+using Common.Settings;
 using Common.Utils;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
 using ValidationAttribute = Common.Security.ValidationAttribute;
-using Common.Dal.Interfaces;
-using Common.Dal;
-using System.Collections.Generic;
-using System;
-using Common.Services.NoSql.Domain.Interfaces;
-using Serilog;
-using Common;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using FluentValidation.AspNetCore;
-using Api.Views.Mappings;
-using Api.Views.Validators.Account;
 
 namespace Api.NoSql
 {

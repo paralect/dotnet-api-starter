@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Common.Enums;
+﻿using Common.Enums;
 
 namespace Common.Services.NoSql.Api.Interfaces;
 

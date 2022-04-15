@@ -1,7 +1,4 @@
-﻿using System;
-using System.Security.Principal;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Security.Principal;
 using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
 using Common.Enums;

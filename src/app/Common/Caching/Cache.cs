@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Common.Caching.Interfaces;
 using Common.Settings;
 using Microsoft.Extensions.Caching.Distributed;

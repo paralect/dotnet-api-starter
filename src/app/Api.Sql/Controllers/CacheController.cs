@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Common.Caching.Interfaces;
+﻿using Common.Caching.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Sql.Controllers;

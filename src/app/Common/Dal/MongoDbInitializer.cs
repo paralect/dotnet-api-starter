@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Common.Dal.Documents.Token;
+﻿using Common.Dal.Documents.Token;
 using Common.Dal.Documents.User;
 using Common.Enums;
 using Common.Settings;

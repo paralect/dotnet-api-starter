@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Common.DalSql;
+﻿using Common.DalSql;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Middleware;

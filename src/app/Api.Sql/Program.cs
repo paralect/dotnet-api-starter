@@ -1,11 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common.DalSql;
+﻿using Common.DalSql;
 using Common.Utils;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace Api.Sql

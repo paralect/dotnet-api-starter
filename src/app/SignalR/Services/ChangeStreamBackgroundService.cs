@@ -1,8 +1,5 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Common.Dal.Documents.User;
+﻿using Common.Dal.Documents.User;
 using Common.Dal.Interfaces;
-using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using SignalR.Hubs;
 
@@ -24,7 +21,7 @@ namespace SignalR.Services
             var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<User>>()
                 .Match(x => x.OperationType == ChangeStreamOperationType.Replace || x.OperationType == ChangeStreamOperationType.Update);
-            
+
             using var cursor = _users.Watch(pipeline, options, stoppingToken);
             await cursor.ForEachAsync(async document =>
             {

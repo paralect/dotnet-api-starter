@@ -1,21 +1,14 @@
-using Common.Dal.Interfaces;
+using Common;
 using Common.Dal;
+using Common.Dal.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 using SignalR.Hubs;
 using SignalR.Mapping;
 using SignalR.Services;
-using System.Collections.Generic;
-using System;
-using Common.Services.NoSql.Domain.Interfaces;
-using Common;
-using Serilog;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace SignalR
 {

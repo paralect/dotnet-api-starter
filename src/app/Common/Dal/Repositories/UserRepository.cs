@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Common.Dal.Documents.User;
+﻿using Common.Dal.Documents.User;
 using Common.Dal.Interfaces;
 using Common.Utils;
 using MongoDB.Driver;

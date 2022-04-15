@@ -1,5 +1,3 @@
-using System;
-
 namespace Common.Utils;
 
 public static class DocumentExtensions
