@@ -117,9 +117,9 @@ namespace Api.Sql.Controllers
                 SignupToken = token,
                 AsNoTracking = true
             },
-            x => new
+            x => new User
             {
-                x.Id
+                Id = x.Id
             });
 
             if (user == null)
@@ -141,11 +141,11 @@ namespace Api.Sql.Controllers
                 Email = model.Email,
                 AsNoTracking = true
             },
-            x => new
+            x => new User
             {
-                x.Id,
-                x.Email,
-                x.FirstName
+                Id = x.Id,
+                Email = x.Email,
+                FirstName = x.FirstName
             });
 
             if (user != null)
@@ -171,9 +171,9 @@ namespace Api.Sql.Controllers
                 ResetPasswordToken = model.Token,
                 AsNoTracking = true
             },
-            x => new
+            x => new User
             {
-                x.Id
+                Id = x.Id
             });
 
             if (user == null)
@@ -194,10 +194,10 @@ namespace Api.Sql.Controllers
                 Email = model.Email,
                 AsNoTracking = true
             },
-            x => new
+            x => new User
             {
-                x.FirstName,
-                x.SignupToken
+                FirstName = x.FirstName,
+                SignupToken = x.SignupToken
             });
 
             if (user != null)
