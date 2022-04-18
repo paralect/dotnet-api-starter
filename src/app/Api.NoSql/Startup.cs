@@ -1,108 +1,14 @@
-﻿using Api.Views.Mappings;
-using Api.Views.Validators.Account;
-using Common;
-using Common.Dal;
+﻿using Common.Dal;
 using Common.Dal.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
-using Common.Settings;
 using Common.Utils;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
-using Serilog;
 using IIdGenerator = Common.Dal.Interfaces.IIdGenerator;
-using ValidationAttribute = Common.Security.ValidationAttribute;
 
 namespace Api.NoSql
 {
-    public class Startup
+    public static class ServiceCollectionExtensions
     {
-        private readonly IConfiguration _configuration;
-
-        public Startup(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-            ConfigureSettings(services);
-            ConfigureDi(services);
-            ConfigureDb(services);
-            ConfigureCache(services);
-            ConfigureCors(services);
-
-            services.AddHttpContextAccessor();
-
-            services
-                .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
-                .ConfigureApiBehaviorOptions(o =>
-                {
-                    o.InvalidModelStateResponseFactory = context =>
-                    {
-                        var errors = context.ModelState.GetErrors();
-                        var result = new BadRequestObjectResult(errors);
-
-                        return result;
-                    };
-                });
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-            });
-
-            services.AddAuthorization();
-
-            services.AddAutoMapper(typeof(UserProfile));
-
-            services.AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator)));
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseSerilogRequestLogging();
-
-            app.UseRouting();
-
-            app.UseCors("AllowSpecificOrigin");
-
-            app.UseTokenAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapHealthChecks(Constants.HealthcheckPath, new HealthCheckOptions
-                {
-                    AllowCachingResponses = false
-                });
-            });
-        }
-
-        private void ConfigureSettings(IServiceCollection services)
-        {
-            services.Configure<DbSettings>(options => { _configuration.GetSection("Db").Bind(options); });
-            services.Configure<AppSettings>(options => { _configuration.GetSection("App").Bind(options); });
-            services.Configure<TokenExpirationSettings>(options => { _configuration.GetSection("TokenExpiration").Bind(options); });
-            services.Configure<EmailSettings>(options => { _configuration.GetSection("Email").Bind(options); });
-            services.Configure<CacheSettings>(options => { _configuration.GetSection("Cache").Bind(options); });
-        }
-
-        private void ConfigureDi(IServiceCollection services)
+        public static void ConfigureDi(this IServiceCollection services)
         {
             // replace with simpler version, if SQL DAL is removed from the solution:
             // services.AddTransientByConvention(
@@ -137,40 +43,6 @@ namespace Api.NoSql
             services.AddTransient<IDbContext, DbContext>();
 
             services.AddTransient<IIdGenerator, IdGenerator>();
-        }
-
-        private void ConfigureDb(IServiceCollection services)
-        {
-            var dbSettings = new DbSettings();
-            _configuration.GetSection("Db").Bind(dbSettings);
-
-            services.InitializeDb(dbSettings);
-        }
-
-        private void ConfigureCache(IServiceCollection services)
-        {
-            var cacheSettings = new CacheSettings();
-            _configuration.GetSection("Cache").Bind(cacheSettings);
-
-            services.ConfigureCache(cacheSettings);
-        }
-
-        private void ConfigureCors(IServiceCollection services)
-        {
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowSpecificOrigin", builder =>
-                {
-                    var appSettings = new AppSettings();
-                    _configuration.GetSection("App").Bind(appSettings);
-
-                    builder
-                        .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
         }
     }
 }

@@ -21,4 +21,15 @@ public static class Constants
     public static readonly Collation DefaultCollation = new Collation("en", strength: CollationStrength.Primary);
 
     public static string HealthcheckPath = "/health";
+
+    public class Swagger
+    {
+        public const string Url = "/swagger/v1/swagger.json";
+        public const string Name = "My API V1";
+    }
+
+    public class CorsPolicy
+    {
+        public const string AllowSpecificOrigin = "AllowSpecificOrigin";
+    }
 }
