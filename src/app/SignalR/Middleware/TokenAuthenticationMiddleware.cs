@@ -1,11 +1,12 @@
 ﻿using System.Security.Principal;
+using Common;
 using Common.Dal.Interfaces;
 using Common.Dal.Repositories;
 using Common.Enums;
+using Common.Middleware;
 using Common.Utils;
-using Microsoft.AspNetCore.Http;
 
-namespace Common.Middleware;
+namespace SignalR.Middleware;
 
 public class TokenAuthenticationMiddleware
 {
@@ -45,7 +46,7 @@ public class TokenAuthenticationMiddleware
                         new GenericIdentity(token.UserId),
                         new string[]
                         {
-                        Enum.GetName(typeof(UserRole), token.UserRole)
+                            Enum.GetName(typeof(UserRole), token.UserRole)
                         }
                     );
 

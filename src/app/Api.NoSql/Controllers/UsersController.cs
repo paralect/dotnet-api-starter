@@ -1,9 +1,9 @@
-﻿using Api.Views.Models.View;
+﻿using Api.NoSql.Security;
+using Api.Views.Models.View;
 using Api.Views.Models.View.User;
 using AutoMapper;
 using Common.Dal;
 using Common.Dal.Repositories;
-using Common.Security;
 using Common.Services.NoSql.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

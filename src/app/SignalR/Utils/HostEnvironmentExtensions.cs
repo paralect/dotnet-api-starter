@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
-using Serilog;
+﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
+using Constants = Common.Constants;
 
-namespace Common.Utils;
+namespace SignalR.Utils;
 
 public static class HostEnvironmentExtensions
 {

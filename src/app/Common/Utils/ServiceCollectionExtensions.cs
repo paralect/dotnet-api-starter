@@ -1,13 +1,7 @@
 ﻿using System.Reflection;
-using Common.Caching;
-using Common.Caching.Interfaces;
-using Common.Security;
-using Common.Settings;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 
 namespace Common.Utils;
 
@@ -56,70 +50,14 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static TSettings ConfigureSettings<TSettings>(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        string sectionName)
+    public static TSettings AddSettings<TSettings>(this IServiceCollection services, IConfiguration configuration, string settingsName)
         where TSettings : class, new()
     {
-        var setting = new TSettings();
-        configuration.GetSection(sectionName).Bind(setting);
+        var settings = new TSettings();
+        configuration.GetSection(settingsName).Bind(settings);
 
-        services.AddSingleton(Options.Create(setting));
+        services.AddSingleton(Options.Create(settings));
 
-        return setting;
-    }
-
-    public static void ConfigureCors(this IServiceCollection services, AppSettings appSettings)
-    {
-        services.AddCors(options =>
-        {
-            options.AddPolicy(Constants.CorsPolicy.AllowSpecificOrigin, builder =>
-            {
-                builder
-                    .WithOrigins(appSettings.LandingUrl, appSettings.WebUrl)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
-        });
-    }
-
-    public static void ConfigureControllers(this IServiceCollection services)
-    {
-        services
-            .AddControllers(o => o.Filters.Add(typeof(ValidationAttribute)))
-            .ConfigureApiBehaviorOptions(o =>
-            {
-                o.InvalidModelStateResponseFactory = context =>
-                {
-                    var errors = context.ModelState.GetErrors();
-                    var result = new BadRequestObjectResult(errors);
-
-                    return result;
-                };
-            });
-    }
-
-    public static void ConfigureCache(this IServiceCollection services, CacheSettings cacheSettings)
-    {
-        services.AddStackExchangeRedisCache(options => options.Configuration = cacheSettings.ConnectionString);
-
-        services.AddTransient<ICache, Cache>();
-
-        if (cacheSettings.IsEnabled)
-        {
-            services
-                .AddHealthChecks()
-                .AddRedis(cacheSettings.ConnectionString);
-        }
-    }
-
-    public static void ConfigureSwagger(this IServiceCollection services)
-    {
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-        });
+        return settings;
     }
 }

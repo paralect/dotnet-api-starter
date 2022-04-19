@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using SignalR.Hubs;
 using SignalR.Services;
+using SignalR.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 var environment = builder.Environment;
@@ -16,22 +17,21 @@ var services = builder.Services;
 builder.Host.UseSerilog();
 Log.Logger = environment.BuildLogger();
 
-var dbSettings = services.ConfigureSettings<DbSettings>(configuration, "Db");
-var appSettings = services.ConfigureSettings<AppSettings>(configuration, "App");
-var cacheSettings = services.ConfigureSettings<CacheSettings>(configuration, "Cache");
-services.ConfigureSettings<TokenExpirationSettings>(configuration, "TokenExpiration");
-services.ConfigureSettings<EmailSettings>(configuration, "Email");
+var dbSettings = services.AddSettings<DbSettings>(configuration, "Db");
+var appSettings = services.AddSettings<AppSettings>(configuration, "App");
+var cacheSettings = services.AddSettings<CacheSettings>(configuration, "Cache");
+services.AddSettings<TokenExpirationSettings>(configuration, "TokenExpiration");
+services.AddSettings<EmailSettings>(configuration, "Email");
 
-services.InitializeDb(dbSettings);
-
-//services.ConfigureDi(services);
-services.ConfigureCache(cacheSettings);
-services.ConfigureCors(appSettings);
-
+services.AddDiConfiguration();
+services.AddCache(cacheSettings);
+services.AddCors(appSettings);
 services.AddHttpContextAccessor();
 services.AddSignalR();
 services.AddHostedService<ChangeStreamBackgroundService>();
 services.AddAutoMapper(typeof(UserProfile));
+services.AddHealthChecks();
+services.InitializeDb(dbSettings);
 
 var app = builder.Build();
 
@@ -39,7 +39,6 @@ if (environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
-
 app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseCors(Constants.CorsPolicy.AllowSpecificOrigin);
