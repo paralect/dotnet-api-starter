@@ -103,8 +103,8 @@ internal static class ServiceCollectionExtensions
         var builder = services.AddHealthChecks();
 
         builder.AddMongoDb(
-            mongodbConnectionString: dbSettings.ConnectionString,
-            mongoDatabaseName: dbSettings.Database
+            mongodbConnectionString: dbSettings.ConnectionStrings.Api,
+            mongoDatabaseName: dbSettings.ApiDatabase
         );
 
         if (cacheSettings.IsEnabled)
