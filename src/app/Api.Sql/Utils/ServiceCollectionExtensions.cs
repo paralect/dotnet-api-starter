@@ -1,5 +1,4 @@
-﻿
-using Api.Sql.Security;
+﻿using Api.Sql.Security;
 using Common;
 using Common.Caching;
 using Common.Caching.Interfaces;
@@ -95,7 +94,7 @@ internal static class ServiceCollectionExtensions
         });
     }
 
-    public static void AddHealthChecks(this IServiceCollection services, DbSettings dbSettings, CacheSettings cacheSettings)
+    public static void AddHealthChecks(this IServiceCollection services, CacheSettings cacheSettings)
     {
         var builder = services.AddHealthChecks();
 

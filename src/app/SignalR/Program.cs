@@ -30,7 +30,7 @@ services.AddHttpContextAccessor();
 services.AddSignalR();
 services.AddHostedService<ChangeStreamBackgroundService>();
 services.AddAutoMapper(typeof(UserProfile));
-services.AddHealthChecks();
+services.AddHealthChecks(dbSettings, cacheSettings);
 services.InitializeDb(dbSettings);
 
 var app = builder.Build();
