@@ -34,7 +34,7 @@ services.AddAutoMapper(typeof(UserProfile));
 services.AddFluentValidation(config =>
     config.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator))
 );
-services.AddHealthChecks();
+services.AddHealthChecks(cacheSettings);
 services.InitializeDb(dbSettings);
 
 var app = builder.Build();
