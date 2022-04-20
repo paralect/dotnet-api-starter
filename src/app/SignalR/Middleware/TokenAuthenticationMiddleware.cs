@@ -1,25 +1,25 @@
-﻿using System;
-using System.Security.Principal;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.DalSql.Filters;
-using Common.DalSql.Interfaces;
+﻿using System.Security.Principal;
+using Common;
+using Common.Dal.Interfaces;
+using Common.Dal.Repositories;
 using Common.Enums;
+using Common.Middleware;
 using Common.Utils;
-using Microsoft.AspNetCore.Http;
 
-namespace Common.Middleware;
+namespace SignalR.Middleware;
 
-public class TokenAuthenticationMiddlewareSql
+public class TokenAuthenticationMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ITokenRepository _tokenRepository;
 
-    public TokenAuthenticationMiddlewareSql(RequestDelegate next)
+    public TokenAuthenticationMiddleware(RequestDelegate next, ITokenRepository tokenRepository)
     {
         _next = next;
+        _tokenRepository = tokenRepository;
     }
 
-    public async Task Invoke(HttpContext context, ITokenRepository tokenRepository)
+    public async Task Invoke(HttpContext context)
     {
         if (!context.Request.Path.Equals(Constants.HealthcheckPath))
         {
@@ -35,25 +35,18 @@ public class TokenAuthenticationMiddlewareSql
 
             if (accessToken.HasValue())
             {
-                var token = await tokenRepository.FindOneAsync(new TokenFilter
+                var token = await _tokenRepository.FindOneAsync(new TokenFilter
                 {
-                    Value = accessToken,
-                    AsNoTracking = true
-                },
-                x => new UserTokenModel
-                {
-                    UserId = x.UserId,
-                    UserRole = x.User.Role,
-                    ExpireAt = x.ExpireAt
+                    Value = accessToken
                 });
 
                 if (token != null && !token.IsExpired())
                 {
                     var principal = new Principal(
-                        new GenericIdentity(token.UserId.ToString()),
+                        new GenericIdentity(token.UserId),
                         new string[]
                         {
-                        Enum.GetName(typeof(UserRole), token.UserRole)
+                            Enum.GetName(typeof(UserRole), token.UserRole)
                         }
                     );
 
@@ -65,11 +58,4 @@ public class TokenAuthenticationMiddlewareSql
 
         await _next(context);
     }
-}
-
-public class UserTokenModel : IExpirable
-{
-    public long UserId { get; set; }
-    public UserRole UserRole { get; set; }
-    public DateTime ExpireAt { get; set; }
 }

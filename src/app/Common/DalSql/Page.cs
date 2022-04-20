@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Common.DalSql;
+﻿namespace Common.DalSql;
 
 public class Page<TModel>
 {

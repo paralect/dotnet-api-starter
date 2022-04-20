@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Common.Caching;
-using Common.Caching.Interfaces;
-using Common.Settings;
+﻿using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Common.Utils;
 
@@ -54,17 +50,14 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static void ConfigureCache(this IServiceCollection services, CacheSettings cacheSettings)
+    public static TSettings AddSettings<TSettings>(this IServiceCollection services, IConfiguration configuration, string settingsName)
+        where TSettings : class, new()
     {
-        services.AddStackExchangeRedisCache(options => options.Configuration = cacheSettings.ConnectionString);
+        var settings = new TSettings();
+        configuration.GetSection(settingsName).Bind(settings);
 
-        services.AddTransient<ICache, Cache>();
+        services.AddSingleton(Options.Create(settings));
 
-        if (cacheSettings.IsEnabled)
-        {
-            services
-                .AddHealthChecks()
-                .AddRedis(cacheSettings.ConnectionString);
-        }
+        return settings;
     }
 }

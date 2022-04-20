@@ -1,20 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using Api.NoSql.Security;
+using Api.Views.Models.Infrastructure.Email;
+using Api.Views.Models.View.Account;
+using Api.Views.Models.View.User;
 using AutoMapper;
 using Common;
 using Common.Dal.Repositories;
+using Common.Services.Infrastructure.Interfaces;
+using Common.Services.NoSql.Api.Interfaces;
+using Common.Services.NoSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Common.Security;
-using Api.Views.Models.View.User;
-using Api.Views.Models.View.Account;
-using Common.Services.Infrastructure.Interfaces;
-using Common.Services.NoSql.Domain.Interfaces;
-using Common.Services.NoSql.Api.Interfaces;
-using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.NoSql.Controllers
 {

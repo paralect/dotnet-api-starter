@@ -4,7 +4,7 @@ namespace Common;
 
 public static class Constants
 {
-    public class DbDocuments
+    public static class DbDocuments
     {
         public const string Users = "users";
         public const string Tokens = "tokens";
@@ -12,7 +12,7 @@ public static class Constants
 
     public const int TokenSecurityLength = 32;
 
-    public class CookieNames
+    public static class CookieNames
     {
         public const string AccessToken = "access_token";
         public const string RefreshToken = "refresh_token";
@@ -21,4 +21,16 @@ public static class Constants
     public static readonly Collation DefaultCollation = new Collation("en", strength: CollationStrength.Primary);
 
     public static string HealthcheckPath = "/health";
+
+    public static class Swagger
+    {
+        public const string Url = "/swagger/v1/swagger.json";
+        public const string Name = "My API V1";
+        public const string Version = "v1";
+    }
+
+    public static class CorsPolicy
+    {
+        public const string AllowSpecificOrigin = "AllowSpecificOrigin";
+    }
 }

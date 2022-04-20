@@ -1,6 +1,4 @@
-using System;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Api.Sql.Controllers;
 using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
@@ -255,7 +253,7 @@ namespace Tests.Sql
             };
 
             _userService.Setup(service => service.FindOneAsync(
-                    It.Is<UserFilter>(filter =>filter.Email == model.Email && filter.AsNoTracking),
+                    It.Is<UserFilter>(filter => filter.Email == model.Email && filter.AsNoTracking),
                     It.IsAny<Expression<Func<User, User>>>()))
                 .ReturnsAsync(user);
 

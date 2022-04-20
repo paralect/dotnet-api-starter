@@ -1,43 +1,69 @@
-using System;
-using System.Threading.Tasks;
+using Api.Views.Mappings;
+using Common;
+using Common.Dal;
+using Common.Settings;
 using Common.Utils;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
+using SignalR.Hubs;
+using SignalR.Services;
+using SignalR.Utils;
 
-namespace SignalR
+var builder = WebApplication.CreateBuilder(args);
+var environment = builder.Environment;
+var configuration = builder.Configuration;
+var services = builder.Services;
+
+builder.Host.UseSerilog();
+Log.Logger = environment.BuildLogger();
+
+var dbSettings = services.AddSettings<DbSettings>(configuration, "Db");
+var appSettings = services.AddSettings<AppSettings>(configuration, "App");
+var cacheSettings = services.AddSettings<CacheSettings>(configuration, "Cache");
+services.AddSettings<TokenExpirationSettings>(configuration, "TokenExpiration");
+services.AddSettings<EmailSettings>(configuration, "Email");
+
+services.AddDiConfiguration();
+services.AddCache(cacheSettings);
+services.AddCors(appSettings);
+services.AddHttpContextAccessor();
+services.AddSignalR();
+services.AddHostedService<ChangeStreamBackgroundService>();
+services.AddAutoMapper(typeof(UserProfile));
+services.AddHealthChecks();
+services.InitializeDb(dbSettings);
+
+var app = builder.Build();
+
+if (environment.IsDevelopment())
 {
-    public static class Program
+    app.UseDeveloperExceptionPage();
+}
+app.UseSerilogRequestLogging();
+app.UseRouting();
+app.UseCors(Constants.CorsPolicy.AllowSpecificOrigin);
+app.UseTokenAuthentication();
+app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<UserHub>(string.Empty);
+    endpoints.MapHealthChecks(Constants.HealthcheckPath, new HealthCheckOptions
     {
-        public static async Task Main(string[] args)
-        {
-            using var host = CreateHostBuilder(args).Build();
+        AllowCachingResponses = false
+    });
+});
 
-            var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
-            Log.Logger = hostEnvironment.BuildLogger();
-
-            try
-            {
-                Log.Information("Starting web host");
-                await host.RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Host terminated unexpectedly");
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
-        }
-
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseSerilog()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+try
+{
+    Log.Information("Starting web host");
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }

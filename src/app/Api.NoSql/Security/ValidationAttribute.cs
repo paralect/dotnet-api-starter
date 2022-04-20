@@ -1,8 +1,8 @@
-﻿using Common.Utils;
+﻿using Api.NoSql.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Common.Security;
+namespace Api.NoSql.Security;
 
 public class ValidationAttribute : ActionFilterAttribute
 {

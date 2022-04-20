@@ -1,21 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using Api.Sql.Security;
+using Api.Views.Models.Infrastructure.Email;
+using Api.Views.Models.View.Account;
+using Api.Views.Models.View.User;
 using AutoMapper;
 using Common;
+using Common.DalSql.Entities;
+using Common.DalSql.Filters;
+using Common.Services.Infrastructure.Interfaces;
+using Common.Services.Sql.Api.Interfaces;
+using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Common.DalSql.Filters;
-using Common.DalSql.Entities;
-using Common.Security;
-using Api.Views.Models.View.User;
-using Api.Views.Models.View.Account;
-using Common.Services.Infrastructure.Interfaces;
-using Common.Services.Sql.Domain.Interfaces;
-using Common.Services.Sql.Api.Interfaces;
-using Api.Views.Models.Infrastructure.Email;
 
 namespace Api.Sql.Controllers
 {

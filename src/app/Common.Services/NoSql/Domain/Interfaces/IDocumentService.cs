@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Common.Dal;
+﻿using Common.Dal;
 using Common.Dal.Documents;
 
 namespace Common.Services.NoSql.Domain.Interfaces;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Common.Dal.Documents.Token;
+﻿using Common.Dal.Documents.Token;
 using Common.Dal.Documents.User;
 using Common.Enums;
 using Common.Settings;
@@ -29,8 +26,6 @@ public static class MongoDbInitializer
         BsonSerializer.RegisterSerializer(typeof(TokenType), new EnumSerializer<TokenType>());
 
         InitializeCollections(services, dbSettings);
-
-        AddHealthCheck(services, dbSettings);
     }
 
     private static void InitializeCollections(IServiceCollection services, DbSettings dbSettings)
@@ -86,15 +81,6 @@ public static class MongoDbInitializer
 
             services.AddSingleton(collectionType, collection);
         }
-    }
-
-    private static void AddHealthCheck(IServiceCollection services, DbSettings dbSettings)
-    {
-        services
-            .AddHealthChecks()
-            .AddMongoDb(
-                mongodbConnectionString: dbSettings.ConnectionString,
-                mongoDatabaseName: dbSettings.Database);
     }
 }
 

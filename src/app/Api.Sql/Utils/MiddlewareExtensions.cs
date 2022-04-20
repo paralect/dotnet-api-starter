@@ -1,7 +1,6 @@
-﻿using Common.Middleware;
-using Microsoft.AspNetCore.Builder;
+﻿using Api.Sql.Middleware;
 
-namespace Common.Utils;
+namespace Api.Sql.Utils;
 
 public static class MiddlewareExtensions
 {
@@ -10,11 +9,10 @@ public static class MiddlewareExtensions
         return builder.UseMiddleware<TokenAuthenticationMiddleware>();
     }
 
-    public static IApplicationBuilder UseTokenAuthenticationSql(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<TokenAuthenticationMiddlewareSql>();
-    }
-
+    /// <summary>
+    /// The middleware makes requests to DB, if there are any changes on EF DbContext.
+    /// It's still possible to update DB manually from controllers/services - in this case the middleware does nothing
+    /// </summary>
     public static IApplicationBuilder UseDbContextSaveChanges(this IApplicationBuilder builder)
     {
         return builder.UseMiddleware<DbContextSaveChangesMiddleware>();

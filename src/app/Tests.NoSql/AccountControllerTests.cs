@@ -1,6 +1,5 @@
-using System;
-using System.Threading.Tasks;
 using Api.NoSql.Controllers;
+using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
 using AutoMapper;
 using Common;
@@ -19,7 +18,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using Api.Views.Models.Infrastructure.Email;
 
 namespace Tests.NoSql
 {
@@ -63,7 +61,7 @@ namespace Tests.NoSql
             _userService.Setup(service => service.FindByEmailAsync(model.Email))
                 .ReturnsAsync(new User());
 
-            
+
             var controller = CreateInstance();
 
             // Act
@@ -123,7 +121,7 @@ namespace Tests.NoSql
 
             _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.SignUpToken == token)))
                 .ReturnsAsync((User)null);
-            
+
             var controller = CreateInstance();
 
             // Act
@@ -143,7 +141,7 @@ namespace Tests.NoSql
 
             _userService.Setup(service => service.FindOneAsync(It.Is<UserFilter>(filter => filter.SignUpToken == token)))
                 .ReturnsAsync(new User { Id = userId, Role = userRole });
-            
+
             var controller = CreateInstance();
 
             // Act
@@ -477,7 +475,7 @@ namespace Tests.NoSql
                 .Returns(_appSettings);
 
             return new AccountController(
-                _emailService.Object, 
+                _emailService.Object,
                 _userService.Object,
                 _tokenService.Object,
                 _authService.Object,
