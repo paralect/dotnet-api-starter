@@ -1,4 +1,3 @@
-using Api.Views.Mappings;
 using Common;
 using Common.Dal;
 using Common.Settings;
@@ -6,6 +5,7 @@ using Common.Utils;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using SignalR.Hubs;
+using SignalR.Mapping;
 using SignalR.Services;
 using SignalR.Utils;
 
