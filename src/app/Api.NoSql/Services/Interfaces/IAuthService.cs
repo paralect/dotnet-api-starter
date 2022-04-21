@@ -1,6 +1,6 @@
 ﻿using Common.Enums;
 
-namespace Common.Services.NoSql.Api.Interfaces;
+namespace Api.NoSql.Services.Interfaces;
 
 public interface IAuthService
 {

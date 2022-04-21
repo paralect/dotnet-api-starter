@@ -1,4 +1,5 @@
 ﻿using Common.Jobs;
+using Common.Settings;
 using Common.Utils;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
@@ -10,10 +11,9 @@ using Scheduler.Settings.JobConfigs;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
+using ILogger = Serilog.ILogger;
 
 using var host = createHostBuilder(args).Build();
-
-var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
 
 Log.Logger = buildLogger();
 
@@ -42,7 +42,7 @@ IHostBuilder createHostBuilder(string[] args) =>
         .UseSerilog()
         .ConfigureServices((context, services) =>
         {
-            var dbSettings = context.Configuration.GetDbSettings();
+            var dbSettings = context.Configuration.GetSection("Db").Get<DbSettings>();
             var schedulerSettings = context.Configuration.GetSection("Scheduler").Get<SchedulerSettings>();
 
             services.AddHangfire(config =>
@@ -74,6 +74,7 @@ ILogger buildLogger()
         .Enrich.FromLogContext()
         .WriteTo.Logger(lc =>
         {
+            var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
             if (hostEnvironment.IsDevelopment())
             {
                 lc.WriteTo.Console();

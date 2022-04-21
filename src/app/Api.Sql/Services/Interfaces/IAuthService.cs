@@ -1,4 +1,4 @@
-﻿namespace Common.Services.Sql.Api.Interfaces;
+﻿namespace Api.Sql.Services.Interfaces;
 
 public interface IAuthService
 {
