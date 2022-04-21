@@ -33,7 +33,7 @@ internal static class ServiceCollectionExtensions
             t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository"),
             t => t.Namespace.StartsWith("Common.DalSql.") && t.Name.EndsWith("Repository")
         );
-        
+
         Predicate<Type> predicate = t =>
             !t.Namespace.StartsWith("Common.Services.NoSql.") // filter out NoSQL services
             && t.Name.EndsWith("Service");

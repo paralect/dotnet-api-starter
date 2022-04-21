@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Common.Jobs;
+﻿namespace Common.Jobs;
 
 public interface ISchedulerRecurringJob
 {

@@ -62,7 +62,7 @@ IHostBuilder createHostBuilder(string[] args) =>
             });
 
             services.AddTransientByConvention(
-                new List<Type> { typeof(IHelloWorldJob), typeof(HelloWorldJob) },
+                new List<Type> { typeof(IHelloWorldRecurringJob), typeof(HelloWorldRecurringJob) },
                 t => t.Name.EndsWith("Job") && t != typeof(ISchedulerRecurringJob));
         });
 
@@ -92,7 +92,7 @@ void scheduleRecurringJobs()
 {
     var configuration = host.Services.GetRequiredService<IConfiguration>();
     var jobs = configuration.GetSection("Scheduler").Get<SchedulerSettings>().Jobs;
-    scheduleRecurringJob<IHelloWorldJob>(jobs.HelloWorld);
+    scheduleRecurringJob<IHelloWorldRecurringJob>(jobs.HelloWorld);
 }
 
 void scheduleRecurringJob<T>(BaseJobConfig jobConfig)

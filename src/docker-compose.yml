@@ -80,9 +80,9 @@ services:
     networks:
       - ship
     depends_on:
-      - "api"
+      - "replicator"
     links:
-      - "api"
+      - "mongo"
     environment:
       - DOTNET_ENVIRONMENT=Development
 networks:

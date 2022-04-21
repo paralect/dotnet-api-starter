@@ -2,11 +2,11 @@
 
 namespace Scheduler.Jobs;
 
-public class HelloWorldJob : IHelloWorldJob
+public class HelloWorldRecurringJob : IHelloWorldRecurringJob
 {
     public async Task ExecuteAsync()
     {
-        Console.WriteLine("Hello world");
+        Console.WriteLine("Hello world (recurring)");
         await Task.CompletedTask;
     }
 }
