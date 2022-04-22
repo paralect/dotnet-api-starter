@@ -6,6 +6,8 @@ using Common.Dal;
 using Common.Settings;
 using Common.Utils;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.Dashboard.BasicAuthorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Serilog;
@@ -37,6 +39,10 @@ services.AddFluentValidation(config =>
     config.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator))
 );
 services.AddHealthChecks(dbSettings, cacheSettings);
+services.AddHangfire(config =>
+{
+    config.ConfigureHangfireWithMongoStorage(dbSettings.ConnectionStrings.Scheduler);
+});
 services.InitializeDb(dbSettings);
 
 var app = builder.Build();
@@ -63,6 +69,7 @@ app.UseEndpoints(endpoints =>
         AllowCachingResponses = false
     });
 });
+app.UseHangfireDashboard(appSettings);
 
 try
 {

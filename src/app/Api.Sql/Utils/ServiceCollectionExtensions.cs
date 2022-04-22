@@ -1,4 +1,5 @@
 ﻿using Api.Sql.Security;
+using Api.Sql.Services.Interfaces;
 using Common;
 using Common.Caching;
 using Common.Caching.Interfaces;
@@ -34,14 +35,11 @@ internal static class ServiceCollectionExtensions
         );
 
         Predicate<Type> predicate = t =>
-            (
-                t.Namespace.StartsWith("Common.Services.Sql.") ||
-                t.Namespace.StartsWith("Common.Services.Infrastructure.")
-            )
+            !t.Namespace.StartsWith("Common.Services.NoSql.") // filter out NoSQL services
             && t.Name.EndsWith("Service");
 
         services.AddTransientByConvention(
-            new List<Type> { typeof(IUserService) },
+            new List<Type> { typeof(IAuthService), typeof(IUserService) },
             predicate,
             predicate
         );

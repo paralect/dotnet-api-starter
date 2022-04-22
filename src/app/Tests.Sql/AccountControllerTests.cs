@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Api.Sql.Controllers;
+using Api.Sql.Services.Interfaces;
 using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
 using AutoMapper;
@@ -8,7 +9,6 @@ using Common.DalSql.Entities;
 using Common.DalSql.Filters;
 using Common.Enums;
 using Common.Services.Infrastructure.Interfaces;
-using Common.Services.Sql.Api.Interfaces;
 using Common.Services.Sql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;

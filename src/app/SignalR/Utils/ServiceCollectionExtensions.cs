@@ -32,10 +32,7 @@ internal static class ServiceCollectionExtensions
         );
 
         Predicate<Type> predicate = t =>
-            (
-                t.Namespace.StartsWith("Common.Services.NoSql.") ||
-                t.Namespace.StartsWith("Common.Services.Infrastructure.")
-            )
+            !t.Namespace.StartsWith("Common.Services.Sql.") // filter out SQL services
             && t.Name.EndsWith("Service");
 
         services.AddTransientByConvention(
@@ -77,8 +74,8 @@ internal static class ServiceCollectionExtensions
         var builder = services.AddHealthChecks();
 
         builder.AddMongoDb(
-            mongodbConnectionString: dbSettings.ConnectionString,
-            mongoDatabaseName: dbSettings.Database
+            mongodbConnectionString: dbSettings.ConnectionStrings.Api,
+            mongoDatabaseName: dbSettings.ApiDatabase
         );
 
         if (cacheSettings.IsEnabled)

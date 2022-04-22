@@ -6,6 +6,7 @@ using Common.DalSql;
 using Common.Settings;
 using Common.Utils;
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Serilog;
@@ -18,7 +19,7 @@ var services = builder.Services;
 builder.Host.UseSerilog();
 Log.Logger = environment.BuildLogger();
 
-var dbSettings = services.AddSettings<DbSettingsSql>(configuration, "DbSql");
+var dbSettings = services.AddSettings<DbSettings>(configuration, "Db");
 var appSettings = services.AddSettings<AppSettings>(configuration, "App");
 var cacheSettings = services.AddSettings<CacheSettings>(configuration, "Cache");
 services.AddSettings<TokenExpirationSettings>(configuration, "TokenExpiration");
@@ -37,6 +38,10 @@ services.AddFluentValidation(config =>
     config.RegisterValidatorsFromAssemblyContaining(typeof(SignInModelValidator))
 );
 services.AddHealthChecks(cacheSettings);
+services.AddHangfire(config =>
+{
+    config.ConfigureHangfireWithPostgresStorage(dbSettings.ConnectionStrings.Scheduler);
+});
 services.InitializeDb(dbSettings);
 
 var app = builder.Build();
@@ -64,6 +69,7 @@ app.UseEndpoints(endpoints =>
         AllowCachingResponses = false
     });
 });
+app.UseHangfireDashboard(appSettings);
 
 try
 {

@@ -1,4 +1,5 @@
 using Api.NoSql.Controllers;
+using Api.NoSql.Services.Interfaces;
 using Api.Views.Models.Infrastructure.Email;
 using Api.Views.Models.View.Account;
 using AutoMapper;
@@ -8,7 +9,6 @@ using Common.Dal.Documents.User;
 using Common.Dal.Repositories;
 using Common.Enums;
 using Common.Services.Infrastructure.Interfaces;
-using Common.Services.NoSql.Api.Interfaces;
 using Common.Services.NoSql.Domain.Interfaces;
 using Common.Settings;
 using Common.Utils;

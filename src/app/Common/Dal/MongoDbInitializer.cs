@@ -30,10 +30,10 @@ public static class MongoDbInitializer
 
     private static void InitializeCollections(IServiceCollection services, DbSettings dbSettings)
     {
-        var client = new MongoClient(dbSettings.ConnectionString);
+        var client = new MongoClient(dbSettings.ConnectionStrings.Api);
         services.AddSingleton<IMongoClient>(client);
 
-        var db = client.GetDatabase(dbSettings.Database);
+        var db = client.GetDatabase(dbSettings.ApiDatabase);
         var collectionDescriptions = new List<CollectionDescription>
             {
                 new()
