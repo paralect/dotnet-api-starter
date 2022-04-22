@@ -7,6 +7,7 @@ using Common.Settings;
 using Common.Utils;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.FeatureManagement;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ services.AddSettings<EmailSettings>(configuration, "Email");
 services.AddDiConfiguration();
 services.AddCache(cacheSettings);
 services.AddCors(appSettings);
+services.AddFeatureManagement();
 services.AddApiControllers();
 services.AddSwagger();
 services.AddHttpContextAccessor();
