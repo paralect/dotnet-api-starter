@@ -1,3 +1,5 @@
+# This repository is no longer maintained. Check [Ship](https://github.com/paralect/ship).
+
 # .NET Product Development Roadmap
 
 This repository is a central repository for Paralect .NET technological movement. .NET is a huge part of the Paralect history. In fact, for the first 5 years of the company .NET was a primary technology for most of the projects. We love technology and beleive it suits very well for what we do: product engineering.
