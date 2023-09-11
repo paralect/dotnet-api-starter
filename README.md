@@ -1,4 +1,4 @@
-# This repository is no longer maintained and is moved to [Ship](https://github.com/paralect/ship).
+# This repository is no longer maintained
 
 # .NET Product Development Roadmap
 
